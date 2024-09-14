@@ -2,7 +2,7 @@
 
 .wrapper-form {
   display: flex;
-  justify-content: center;
+  justify-content: center; /* Cambiado de start a flex-start */
   align-items: center;
   width: 100%;
   height: 100vh;
@@ -10,8 +10,10 @@
   color: black;
   background: #ffffff;
   background-image: url("../../../assets/images/bg1.jpg");
-
+  background-size: cover;
+  background-position: center;
 }
+
 .filter {
   background-color: rgba(58, 58, 58, 0.781);
   width: 100%;
@@ -19,7 +21,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-
 }
 
 .wrapper-form form {
@@ -32,9 +33,6 @@
   background: rgba(48, 47, 47, 0.1); /* Fondo translúcido por defecto */
   transition: background-color 0.3s, color 0.3s;
   color: white;
-  filter: drop-shadow(0px 5px 15px rgb(255, 255, 255));
-
-
 }
 
 .wrapper-form form:hover::before {
@@ -50,12 +48,11 @@
 }
 
 .wrapper-form form:hover {
-
   border-bottom: 10px solid rgb(66, 66, 66);
   box-shadow: 10px 0px 0px 0px rgb(66, 66, 66);
   filter: drop-shadow(0px 0px 14px #464646);
   background-color: white;
-  color:rgb(66, 66, 66) ;
+  color: rgb(66, 66, 66);
 }
 
 .wrapper-form form::before {
@@ -68,9 +65,6 @@
   border-right: 10px solid rgb(66, 66, 66);
   border-top: 10px solid transparent;
   border-bottom: 10px solid transparent;
-  /* Transición para el ancho y la opacidad */
-
-
 }
 
 .wrapper-form form::after {
@@ -102,7 +96,6 @@ a {
   color: inherit;
 }
 
-
 .wrapper-form form button {
   margin-top: 20px;
   padding: 10px;
@@ -121,28 +114,23 @@ a {
   border-bottom: 1px solid rgb(66, 66, 66) !important;
   border-radius: 0px !important;
   background-color: transparent !important;
-
-
 }
+
 .wrapper-form form:hover .btnBack {
-
   color: rgb(66, 66, 66) !important;
-
   border-right: 2px solid rgb(66, 66, 66) !important;
   border-bottom: 1px solid rgb(66, 66, 66) !important;
-
-  background-color: transparent ;
+  background-color: transparent;
 }
+
 .btnNext {
   background-color: rgba(66, 66, 66, 1);
   text-transform: uppercase;
-
 }
 
 .register-button {
   background-color: rgba(66, 66, 66, 1);
   text-transform: uppercase;
-
 }
 
 .error-message {
@@ -159,8 +147,6 @@ a {
 
 .step {}
 
-
-
 .step input {
   width: 100%;
   padding: 5px;
@@ -170,17 +156,13 @@ a {
   border-right: none;
   margin-top: 10px;
   height: 30px;
-
 }
 
 .info {
-
   width: 50%;
   height: 100%;
   display: flex;
   justify-content: center;
-
-
 }
 
 .info p {
@@ -201,12 +183,9 @@ a {
   align-items: center;
   justify-content: start;
   padding: 0px;
-
-
 }
 
 @media screen and (max-width: 360px) {
-
   .info p {
     background-color: white;
     margin-left: 50px;
@@ -222,7 +201,6 @@ a {
   position: relative;
   width: 100%;
   display: flex;
-
 }
 
 .password-wrapper .fa-eye,
@@ -239,18 +217,19 @@ a {
 .password-wrapper .fa-eye-slash:hover {
   color: #96e6a1;
 }
-.wrapper-form form:hover .password-info  {
+
+.wrapper-form form:hover .password-info {
   background-color: #f8f9fa;
   border: 1px solid #dcdcdc;
 }
+
 .wrapper-form form:hover .password-info p {
-color: black;
+  color: black;
 }
+
 .wrapper-form form:hover .password-info li {
   color: black;
-
 }
-
 
 .password-info {
   background-color: inherit;
@@ -259,7 +238,6 @@ color: black;
   padding: 15px;
   margin-top: 10px;
 }
-
 
 .password-info p {
   font-weight: bold;
@@ -286,23 +264,19 @@ color: black;
 }
 
 .password-info .fulfilled i {
-  color: #28a745;
-  /* Verde para los requisitos cumplidos */
+  color: #28a745; /* Verde para los requisitos cumplidos */
   font-size: 17px;
 }
 
 .password-info .not-fulfilled i {
-  color: #6c757d;
-  /* Gris para los requisitos no cumplidos */
+  color: #6c757d; /* Gris para los requisitos no cumplidos */
   font-size: 17px;
-
 }
 
 .wrapper-displayName {
   display: flex;
   gap: 10px;
   justify-content: space-around;
-
 }
 
 .wrapper-displayName div {
@@ -312,27 +286,27 @@ color: black;
 .wrapper-displayName div input {
   width: 90%;
 }
+
 /* Estilos para el placeholder en campos de entrada */
 input[type="email"]::placeholder,
 input[type="password"]::placeholder,
 input[type="text"]::placeholder {
-    color: #888;
-    font-style: italic;
-    font-size: 16px;
-    opacity: 0.7;
+  color: #888;
+  font-style: italic;
+  font-size: 16px;
+  opacity: 0.7;
 }
 
 input[type="email"],
 input[type="password"],
 input[type="text"] {
-    width: 100%;
-    background-color: white;
-    border: none;
-    height: 30px;
-    border-left: 1px solid rgb(66, 66, 66);
-    border-bottom: 2px solid rgb(66, 66, 66);
-    border-radius: 2px;
-    padding: 5px;
-    background-color: #302f2f18;
-
+  width: 100%;
+  background-color: inherit;
+  border: none;
+  height: 30px;
+  border-left: 1px solid rgb(66, 66, 66);
+  border-bottom: 2px solid rgb(66, 66, 66);
+  border-radius: 2px;
+  padding: 5px;
+  background-color: #302f2f18;
 }
