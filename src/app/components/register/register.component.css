@@ -1,0 +1,338 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono:ital,wght@0,400..700;1,400..700&display=swap');
+
+.wrapper-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+  font-family: "Ubuntu Sans Mono", monospace;
+  color: black;
+  background: #ffffff;
+  background-image: url("../../../assets/images/bg1.jpg");
+
+}
+.filter {
+  background-color: rgba(58, 58, 58, 0.781);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.wrapper-form form {
+  background: #ffffff;
+  padding: 2em;
+  width: 400px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: rgba(48, 47, 47, 0.1); /* Fondo translúcido por defecto */
+  transition: background-color 0.3s, color 0.3s;
+  color: white;
+  filter: drop-shadow(0px 5px 15px rgb(255, 255, 255));
+
+
+}
+
+.wrapper-form form:hover::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 0px;
+  width: 10px;
+  height: calc(100%);
+  border-right: 2px solid rgb(66, 66, 66);
+  border-top: 0px solid transparent;
+  border-bottom: 0px solid transparent;
+}
+
+.wrapper-form form:hover {
+
+  border-bottom: 10px solid rgb(66, 66, 66);
+  box-shadow: 10px 0px 0px 0px rgb(66, 66, 66);
+  filter: drop-shadow(0px 0px 14px #464646);
+  background-color: white;
+  color:rgb(66, 66, 66) ;
+}
+
+.wrapper-form form::before {
+  content: "";
+  position: absolute;
+  left: -20px;
+  top: 0px;
+  width: 10px;
+  height: calc(100% - 20px);
+  border-right: 10px solid rgb(66, 66, 66);
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  /* Transición para el ancho y la opacidad */
+
+
+}
+
+.wrapper-form form::after {
+  content: "";
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 15px;
+  height: 15px;
+  background-color: white;
+  border-radius: 50%;
+  box-shadow: -20px 0px 0px rgba(66, 66, 66, 1);
+}
+
+.wrapper-form form .step {
+  display: flex;
+  flex-direction: column;
+}
+
+.wrapper-form form label {
+  margin-top: 15px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+
+.wrapper-form form button {
+  margin-top: 20px;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btnBack {
+  color: rgb(255, 255, 255) !important;
+  margin-top: -10px !important;
+  margin-left: -80px !important;
+  border-right: 2px solid rgb(66, 66, 66) !important;
+  border-bottom: 1px solid rgb(66, 66, 66) !important;
+  border-radius: 0px !important;
+  background-color: transparent !important;
+
+
+}
+.wrapper-form form:hover .btnBack {
+
+  color: rgb(66, 66, 66) !important;
+
+  border-right: 2px solid rgb(66, 66, 66) !important;
+  border-bottom: 1px solid rgb(66, 66, 66) !important;
+
+  background-color: transparent ;
+}
+.btnNext {
+  background-color: rgba(66, 66, 66, 1);
+  text-transform: uppercase;
+
+}
+
+.register-button {
+  background-color: rgba(66, 66, 66, 1);
+  text-transform: uppercase;
+
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.success-message {
+  color: #28a745;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.step {}
+
+
+
+.step input {
+  width: 100%;
+  padding: 5px;
+  border-left: 1px solid rgb(66, 66, 66);
+  border-bottom: 2px solid rgb(66, 66, 66);
+  border-top: none;
+  border-right: none;
+  margin-top: 10px;
+  height: 30px;
+
+}
+
+.info {
+
+  width: 50%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+
+
+}
+
+.info p {
+  color: inherit;
+  margin-left: 100px;
+}
+
+.info button {
+  padding: 0px;
+}
+
+.step-info {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  justify-content: start;
+  padding: 0px;
+
+
+}
+
+@media screen and (max-width: 360px) {
+
+  .info p {
+    background-color: white;
+    margin-left: 50px;
+  }
+
+  .info button {
+    margin-top: 0px !important;
+    margin-left: 0px !important;
+  }
+}
+
+.password-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+
+}
+
+.password-wrapper .fa-eye,
+.password-wrapper .fa-eye-slash {
+  position: absolute;
+  right: 0px;
+  top: 60%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: rgb(66, 66, 66);
+}
+
+.password-wrapper .fa-eye:hover,
+.password-wrapper .fa-eye-slash:hover {
+  color: #96e6a1;
+}
+.wrapper-form form:hover .password-info  {
+  background-color: #f8f9fa;
+  border: 1px solid #dcdcdc;
+}
+.wrapper-form form:hover .password-info p {
+color: black;
+}
+.wrapper-form form:hover .password-info li {
+  color: black;
+
+}
+
+
+.password-info {
+  background-color: inherit;
+  border: 1px solid inherit;
+  border-radius: 5px;
+  padding: 15px;
+  margin-top: 10px;
+}
+
+
+.password-info p {
+  font-weight: bold;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.password-info ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.password-info li {
+  font-size: 14px;
+  color: white;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.password-info i {
+  margin-right: 8px;
+}
+
+.password-info .fulfilled i {
+  color: #28a745;
+  /* Verde para los requisitos cumplidos */
+  font-size: 17px;
+}
+
+.password-info .not-fulfilled i {
+  color: #6c757d;
+  /* Gris para los requisitos no cumplidos */
+  font-size: 17px;
+
+}
+
+.wrapper-displayName {
+  display: flex;
+  gap: 10px;
+  justify-content: space-around;
+
+}
+
+.wrapper-displayName div {
+  width: 50%;
+}
+
+.wrapper-displayName div input {
+  width: 90%;
+}
+/* Estilos para el placeholder en campos de entrada */
+input[type="email"]::placeholder,
+input[type="password"]::placeholder,
+input[type="text"]::placeholder {
+    color: #888;
+    font-style: italic;
+    font-size: 16px;
+    opacity: 0.7;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+    width: 100%;
+    background-color: white;
+    border: none;
+    height: 30px;
+    border-left: 1px solid rgb(66, 66, 66);
+    border-bottom: 2px solid rgb(66, 66, 66);
+    border-radius: 2px;
+    padding: 5px;
+    background-color: #302f2f18;
+
+}

@@ -1,0 +1,26 @@
+.container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+}
+.wrapper-control-panel {
+    width: 100%;
+    display: flex;
+
+}
+.control-panel {
+    width: 50%;
+}
+.control-panel ul li {
+
+    margin-top: 10px;
+    list-style: none;
+}
+.add_category {
+    width: 50%;
+}
+.list_tickets {
+    width: 100%;
+    height: 100%;
+}

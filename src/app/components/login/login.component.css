@@ -1,0 +1,261 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono:ital,wght@0,400..700;1,400..700&display=swap');
+
+.wrapper-form {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 100vh;
+    align-items: center;
+    font-family: "Ubuntu Sans Mono", monospace;
+    font-optical-sizing: auto;
+    font-style: normal;
+    background-image: url("../../../assets/images/bg1.jpg");
+
+}
+.filter {
+    background-color: rgba(58, 58, 58, 0.781);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.wrapper-form form {
+    padding: 2em;
+    width: 350px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border-top-right-radius: 10px;
+    /* Transición para el borde del formulario */
+    color: white;
+    border-bottom-right-radius: 2px;
+    background-color: rgba(77, 77, 77, 0.082);
+    transition: background-color 0.3s, color 0.3s;
+
+}
+
+.wrapper-form form:hover::before {
+    content: "";
+    position: absolute;
+    left: -10px;
+    top: 0px;
+    width: 10px;
+    height: calc(100%);
+    border-right: 2px solid rgba(0, 0, 0, 0);
+    border-top: 0px solid transparent;
+    border-bottom: 0px solid transparent;
+}
+
+a {
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.wrapper-form form:hover a {
+    color: black !important;
+}
+
+.wrapper-form form:hover {
+    color: black !important;
+
+    border-bottom: 10px solid rgb(0, 0, 0);
+    box-shadow: 10px 0px 0px 0px rgb(0, 0, 0);
+    filter: drop-shadow(0px 0px 14px #464646);
+    background-color: rgb(255, 255, 255);
+}
+
+
+
+.wrapper-form form .row {
+    width: 100%;
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+form .welcome {
+    text-align: center;
+}
+
+.wrapper-form form::before {
+    content: "";
+    position: absolute;
+    left: -20px;
+    top: 0px;
+    width: 10px;
+    height: calc(100% - 20px);
+    border-right: 10px solid rgb(66, 66, 66);
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    /* Transición para el ancho y la opacidad */
+
+}
+
+.wrapper-form form::after {
+    content: "";
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    width: 15px;
+    height: 15px;
+    background-color: white;
+    border-radius: 50%;
+    box-shadow: -20px 0px 0px rgba(66, 66, 66, 1);
+}
+
+.btnGoogle {
+    width: 100%;
+    color: white;
+    background-color: #EA4335;
+    border: none;
+    margin-top: 10px;
+    padding: 5px;
+    border-radius: 2px;
+    font-weight: 700;
+}
+
+.info {
+    text-align: center;
+}
+
+.btns {}
+
+.btnSubmit {
+    padding: 3px;
+    margin: auto;
+    color: white;
+    background-color: rgb(66, 66, 66);
+    border: none;
+    text-transform: uppercase;
+    width: 200px;
+    height: 40px;
+    border-radius: 2px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* Estilos para el placeholder en campos de entrada */
+input[type="email"]::placeholder,
+input[type="password"]::placeholder,
+input[type="text"]::placeholder {
+    color: #888;
+    font-style: italic;
+    font-size: 16px;
+    opacity: 0.7;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+    width: 100%;
+    background-color: white;
+    border: none;
+    height: 30px;
+    border-left: 1px solid rgb(66, 66, 66);
+    border-bottom: 2px solid rgb(66, 66, 66);
+    border-radius: 2px;
+    padding: 5px;
+    background-color: #302f2f18;
+
+}
+
+label {
+    width: 100% !important;
+    text-align: left !important;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-top: 21px;
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input[type="password"] {
+    width: 100%;
+}
+
+.password-wrapper .fa-eye,
+.password-wrapper .fa-eye-slash {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: rgb(66, 66, 66);
+}
+
+.password-wrapper .fa-eye:hover,
+.password-wrapper .fa-eye-slash:hover {
+    color: #96e6a1;
+}
+
+/* Animación bounce */
+.bounce {
+    -webkit-animation-name: bounce;
+    animation-name: bounce;
+    -webkit-transform-origin: center bottom;
+    -ms-transform-origin: center bottom;
+    transform-origin: center bottom;
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+}
+
+@-webkit-keyframes bounce {
+
+    0%,
+    20%,
+    53%,
+    80%,
+    100% {
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+    }
+
+    40%,
+    43% {
+        -webkit-transform: translate3d(0, -30px, 0);
+        transform: translate3d(0, -30px, 0);
+    }
+
+    70% {
+        -webkit-transform: translate3d(0, -15px, 0);
+        transform: translate3d(0, -15px, 0);
+    }
+
+    90% {
+        -webkit-transform: translate3d(0, -4px, 0);
+        transform: translate3d(0, -4px, 0);
+    }
+}
+
+@keyframes bounce {
+
+    0%,
+    20%,
+    53%,
+    80%,
+    100% {
+        transform: translate3d(0, 0, 0);
+    }
+
+    40%,
+    43% {
+        transform: translate3d(0, -30px, 0);
+    }
+
+    70% {
+        transform: translate3d(0, -15px, 0);
+    }
+
+    90% {
+        transform: translate3d(0, -4px, 0);
+    }
+}

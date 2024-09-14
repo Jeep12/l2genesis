@@ -1,0 +1,25 @@
+<div class="verify-container">
+  <div>
+    <h2>Verificación de Cuenta</h2>
+    <p>Tu cuenta no está verificada. Por favor, verifica tu email para acceder a esta área.</p>
+    <p><i class="fa-solid fa-triangle-exclamation"></i> Revisa tu casilla de spam si no encuentras el correo de verificación.</p>
+
+    <input type="text" readonly [value]="userEmail" />
+
+    <!-- Loader -->
+    <div *ngIf="loading" class="loader">Cargando...</div>
+    
+    <!-- Contador de tiempo, solo visible si retryAfter es mayor que 0 -->
+    <div *ngIf="!loading && retryAfter && retryAfter > 0" class="contador">
+      <p>El enlace caduca en: </p>
+      {{ countdown }}
+    </div>
+
+    <!-- Botón de reenviar verificación -->
+    <button (click)="resendVerification()" [disabled]="loading">Reenviar verificación</button>
+
+
+    <p>Volver a <a [routerLink]="'/login'" (click)="destroyToken()">Ingresar</a></p>
+
+  </div>
+</div>

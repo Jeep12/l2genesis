@@ -1,0 +1,136 @@
+.header {
+
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 70px;
+    background-color: rgb(241, 241, 241);
+
+}
+
+.header div {
+    width:1fr;
+    
+}
+.logo {
+    display: flex;
+    align-content: center;
+    justify-content: start;
+    margin-left: 20px;
+
+}
+.logo .wrapper-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.logo .wrapper-title h1 {
+    color: goldenrod;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 15px;
+    cursor: pointer;
+    font-size:35px;
+    text-shadow: 1px 1px 2px gold;
+
+}
+.logo .wrapper-title h1:hover {
+    text-decoration: line-through;
+
+}
+
+
+.logoUltimo {
+    margin-left: 20px;
+    display: inline-block;
+
+}
+.logoUltimo::first-letter {
+    font-size: 30px !important;
+    
+}
+.navigation {
+    display: flex;
+
+}
+.navigation ul {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+
+}
+.navigation ul li {
+    border-bottom: none ;
+    padding: 5px;
+    font-size: 14px ;
+    list-style: none;
+    color: white;
+    color: rgb(66,66,66);
+    text-shadow: 1px 0px 20px rgb(36, 36, 36);
+
+    text-transform: uppercase;
+}
+.navigation ul li:hover {
+    text-decoration: line-through;
+
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.account-manager {
+    position: relative;
+    cursor: pointer;
+    color: rgb(66,66,66);
+    padding: 10px;
+    right: 10%;
+    margin-top: 10px;
+}
+
+.account-manager .dropdown {
+    display: none;
+    position: absolute;
+    right: -50px;
+    color: rgb(66,66,66);
+    list-style-type: none;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: rgb(241, 241, 241);
+    width: 180px;
+    text-align: start;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: Arial, Helvetica, sans-serif;
+    z-index: 2;
+    margin-top: -1px;
+}
+
+.dropdown li {
+    padding: 3px;
+}
+
+.dropdown li i {
+    font-size: 17px;
+    margin-top: 5px;
+}
+
+.account-manager:hover .dropdown {
+    display: block;
+}
+.btnAccount {
+
+    background-color: rgb(66,66,66);
+    padding: 5px !important;
+    color: white !important;
+    border-radius: 10px;
+    width: 150px;
+    font-size: 15px;
+    text-align: center;
+    
+}
+.btnAccount:hover {
+    box-shadow: 0px 0px 10px white inset;
+}

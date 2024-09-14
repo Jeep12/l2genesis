@@ -1,0 +1,106 @@
+<div class="wrapper-form">
+  <div class="filter">
+
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+      <div class="step-info">
+        <div class="info">
+          <button type="button" *ngIf="currentStep > 1" class="btnBack" (click)="prevStep()">
+            <i class="fa-solid fa-left-long"></i> Volver al paso {{currentStep - 1}}
+          </button>
+        </div>
+        <div class="info">
+          <p>Paso<b> {{currentStep}}</b> de <b>3</b></p>
+        </div>
+      </div>
+      <h2>¡Crea tu cuenta ahora!</h2>
+      <p>Volver a <a [routerLink]="'/login'">Ingresar</a></p>
+
+      <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+      <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+
+      <!-- Paso 1: Email -->
+      <div class="step" *ngIf="currentStep === 1">
+        <label for="email"><i class="fa-solid fa-envelope"></i> Email</label>
+        <input id="email" formControlName="email" type="email" placeholder="Ingrese su email">
+        <button type="button" class="btnNext" (click)="nextStep()">Siguiente</button>
+      </div>
+
+      <!-- Paso 2: Password -->
+      <div class="step" *ngIf="currentStep === 2">
+        <hr>
+        <br>
+
+        <div class="wrapper_passwords">
+          <label for="password">Contraseña</label>
+          <div class="password-wrapper">
+            <input [type]="isPasswordVisible ? 'text' : 'password'" id="password" formControlName="password"
+              placeholder="Contraseña">
+            <i class="fa-solid" [ngClass]="isPasswordVisible ? 'fa-eye' : 'fa-eye-slash'"
+              (click)="togglePasswordVisibility()"></i>
+          </div>
+          <div class="password-info">
+            <p><i class="fa-solid fa-info-circle"></i> La contraseña debe cumplir con los siguientes requisitos:</p>
+            <ul>
+              <li
+                [ngClass]="{'fulfilled': passwordRequirements.uppercase, 'not-fulfilled': !passwordRequirements.uppercase}">
+                <i class="fa-solid fa-check"></i> Al menos una mayúscula
+              </li>
+              <li
+                [ngClass]="{'fulfilled': passwordRequirements.specialChar, 'not-fulfilled': !passwordRequirements.specialChar}">
+                <i class="fa-solid fa-check"></i> Un carácter especial
+              </li>
+              <li [ngClass]="{'fulfilled': passwordRequirements.number, 'not-fulfilled': !passwordRequirements.number}">
+                <i class="fa-solid fa-check"></i> Un número
+              </li>
+              <li [ngClass]="{'fulfilled': passwordRequirements.length, 'not-fulfilled': !passwordRequirements.length}">
+                <i class="fa-solid fa-check"></i> Tamaño de 8 o más caracteres
+              </li>
+            </ul>
+          </div>
+
+          <label for="confirmPassword">Repita su contraseña</label>
+          <div class="password-wrapper">
+            <input [type]="isConfirmPasswordVisible ? 'text' : 'password'" id="confirmPassword"
+              formControlName="confirmPassword" placeholder="Confirmar Contraseña">
+            <i class="fa-solid" [ngClass]="isConfirmPasswordVisible ? 'fa-eye' : 'fa-eye-slash'"
+              (click)="toggleConfirmPasswordVisibility()"></i>
+          </div>
+          <div class="password-info">
+            <ul>
+              <li [ngClass]="{'fulfilled': passwordMatch, 'not-fulfilled': !passwordMatch}">
+                <i class="fa-solid fa-check"></i> Las contraseñas coinciden
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <button type="button" class="btnNext" (click)="nextStep()">Siguiente</button>
+      </div>
+
+      <!-- Paso 3: Datos Personales -->
+      <div class="step" *ngIf="currentStep === 3">
+        <div class="wrapper-displayName">
+          <div>
+            <label for="nombre">Nombre</label>
+            <input id="nombre" formControlName="nombre" type="text" placeholder="Ingrese su nombre">
+          </div>
+          <div>
+            <label for="apellido">Apellido</label>
+            <input id="apellido" formControlName="apellido" type="text" placeholder="Ingrese su apellido">
+          </div>
+        </div>
+
+
+
+        <div class="wrapper-submit" style="width: 100%; display: flex; align-items: center; justify-content: center;">
+          <button *ngIf="!loading" type="submit" [disabled]="loading" class="register-button">
+            Registrarse
+          </button>
+          <app-loader [show]="loading" *ngIf="loading"></app-loader>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

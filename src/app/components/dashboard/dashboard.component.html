@@ -1,0 +1,29 @@
+<div class="container">
+  <aside class="sidebar" [class.closed]="isSidebarClosed">
+    <div class="wrapper-menu">
+      <div>
+        <div class="menu">
+          <i class="fa-solid fa-arrow-right toggle-close" (click)="toggleSidebar()"></i>
+          <i class="fa-solid fa-arrow-left toggle-open" (click)="toggleSidebar()"></i>
+        </div>
+
+        <ul class="list-links">
+          <li><a [routerLink]="['/dashboard']"><i class="fa-solid fa-table-columns"></i><span>Dashboard</span></a></li>
+          <li><a [routerLink]="['/dashboard/create-account-client']"><i class="fa-solid fa-address-card"></i><span>Crear
+                Cuenta</span></a></li>
+          <li><a><i class="fa-solid fa-lock"></i><span>Cambiar Contraseña</span></a></li>
+          <li><a><i class="fa-solid fa-users"></i><span>Mis Personajes</span></a></li>
+          <li><a><i class="fa-solid fa-wallet"></i><span>Comprar Coins</span></a></li>
+        </ul>
+      </div>
+
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="filter">
+
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

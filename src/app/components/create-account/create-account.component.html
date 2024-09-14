@@ -1,0 +1,46 @@
+<div class="wrapper-form">
+
+  <form [formGroup]="createAccountForm" (ngSubmit)="onSubmit()">
+    <h4 style="font-size: 25px;">Crear cuenta</h4>
+    <hr>
+    <br>
+    <div class="form-group">
+      <label for="accountName">Nombre de cuenta</label>
+      <div class="nickName">
+
+        <input placeholder="Ingrese su nick" id="accountName" formControlName="accountName" type="text"
+          class="form-control" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Contraseña</label>
+      <div class="input-group">
+        <input id="password" formControlName="password" [type]="passwordVisibility" class="form-control"
+          placeholder="Ingrese su contraseña" />
+        <div class="input-group-append">
+          <span (click)="togglePasswordVisibility()" class="input-group-text">
+            <i class="fa"
+              [ngClass]="{'fa-eye': passwordVisibility === 'password', 'fa-eye-slash': passwordVisibility === 'text'}"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="confirmPassword">Repetir Contraseña</label>
+      <div class="input-group">
+        <input id="confirmPassword" formControlName="confirmPassword" [type]="confirmPasswordVisibility"
+          class="form-control" placeholder="Repita su contraseña" />
+        <div class="input-group-append">
+          <span (click)="toggleConfirmPasswordVisibility()" class="input-group-text">
+            <i class="fa"
+              [ngClass]="{'fa-eye': confirmPasswordVisibility === 'password', 'fa-eye-slash': confirmPasswordVisibility === 'text'}"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Crear Cuenta</button>
+  </form>
+</div>

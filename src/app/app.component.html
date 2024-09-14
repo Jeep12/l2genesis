@@ -1,0 +1,43 @@
+<header class="header">
+  <div class="logo">
+    <div class="wrapper-title">
+      <h1 class="roboto-thin" [routerLink]="['/home']">
+        Genesis
+      </h1>
+    </div>
+  </div>
+
+  <div class="navigation">
+    <ul>
+      <li><a [routerLink]="['/home']"><i class="fa-solid fa-house"></i> Inicio</a></li>
+      <li *ngIf="isLoggedIn"><a [routerLink]="['/dashboard']"><i class="fa-solid fa-table-columns"></i> Dashboard</a></li>
+      <li> <a [routerLink]="['/download']"><i class="fa-solid fa-download"></i> Descargas</a></li>
+      <li *ngIf="!isLoggedIn" class="btnAccount"><a [routerLink]="['/register']"><i class="fa-solid fa-user-plus"></i> Registrarse</a></li>
+      <li *ngIf="!isLoggedIn" class="btnAccount"><a [routerLink]="['/login']"><i class="fa-solid fa-user"></i> Ingresar</a></li>
+    </ul>
+
+  </div>
+
+  <div class="account-manager" *ngIf="isLoggedIn">
+    <p>
+      <span>Hola, &nbsp;&nbsp;</span>
+      <span><b>{{name}}</b> <b> {{lastName}}</b></span> <!-- Aquí combinamos los nombres -->
+     &nbsp; <i style="font-size: 25px;" class="fa-solid fa-circle-user"></i>
+    </p>
+    <ul class="dropdown">
+      <li *ngIf="isAdmin">
+        <a [routerLink]="['/dashboard/panel-control']">
+          <i class="fa-solid fa-user-gear"></i> Panel Admin
+        </a>
+      </li>
+      <li><i class="fa-solid fa-user-gear"></i> Configuración</li>
+      <li><i class="fa-solid fa-key"></i> Cambiar Contraseña</li>
+      <li (click)="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i> Salir
+      </li>
+    </ul>
+  </div>
+
+</header>
+
+<router-outlet></router-outlet>

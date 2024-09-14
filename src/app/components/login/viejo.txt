@@ -1,0 +1,18 @@
+<form (ngSubmit)="login()" class="formLogin">
+  <div>
+    <label for="email">Email:</label>
+    <br>
+    <input type="email" id="email" [(ngModel)]="email" name="email" autocomplete="username" required>
+  </div>
+  
+  <div>
+    <label for="password">Password:</label>
+    <br>
+    <input type="password" id="password" [(ngModel)]="password" name="password" autocomplete="current-password" required>
+  </div>  
+  <br>
+  <button type="submit">Login</button>
+  <br>
+  
+</form>
+<button (click)="loginWithGoogle()">Ingresar con Google</button>

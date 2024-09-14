@@ -1,0 +1,10 @@
+{
+  "/api": {
+    "target": "http://localhost/l2genesis_api",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api": ""
+    }   
+  }
+}

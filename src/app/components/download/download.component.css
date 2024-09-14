@@ -1,0 +1,107 @@
+.wrapper-download {
+    width: 100vw;
+    height: 100vh;
+    background-image: url('../../../assets/images/bg4.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: repeat;
+    position: relative;
+
+}
+
+.filter {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(58, 58, 58, 0.952);
+}
+
+.download-container {
+    background-color: rgb(241, 241, 241);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 600px;
+    max-width: 90%; /* Para adaptarse mejor en resoluciones pequeñas */
+    font-family: 'Arial', sans-serif;
+}
+
+.download-title {
+    text-align: center;
+    color: rgba(66,66,66);
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.dependencies-list,
+.download-steps,
+.recommendations-list {
+    margin-left: 20px;
+    color: rgba(66,66,66);
+}
+
+.download-steps li {
+    margin-bottom: 10px;
+}
+
+.download-link {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.download-link:hover {
+    text-decoration: underline;
+}
+
+.recommendation-title,
+.support-title {
+    margin-top: 20px;
+    color: rgba(66,66,66);
+    font-size: 20px;
+}
+
+.recommendations-list li {
+    margin-bottom: 8px;
+}
+
+.support-text {
+    margin-top: 10px;
+    color: rgba(66,66,66);
+}
+
+.support-link {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.support-link:hover {
+    text-decoration: underline;
+}
+
+input[type="submit"] {
+    background-color: #007bff;
+    color: rgba(66,66,66);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Media queries para pantallas más pequeñas */
+@media (max-width: 1366px) {
+    .filter {
+        justify-content: start;
+    }
+    .download-container {
+        width: 100%;
+        text-align: start;
+        margin: auto;
+    }
+}
