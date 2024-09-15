@@ -8,7 +8,7 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class ClientAccountService {
-  private apiUrl = 'http://localhost/l2genesis_api/api'; // Asegúrate de que esta URL sea correcta
+  private apiUrl = 'https://l2genesis.online/l2genesis_api/api'; // Asegúrate de que esta URL sea correcta
 
   constructor(
     private http: HttpClient,

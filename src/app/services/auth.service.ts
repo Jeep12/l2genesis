@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost/l2genesis_api/api';
+  private apiUrl = 'https://l2genesis.online/l2genesis_api/api';
   private tokenSubject = new BehaviorSubject<string | null>(null);
   public token$ = this.tokenSubject.asObservable();
 
