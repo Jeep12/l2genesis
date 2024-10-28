@@ -52,6 +52,7 @@ import { CreateAccountComponent } from './components/create-account/create-accou
     AngularFireAuthModule,
     BrowserAnimationsModule,
 
+
   ],
   providers: [AuthService],
   bootstrap: [AppComponent]

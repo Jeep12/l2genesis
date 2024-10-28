@@ -1,89 +1,339 @@
 /* You can add global styles to this file, and also import other style files */
+/* Personaliza la barra de desplazamiento en WebKit (Chrome, Safari) */
+
+
+/* Para Firefox, puedes usar esto */
+* {
+  scrollbar-width: thin; /* Hace la barra más delgada */
+  scrollbar-color: #000000 black; /* Color de la barra y el fondo */
+}
+
 :root {
-    --primary-color: #87B38D;      /* Verde suave */
-    --secondary-color: #071013;    /* Negro azulado */
-    --accent-color: #BCABAE;       /* Rosa grisáceo */
-    --neutral-color: #716969;      /* Gris oscuro */
+  --primary-color: #87B38D;
+  /* Verde suave */
+  --secondary-color: #071013;
+  /* Negro azulado */
+  --accent-color: #BCABAE;
+  /* Rosa grisáceo */
+  --neutral-color: #716969;
+  /* Gris oscuro */
 }
-*{
-    padding: 0px;
-    margin: 0;
+
+* {
+  padding: 0px;
+  margin: 0;
 }
+
 body {
   overflow-x: hidden;
 
+
+}
+
+@font-face {
+  font-family: "l2font";
+  src: url("assets/fonts/l2font.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
 }
 
 
+.gradient1 {
+  background-image: linear-gradient(0deg,
+      hsl(0deg 0% 0%) 0%,
+      hsl(231deg 45% 2%) 26%,
+      hsl(231deg 45% 4%) 38%,
+      hsl(231deg 45% 4%) 48%,
+      hsl(231deg 45% 5%) 55%,
+      hsl(231deg 45% 6%) 61%,
+      hsl(231deg 45% 6%) 67%,
+      hsl(231deg 45% 7%) 72%,
+      hsl(231deg 45% 7%) 77%,
+      hsl(231deg 45% 7%) 82%,
+      hsl(231deg 45% 8%) 87%,
+      hsl(231deg 45% 8%) 93%,
+      hsl(231deg 45% 9%) 100%);
+}
+
 .roboto-thin {
-    font-family: "Roboto", sans-serif;
-    font-weight: 100;
-    font-style: normal;
+  font-family: "Roboto", sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.roboto-light {
+  font-family: "Roboto", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.roboto-regular {
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.roboto-medium {
+  font-family: "Roboto", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.roboto-bold {
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.roboto-black {
+  font-family: "Roboto", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.roboto-thin-italic {
+  font-family: "Roboto", sans-serif;
+  font-weight: 100;
+  font-style: italic;
+}
+
+.roboto-light-italic {
+  font-family: "Roboto", sans-serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.roboto-regular-italic {
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.roboto-medium-italic {
+  font-family: "Roboto", sans-serif;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.roboto-bold-italic {
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.roboto-black-italic {
+  font-family: "Roboto", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+}
+
+
+
+
+
+
+
+
+.nk-page-border .nk-page-border-t,
+.nk-page-border .nk-page-border-r,
+.nk-page-border .nk-page-border-b,
+.nk-page-border .nk-page-border-l {
+  position: fixed;
+  z-index: 2000;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  user-drag: none;
+  pointer-events: none;
+  background-size: 100% 100%;
+}
+
+.nk-page-border .nk-page-border-t,
+.nk-page-border .nk-page-border-b {
+  left: 0;
+  width: 100%;
+}
+
+
+
+.nk-page-border .nk-page-border-b {
+  bottom: 0;
+  background-image: url("assets/border-bottom.png");
+}
+
+.nk-page-border .nk-page-border-r,
+.nk-page-border .nk-page-border-l {
+  top: 0;
+  height: 100%;
+}
+
+.nk-page-border .nk-page-border-r {
+  right: 0;
+  background-image: url("assets/border-right.png");
+}
+
+.nk-page-border .nk-page-border-l {
+  left: 0;
+  background-image: url("assets//border-left.png");
+}
+
+.nk-page-border .nk-page-border-t,
+.nk-page-border .nk-page-border-b {
+  height: 100px;
+}
+
+.nk-page-border .nk-page-border-r,
+.nk-page-border .nk-page-border-l {
+  width: 100px;
+}
+
+@media (max-width: 543px) {
+
+  .nk-page-border .nk-page-border-t,
+  .nk-page-border .nk-page-border-b {
+    height: 50px;
   }
-  
-  .roboto-light {
-    font-family: "Roboto", sans-serif;
-    font-weight: 300;
-    font-style: normal;
+
+  .nk-page-border .nk-page-border-r,
+  .nk-page-border .nk-page-border-l {
+    width: 50px;
   }
+}
+
+
+.preload {
+  position: fixed;
+  /* Cubre toda la pantalla */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Fondo negro */
+  display: none;
+  /* Oculto por defecto */
+  z-index: 999;
+  /* Asegúrate de que está sobre otros elementos */
+  opacity: 0;
+  /* Comienza transparente */
+
+}
+
+.preload.active {
+  display: block;
+  /* Muestra cuando es activo */
+  opacity: 1;
+  /* Opacidad al 100% */
+}
+
+.left,
+.right {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  backdrop-filter: blur(90px);
+
+}
+
+.left {
+  left: 0;
+  width: 50%;
+  /* Color de ejemplo */
+}
+
+.right {
+  right: 0;
+  width: 50%;
+  /* Color de ejemplo */
+}
+
+.left.active,
+.right.active {
+  animation: slide 0.5s forwards;
   
-  .roboto-regular {
-    font-family: "Roboto", sans-serif;
-    font-weight: 400;
-    font-style: normal;
+  /* Agrega animación al deslizar */
+}
+
+@keyframes slide {
+  from {
+    transform: translateX(0);
+    /* Comienza en su lugar */
   }
-  
-  .roboto-medium {
-    font-family: "Roboto", sans-serif;
-    font-weight: 500;
-    font-style: normal;
+
+  to {
+    transform: translateX(-100%);
+    /* Se desliza a la izquierda */
   }
-  
-  .roboto-bold {
-    font-family: "Roboto", sans-serif;
-    font-weight: 700;
-    font-style: normal;
+}
+
+
+
+.slideOutLeft {
+  -webkit-animation-name: slideOutLeft;
+  animation-name: slideOutLeft;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+@-webkit-keyframes slideOutLeft {
+  0% {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
   }
-  
-  .roboto-black {
-    font-family: "Roboto", sans-serif;
-    font-weight: 900;
-    font-style: normal;
+
+  100% {
+    visibility: hidden;
+    -webkit-transform: translateX(-100%);
+    transform: translateX(-100%);
   }
-  
-  .roboto-thin-italic {
-    font-family: "Roboto", sans-serif;
-    font-weight: 100;
-    font-style: italic;
+}
+
+@keyframes slideOutLeft {
+  0% {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
   }
-  
-  .roboto-light-italic {
-    font-family: "Roboto", sans-serif;
-    font-weight: 300;
-    font-style: italic;
+
+  100% {
+    visibility: hidden;
+    -webkit-transform: translateX(-100%);
+    transform: translateX(-100%);
   }
-  
-  .roboto-regular-italic {
-    font-family: "Roboto", sans-serif;
-    font-weight: 400;
-    font-style: italic;
+}
+
+.slideOutRight {
+  -webkit-animation-name: slideOutRight;
+  animation-name: slideOutRight;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+@-webkit-keyframes slideOutRight {
+  0% {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
   }
-  
-  .roboto-medium-italic {
-    font-family: "Roboto", sans-serif;
-    font-weight: 500;
-    font-style: italic;
+
+  100% {
+    visibility: hidden;
+    -webkit-transform: translateX(100%);
+    transform: translateX(100%);
   }
-  
-  .roboto-bold-italic {
-    font-family: "Roboto", sans-serif;
-    font-weight: 700;
-    font-style: italic;
+}
+
+@keyframes slideOutRight {
+  0% {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
   }
-  
-  .roboto-black-italic {
-    font-family: "Roboto", sans-serif;
-    font-weight: 900;
-    font-style: italic;
+
+  100% {
+    visibility: hidden;
+    -webkit-transform: translateX(100%);
+    transform: translateX(100%);
   }
-  
+}

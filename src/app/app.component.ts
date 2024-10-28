@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from './services/auth.service';
+import { Title } from '@angular/platform-browser'; // Importa el servicio Title
+import { NavigationEnd, Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -7,27 +8,70 @@ import { AuthService } from './services/auth.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  title = 'genesis';
-  isAdmin: boolean = false;
-  isLoggedIn: boolean = false;
-  name:string = "Juan";
-  lastName:string = "Encabo";
-  constructor(private authService: AuthService) { }
+  isLoading = false;
 
-  ngOnInit(): void {
-    this.authService.token$.subscribe(token => {
-      if (token) {
-        this.isLoggedIn = true;
-        const payload = this.authService.decodeToken(token);
-        this.isAdmin = payload.rol === 1; // Verifica si el rol es admin
-      } else {
-        this.isLoggedIn = false;
+  constructor(private router: Router, private titleService: Title) {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.updateTitle(); // Actualiza el título cuando termina la navegación
+        // Cuando termina la navegación, se oculta el preload después de un breve retraso
+        setTimeout(() => {
+          this.isLoading = false; // Desactiva el preload
+        }, 800); // Ajusta este tiempo según la duración de la animación
       }
     });
   }
 
-  logout(): void {
-    this.authService.logout();
-    this.isLoggedIn = false;
+  ngOnInit(): void {
+    this.updateTitle(); // Establece el título al cargar la página
+  }
+
+  private updateTitle() {
+    let pageTitle = 'L2Terra'; // Título base
+
+    // Cambia el título según la ruta actual
+    switch (this.router.url) {
+      case '/':
+        pageTitle += ' - Home';
+        break;
+      case '/login':
+        pageTitle += ' - Login';
+        break;
+      case '/register':
+        pageTitle += ' - Register';
+        break;
+      case '/verify-account':
+        pageTitle += ' - Verify Account';
+        break;
+      case '/home':
+        pageTitle += ' - Home';
+        break;
+      case '/download':
+        pageTitle += ' - Download';
+        break;
+      case '/dashboard':
+        pageTitle += ' - Dashboard';
+        break;
+      case '/dashboard/panel-control':
+        pageTitle += ' - Panel Control';
+        break;
+      case '/dashboard/create-account-client':
+        pageTitle += ' - Create Account Client';
+        break;
+      default:
+        pageTitle += ' - Página Desconocida';
+        break;
+    }
+
+    this.titleService.setTitle(pageTitle); // Establece el título actualizado
+  }
+
+  onActivate() {
+    this.isLoading = true; // Activa el preload al activar una nueva ruta
+  }
+
+  navigateTo(link: string) {
+    this.isLoading = true; // Activa el preload al navegar
+    this.router.navigate([link]);
   }
 }

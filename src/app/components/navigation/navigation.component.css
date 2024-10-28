@@ -1,0 +1,190 @@
+body {
+    padding: 0px;
+    margin: 0px;
+    background-color: black;
+}
+
+.gradient1 {
+    background-image: linear-gradient(0deg,
+            hsl(0deg 0% 0%) 0%,
+            hsl(231deg 45% 2%) 26%,
+            hsl(231deg 45% 4%) 38%,
+            hsl(231deg 45% 4%) 48%,
+            hsl(231deg 45% 5%) 55%,
+            hsl(231deg 45% 6%) 61%,
+            hsl(231deg 45% 6%) 67%,
+            hsl(231deg 45% 7%) 72%,
+            hsl(231deg 45% 7%) 77%,
+            hsl(231deg 45% 7%) 82%,
+            hsl(231deg 45% 8%) 87%,
+            hsl(231deg 45% 8%) 93%,
+            hsl(231deg 45% 9%) 100%);
+}
+
+.navbar-toggler {
+    margin: auto;
+
+}
+
+.logo {
+    width: 80px;
+    height: 66px;
+}
+
+.link-logo:hover .logo{
+    filter: drop-shadow(0px 0px 10px  rgba(255, 255, 255, 0.8));
+    cursor: pointer;
+}
+
+
+.nav-link {
+    color: white;
+    font-family: "l2font";
+    font-size: 16px;
+    letter-spacing: 1.5px;
+    text-shadow: 3px 3px 3px black;
+    font-style: normal;
+    font-weight: 590;
+    line-height: 16px;
+
+}
+
+.nav-link:hover {
+    background: linear-gradient(90deg, #696146 0%, #696146 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    cursor: pointer;
+}
+
+
+.nav-link:active {
+    color: gold;
+}
+
+.wrapper-panel {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+
+.dropdown-menu {
+    background-color: rgba(0, 0, 0, 0.377);
+    border: 1px solid black;
+    box-shadow: 0px 0px 50px black inset, 0px 0px 50px black;
+    text-align: center;
+    font-family: "l2font";
+    color: white !important;
+    cursor: pointer;
+}
+
+.dropdown-item {
+    color: white;
+}
+
+.dropdown-item:hover {
+    background: linear-gradient(90deg, #696146 0%, #696146 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    cursor: pointer;
+    box-shadow: 0px 0px 50px black inset !important;
+}
+
+.btn-gold {
+    border: none;
+    padding: 4px;
+    background: linear-gradient(90deg, #746535 0%, #DABE64 100%);
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 2px;
+    font-size: 13.5px;
+    color: white;
+    font-weight: 700;
+    padding-left: 15px;
+    padding-right: 15px;
+    text-transform: uppercase;
+
+}
+
+.btn-gold:hover {
+    box-shadow: 0px 0px 30px hsl(231deg 45% 4%) inset;
+    color: hsl(231deg 45% 4%);
+}
+
+.btn-gold:active {
+    box-shadow: none;
+    color: white;
+}
+
+@media (width <=1501px) {}
+
+@media (width <=991px) {
+    .navbar-toggler {
+        margin: auto;
+        position: absolute;
+        /* Posicionamiento absoluto */
+        top: 50px;
+        /* Mover al 50% desde la parte superior */
+        left: 50%;
+        /* Mover al 50% desde la izquierda */
+        transform: translate(-50%, -50%);
+        /* Ajustar el punto de referencia */
+    }
+
+    .nav-item {
+        text-align: center;
+    }
+
+    .wrapper-panel {
+        gap: 30px;
+        padding: 10px;
+    }
+}
+
+@media (width >=1168px) {
+    .logo {
+        position: relative;
+        left: 100px;
+    }
+
+    .wrapper-panel {
+        position: absolute;
+        right: 90px;
+
+    }
+
+    .dropdown-menuPanel {}
+
+}
+
+
+
+
+
+.icon-text {
+    border: 2px solid transparent;
+
+    /* Ajusta el grosor del borde aquí */
+    border-radius: 5px;
+    border-image: linear-gradient(90deg, #746535 0%, #DABE64 100%) 1;
+    padding: 5px;
+    font-size: 25px;
+    background: linear-gradient(90deg, #746535 0%, #DABE64 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+}
+
+.icon-text:hover {
+    text-shadow: 0px 0px 50px gold;
+    background: linear-gradient(90deg, #696146 0%, #696146 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    border-image: linear-gradient(90deg, #696146 0%, #696146 100%) 1;
+}

@@ -1,51 +1,56 @@
 <!-- src/app/components/login/login.component.html -->
 
+
 <div class="wrapper-form">
-  <div class="filter">
 
 
-    <form (ngSubmit)="login()">
-      <div class="row welcome">
-        <h2 class="roboto-bold"><i style="font-size: 20px;" class="fa-solid fa-users"></i> Te damos de nuevo la bienvenida</h2>
-        
-      </div>
-  
-      <div class="row">
-        <label for="email">&nbsp;<i class="fa-solid fa-envelope"></i> Email</label>
-        <input placeholder="Email" type="email" id="email" [(ngModel)]="email" name="email" autocomplete="username" required>
-      </div>
-  
-      <div class="row">
-        <label for="password">&nbsp;<i class="fa-solid fa-lock"></i> Contraseña</label>
-        <div class="password-wrapper">
-          <input placeholder="Contraseña" [type]="passwordFieldType" id="password" [(ngModel)]="password" name="password" autocomplete="current-password">
-          <i class="fa-solid" [ngClass]="isPasswordVisible ? 'fa-eye' : 'fa-eye-slash'" (click)="togglePasswordVisibility()"></i>
-        </div>
-      </div>
-  
-      <div class="row info">
-        <p> ¿Olvidó su contraseña? Haga clic <a href="#">aquí</a></p>
-      </div>
-  
-      <div class="row">
-        <button type="submit" class="btnSubmit" value="Continuar">Continuar</button>
-      </div>
-  
-      <div class="row">
-        <hr>
-        <button type="button" (click)="loginWithGoogle()" class="btnGoogle">
-          <i class="fa-brands fa-google"></i> Continuar con Google
-        </button>
-      </div>
-  
-      <br>
-      <div class="row info">
-        <p>¿No tiene una cuenta? <a  [routerLink]="'/register'">Regístrese</a></p>
-      </div>
-  
 
-    </form>
+  <form (ngSubmit)="login()">
+    <div class="row welcome">
+      <h2 class="roboto-bold"><i style="font-size: 20px;" class="fa-solid fa-users"></i> Te damos de nuevo la
+        bienvenida</h2>
+
+    </div>
+
+    <div class="row">
+      <label for="email">&nbsp;<i class="fa-solid fa-envelope"></i> Email</label>
+      <input placeholder="Email" type="email" id="email" [(ngModel)]="email" name="email" autocomplete="username"
+        required>
+    </div>
+
+    <div class="row">
+      <label for="password">&nbsp;<i class="fa-solid fa-lock"></i> Contraseña</label>
+
+      <div class="password-wrapper">
+        <input placeholder="Contraseña" [type]="passwordFieldType" id="password" [(ngModel)]="password" name="password"
+          autocomplete="current-password">
+        <i class="fa-solid" [ngClass]="isPasswordVisible ? 'fa-eye-slash' : 'fa-eye'"
+          (click)="togglePasswordVisibility()"></i>
+      </div>
+    </div>
+
+    <div class="row info">
+      <p> ¿Olvidó su contraseña? Haga clic <a href="#">aquí</a></p>
+    </div>
+
+    <div class="row">
+      <button type="submit" class="btnSubmit" value="Continuar">Continuar</button>
+    </div>
+
+    <div class="row">
+      <hr>
+      <button type="button" (click)="loginWithGoogle()" class="btnGoogle">
+        <i class="fa-brands fa-google"></i> Continuar con Google
+      </button>
+    </div>
+
+    <br>
+    <div class="row info">
+      <p>¿No tiene una cuenta? <a [routerLink]="'/register'">Regístrese</a></p>
+    </div>
 
 
-  </div>
-  
+  </form>
+
+
+</div>

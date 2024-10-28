@@ -2,17 +2,51 @@
 
 .wrapper-form {
   display: flex;
-  justify-content: center; /* Cambiado de start a flex-start */
+  justify-content: center;
   align-items: center;
+  flex-direction: column;
   width: 100%;
-  height: 100vh;
+  min-height: 100dvh;
   font-family: "Ubuntu Sans Mono", monospace;
-  color: black;
-  background: #ffffff;
-  background-image: url("../../../assets/images/bg1.jpg");
+  color: rgb(179, 151, 151);
+
+  /* Fondo con degradado semitransparente y una imagen */
+  background-image:
+    linear-gradient(180deg,
+      rgba(0, 0, 0, 1) 0%,
+      rgba(2, 2, 15, 1) 3%,
+      rgba(10, 10, 15, 1) 7%,
+      rgba(10, 10, 20, 0.9) 10%,
+      rgba(15, 10, 20, 0.8) 14%,
+      rgba(15, 10, 20, 0.8) 18%,
+      rgba(20, 10, 25, 0.8) 23%,
+      rgba(20, 10, 30, 0.8) 27%,
+      rgba(20, 10, 30, 0.8) 32%,
+      rgba(20, 10, 30, 0.8) 37%,
+      rgba(15, 10, 30, 0.8) 42%,
+      rgba(10, 10, 30, 0.8) 47%,
+      rgba(10, 10, 35, 0.8) 52%,
+      rgba(10, 10, 35, 0.8) 58%,
+      rgba(10, 10, 35, 0.8) 63%,
+      rgba(10, 10, 30, 0.8) 69%,
+      rgba(10, 10, 25, 0.8) 75%,
+      rgba(10, 10, 20, 0.8) 81%,
+      rgba(10, 10, 15, 1) 87%,
+      rgba(2, 2, 15, 1) 94%,
+      rgba(0, 0, 0, 1) 100%),
+    url('../../../assets/images/bg10.jpeg');
+  /* Imagen de fondo */
+  filter: grayscale(80%); 
+  filter: sepia(50%);
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
 }
+
+.wrapper-form h2 {
+  text-align: center;
+}
+
 
 .filter {
   background-color: rgba(58, 58, 58, 0.781);
@@ -24,48 +58,33 @@
 }
 
 .wrapper-form form {
-  background: #ffffff;
   padding: 2em;
-  width: 400px;
+  width: 500px;
   position: relative;
   display: flex;
   flex-direction: column;
-  background: rgba(48, 47, 47, 0.1); /* Fondo translúcido por defecto */
   transition: background-color 0.3s, color 0.3s;
   color: white;
+  backdrop-filter: blur(30px);
+  box-shadow: 0px 0px 30px 15px rgb(0, 0, 0);
+  
 }
+
 
 .wrapper-form form:hover::before {
   content: "";
-  position: absolute;
-  left: -10px;
-  top: 0px;
-  width: 10px;
-  height: calc(100%);
-  border-right: 2px solid rgb(66, 66, 66);
-  border-top: 0px solid transparent;
-  border-bottom: 0px solid transparent;
+  border: none;
+
 }
 
 .wrapper-form form:hover {
-  border-bottom: 10px solid rgb(66, 66, 66);
-  box-shadow: 10px 0px 0px 0px rgb(66, 66, 66);
   filter: drop-shadow(0px 0px 14px #464646);
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0);
+  backdrop-filter: blur(30px);
   color: rgb(66, 66, 66);
+
 }
 
-.wrapper-form form::before {
-  content: "";
-  position: absolute;
-  left: -20px;
-  top: 0px;
-  width: 10px;
-  height: calc(100% - 20px);
-  border-right: 10px solid rgb(66, 66, 66);
-  border-top: 10px solid transparent;
-  border-bottom: 10px solid transparent;
-}
 
 .wrapper-form form::after {
   content: "";
@@ -74,9 +93,9 @@
   top: 5px;
   width: 15px;
   height: 15px;
-  background-color: white;
+  background: linear-gradient(90deg, #746535 0%, #DABE64 100%);
   border-radius: 50%;
-  box-shadow: -20px 0px 0px rgba(66, 66, 66, 1);
+  box-shadow: -20px 0px 0px rgb(255, 255, 255);
 }
 
 .wrapper-form form .step {
@@ -96,41 +115,48 @@ a {
   color: inherit;
 }
 
-.wrapper-form form button {
-  margin-top: 20px;
-  padding: 10px;
-  border: none;
-  border-radius: 4px;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-}
+
 
 .btnBack {
-  color: rgb(255, 255, 255) !important;
-  margin-top: -10px !important;
-  margin-left: -80px !important;
-  border-right: 2px solid rgb(66, 66, 66) !important;
-  border-bottom: 1px solid rgb(66, 66, 66) !important;
-  border-radius: 0px !important;
-  background-color: transparent !important;
+  border: none;
+
+  background: linear-gradient(90deg, #746535 0%, #DABE64 100%);
+  font-size: 13.5px;
+  color: white;
+  padding: 3px !important;
+  border-radius: 3px;
+
+
 }
 
-.wrapper-form form:hover .btnBack {
-  color: rgb(66, 66, 66) !important;
-  border-right: 2px solid rgb(66, 66, 66) !important;
-  border-bottom: 1px solid rgb(66, 66, 66) !important;
-  background-color: transparent;
-}
+
 
 .btnNext {
-  background-color: rgba(66, 66, 66, 1);
+  border: none;
+  padding: 4px;
+  background: linear-gradient(90deg, #746535 0%, #DABE64 100%);
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 2px;
+  font-size: 13.5px;
+  color: white;
+  font-weight: 700;
+
   text-transform: uppercase;
+  margin-top: 20px;
 }
 
 .register-button {
-  background-color: rgba(66, 66, 66, 1);
+  border: none;
+  padding: 4px;
+  background: linear-gradient(90deg, #746535 0%, #DABE64 100%);
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 2px;
+  font-size: 13.5px;
+  color: white;
+  font-weight: 700;
+  width: 100%;
   text-transform: uppercase;
+  margin-top: 20px;
 }
 
 .error-message {
@@ -145,7 +171,7 @@ a {
   margin-bottom: 10px;
 }
 
-.step {}
+
 
 .step input {
   width: 100%;
@@ -155,7 +181,7 @@ a {
   border-top: none;
   border-right: none;
   margin-top: 10px;
-  height: 30px;
+  height: 40px;
 }
 
 .info {
@@ -219,22 +245,23 @@ a {
 }
 
 .wrapper-form form:hover .password-info {
-  background-color: #f8f9fa;
-  border: 1px solid #dcdcdc;
+  backdrop-filter: blur(30px);
+  border: 1px solid #949494;
+  color: white !important;
 }
 
 .wrapper-form form:hover .password-info p {
-  color: black;
+  color: white;
 }
 
 .wrapper-form form:hover .password-info li {
-  color: black;
+  color: white;
 }
 
 .password-info {
   background-color: inherit;
   border: 1px solid inherit;
-  border-radius: 5px;
+  border-radius: 2px;
   padding: 15px;
   margin-top: 10px;
 }
@@ -264,12 +291,14 @@ a {
 }
 
 .password-info .fulfilled i {
-  color: #28a745; /* Verde para los requisitos cumplidos */
+  color: #28a745;
+  /* Verde para los requisitos cumplidos */
   font-size: 17px;
 }
 
 .password-info .not-fulfilled i {
-  color: #6c757d; /* Gris para los requisitos no cumplidos */
+  color: #6c757d;
+  /* Gris para los requisitos no cumplidos */
   font-size: 17px;
 }
 
@@ -303,10 +332,22 @@ input[type="text"] {
   width: 100%;
   background-color: inherit;
   border: none;
-  height: 30px;
+  height: 40px;
   border-left: 1px solid rgb(66, 66, 66);
   border-bottom: 2px solid rgb(66, 66, 66);
   border-radius: 2px;
   padding: 5px;
   background-color: #302f2f18;
+  color: white;
+
+}
+
+
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="text"]:focus {
+  outline: none;
+  border-color: wheat;
+  /* Cambiar a un color diferente al enfocar */
+
 }

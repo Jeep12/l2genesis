@@ -9,7 +9,7 @@ import { AuthService } from 'src/app/services/auth.service';
 })
 export class RegisterComponent {
   registerForm: FormGroup;
-  currentStep: number = 1;
+  currentStep: number = 3;
   errorMessage: string = "";
   successMessage: string = '';
   validEmail = false;
@@ -135,5 +135,12 @@ export class RegisterComponent {
 
   toggleConfirmPasswordVisibility() {
     this.isConfirmPasswordVisible = !this.isConfirmPasswordVisible;
+  }
+
+  onEnterPressed(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      event.preventDefault(); // Evita el envío del formulario
+      this.nextStep(); // Llama a tu función para ir al siguiente paso
+    }
   }
 }

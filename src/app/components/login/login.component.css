@@ -1,53 +1,69 @@
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono:ital,wght@0,400..700;1,400..700&display=swap');
 
+
 .wrapper-form {
     display: flex;
     justify-content: center;
+    align-items: center;
+    flex-direction: column;
     width: 100%;
     height: 100vh;
-    align-items: center;
     font-family: "Ubuntu Sans Mono", monospace;
-    font-optical-sizing: auto;
-    font-style: normal;
-    background-image: url("../../../assets/images/bg1.jpg");
+    color: rgb(179, 151, 151);
+
+    /* Fondo con degradado semitransparente y una imagen */
+    background-image:
+        linear-gradient(180deg,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(2, 2, 15, 1) 3%,
+            rgba(10, 10, 15, 1) 7%,
+            rgba(10, 10, 20, 1) 10%,
+            rgba(15, 10, 20, 0.9) 14%,
+            rgba(15, 10, 20, 0.9) 18%,
+            rgba(20, 10, 25, 0.8) 23%,
+            rgba(20, 10, 30, 0.8) 27%,
+            rgba(20, 10, 30, 0.8) 32%,
+            rgba(20, 10, 30, 0.9) 37%,
+            rgba(15, 10, 30, 0.8) 42%,
+            rgba(10, 10, 30, 0.8) 47%,
+            rgba(10, 10, 35, 0.8) 52%,
+            rgba(10, 10, 35, 0.8) 58%,
+            rgba(10, 10, 35, 0.8) 63%,
+            rgba(10, 10, 30, 0.9) 69%,
+            rgba(10, 10, 25, 1) 75%,
+            rgba(10, 10, 20, 1) 81%,
+            rgba(10, 10, 15, 1) 87%,
+            rgba(2, 2, 15, 1) 94%,
+            rgba(0, 0, 0, 1) 100%),
+        url('../../../assets/images/bg8.jpg');
+        filter: grayscale(80%); 
+        filter: sepia(50%);
+
+    
+    
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
 
 }
-.filter {
-    background-color: rgba(58, 58, 58, 0.781);
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 
-}
 
 .wrapper-form form {
     padding: 2em;
-    width: 350px;
+    width: 450px;
     position: relative;
     display: flex;
     flex-direction: column;
-    border-top-right-radius: 10px;
-    /* Transición para el borde del formulario */
+    align-items: center;
     color: white;
-    border-bottom-right-radius: 2px;
-    background-color: rgba(77, 77, 77, 0.082);
     transition: background-color 0.3s, color 0.3s;
+    backdrop-filter: blur(20px);
+    box-shadow: 0px 0px 30px 15px rgb(0, 0, 0);
+
 
 }
 
-.wrapper-form form:hover::before {
-    content: "";
-    position: absolute;
-    left: -10px;
-    top: 0px;
-    width: 10px;
-    height: calc(100%);
-    border-right: 2px solid rgba(0, 0, 0, 0);
-    border-top: 0px solid transparent;
-    border-bottom: 0px solid transparent;
-}
 
 a {
     color: white;
@@ -56,16 +72,15 @@ a {
 }
 
 .wrapper-form form:hover a {
-    color: black !important;
+    color: rgb(66, 66, 66);
 }
 
 .wrapper-form form:hover {
-    color: black !important;
 
-    border-bottom: 10px solid rgb(0, 0, 0);
-    box-shadow: 10px 0px 0px 0px rgb(0, 0, 0);
     filter: drop-shadow(0px 0px 14px #464646);
-    background-color: rgb(255, 255, 255);
+    background-color: rgba(255, 255, 255, 0);
+    backdrop-filter: blur(30px);
+    color: rgb(253, 253, 253);
 }
 
 
@@ -81,19 +96,6 @@ form .welcome {
     text-align: center;
 }
 
-.wrapper-form form::before {
-    content: "";
-    position: absolute;
-    left: -20px;
-    top: 0px;
-    width: 10px;
-    height: calc(100% - 20px);
-    border-right: 10px solid rgb(66, 66, 66);
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-    /* Transición para el ancho y la opacidad */
-
-}
 
 .wrapper-form form::after {
     content: "";
@@ -102,19 +104,20 @@ form .welcome {
     top: 5px;
     width: 15px;
     height: 15px;
-    background-color: white;
+    background: linear-gradient(90deg, #746535 0%, #DABE64 100%);
     border-radius: 50%;
-    box-shadow: -20px 0px 0px rgba(66, 66, 66, 1);
+    box-shadow: -20px 0px 0px rgb(253, 253, 253);
 }
 
 .btnGoogle {
     width: 100%;
     color: white;
-    background-color: #EA4335;
+    background-color: #df3727;
     border: none;
     margin-top: 10px;
     padding: 5px;
     border-radius: 2px;
+
     font-weight: 700;
 }
 
@@ -122,20 +125,20 @@ form .welcome {
     text-align: center;
 }
 
-.btns {}
 
 .btnSubmit {
-    padding: 3px;
-    margin: auto;
-    color: white;
-    background-color: rgb(66, 66, 66);
     border: none;
-    text-transform: uppercase;
-    width: 200px;
-    height: 40px;
+    padding: 4px;
+    background: linear-gradient(90deg, #746535 0%, #DABE64 100%);
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     border-radius: 2px;
+    font-size: 13.5px;
+    color: white;
     font-weight: 700;
-    letter-spacing: 1px;
+    padding-left: 15px;
+    padding-right: 15px;
+    text-transform: uppercase;
+    height: 35px;
 }
 
 /* Estilos para el placeholder en campos de entrada */
@@ -151,29 +154,35 @@ input[type="text"]::placeholder {
 input[type="email"],
 input[type="password"],
 input[type="text"] {
-    width: 100%;
-    background-color: white;
-    border: none;
-    height: 30px;
-    border-left: 1px solid rgb(66, 66, 66);
-    border-bottom: 2px solid rgb(66, 66, 66);
-    border-radius: 2px;
-    padding: 5px;
-    background-color: #302f2f18;
+  width: 100%;
+  background-color: inherit;
+  border: none;
+  height: 40px;
+  border-left: 1px solid rgb(66, 66, 66);
+  border-bottom: 2px solid rgb(66, 66, 66);
+  border-radius: 2px;
+  padding: 5px;
+  background-color: #302f2f18;
+  color: white;
 
 }
 
+
 label {
     width: 100% !important;
-    text-align: left !important;
     text-transform: uppercase;
     font-weight: 700;
     letter-spacing: 2px;
-    margin-top: 21px;
+    margin-top: 15px;
+    text-align: start;
+    padding: 0px;
+    margin-left: -10px;
+    margin-bottom: 10px;
 }
 
 .password-wrapper {
     position: relative;
+    padding: 0px;
 }
 
 .password-wrapper input[type="password"] {
@@ -196,66 +205,3 @@ label {
 }
 
 /* Animación bounce */
-.bounce {
-    -webkit-animation-name: bounce;
-    animation-name: bounce;
-    -webkit-transform-origin: center bottom;
-    -ms-transform-origin: center bottom;
-    transform-origin: center bottom;
-    -webkit-animation-duration: 1s;
-    animation-duration: 1s;
-    -webkit-animation-fill-mode: both;
-    animation-fill-mode: both;
-}
-
-@-webkit-keyframes bounce {
-
-    0%,
-    20%,
-    53%,
-    80%,
-    100% {
-        -webkit-transform: translate3d(0, 0, 0);
-        transform: translate3d(0, 0, 0);
-    }
-
-    40%,
-    43% {
-        -webkit-transform: translate3d(0, -30px, 0);
-        transform: translate3d(0, -30px, 0);
-    }
-
-    70% {
-        -webkit-transform: translate3d(0, -15px, 0);
-        transform: translate3d(0, -15px, 0);
-    }
-
-    90% {
-        -webkit-transform: translate3d(0, -4px, 0);
-        transform: translate3d(0, -4px, 0);
-    }
-}
-
-@keyframes bounce {
-
-    0%,
-    20%,
-    53%,
-    80%,
-    100% {
-        transform: translate3d(0, 0, 0);
-    }
-
-    40%,
-    43% {
-        transform: translate3d(0, -30px, 0);
-    }
-
-    70% {
-        transform: translate3d(0, -15px, 0);
-    }
-
-    90% {
-        transform: translate3d(0, -4px, 0);
-    }
-}
