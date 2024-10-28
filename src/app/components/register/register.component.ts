@@ -9,7 +9,7 @@ import { AuthService } from 'src/app/services/auth.service';
 })
 export class RegisterComponent {
   registerForm: FormGroup;
-  currentStep: number = 3;
+  currentStep: number = 1;
   errorMessage: string = "";
   successMessage: string = '';
   validEmail = false;

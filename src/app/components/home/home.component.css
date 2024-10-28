@@ -1,20 +1,7 @@
 .wrapper-home {
     display: flex;
     flex-direction: column;
-    background-image: linear-gradient(0deg,
-            hsl(0deg 0% 0%) 0%,
-            hsl(231deg 45% 2%) 26%,
-            hsl(231deg 45% 4%) 38%,
-            hsl(231deg 45% 4%) 48%,
-            hsl(231deg 45% 5%) 55%,
-            hsl(231deg 45% 6%) 61%,
-            hsl(231deg 45% 6%) 67%,
-            hsl(231deg 45% 7%) 72%,
-            hsl(231deg 45% 7%) 77%,
-            hsl(231deg 45% 7%) 82%,
-            hsl(231deg 45% 8%) 87%,
-            hsl(231deg 45% 8%) 93%,
-            hsl(231deg 45% 9%) 100%);
+  
 }
 
 .wrapper-flame-black {
@@ -28,11 +15,84 @@
     position: relative;
     top: -295px;
     height: calc(100dvh - 55px);
-    background-color: rgba(137, 43, 226, 0.13);
     background-image: url("../../../assets/images/bg1.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    background-color: red !important;
+}
+.content {
+    height: 60%;
+    width: 100%;
+    margin-top: 150px;
+    z-index: 1;
+}
+.content .logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.content .logo, .content .decoration {
+    width: 150px;
+    height: auto;
+}
+
+.content h1 {
+    font-size: 2.5rem;
+    margin-top: 20px;
+    text-align: center;
+    font-family: "Sorts Mill Goudy", serif;
+    font-weight: 400;
+    font-style: normal;
+    text-transform: uppercase;
+}
+.spanh1 {
+    font-weight: 700;
+    background: linear-gradient(90deg, #746535 0%, #DABE64 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+}
+.content .status {
+    font-size: 1.2rem;
+    text-align: center;
+    margin: 15px auto;
+    width: 80%;
+}
+
+.content .highlight {
+    color: green;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.content .play-button {
+    display: block;
+    margin: auto;
+    padding: 20px !important;
+    border: none;
+    padding: 4px;
+    background: linear-gradient(90deg, #746535 0%, #DABE64 100%);
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 2px;
+    font-size: 16.5px;
+    color: white;
+    font-weight: 700;
+    padding-left: 15px;
+    padding-right: 15px;
+    text-transform: uppercase;
+    margin-top: 70px;
+}
+
+.content .play-button:hover {
+    background-color: #0099cc;
 }
 
 .carousel .img-flame {

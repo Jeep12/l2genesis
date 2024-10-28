@@ -1,6 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 /* Personaliza la barra de desplazamiento en WebKit (Chrome, Safari) */
 
+@import url('https://fonts.googleapis.com/css2?family=Sorts+Mill+Goudy:ital@0;1&display=swap');
 
 /* Para Firefox, puedes usar esto */
 * {
