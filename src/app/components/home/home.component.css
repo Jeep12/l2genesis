@@ -23,7 +23,6 @@
     flex-direction: column;
     justify-content: start;
     align-items: center;
-    background-color: red !important;
 }
 .content {
     height: 60%;
@@ -33,9 +32,21 @@
 }
 .content .logo-container {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: row;
+    justify-content: start;
+    align-items: start;
     gap: 10px;
+}
+.imgLineage{
+    width: 280px;
+    margin-left: 50px;
+ 
+}
+.imgInterlude{
+    width: 140px;
+    margin-left: 120px;
+
+
 }
 
 .content .logo, .content .decoration {
@@ -65,6 +76,7 @@
     text-align: center;
     margin: 15px auto;
     width: 80%;
+    gap: 20px;
 }
 
 .content .highlight {
