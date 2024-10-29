@@ -27,7 +27,7 @@
 .content {
     height: 60%;
     width: 100%;
-    margin-top: 150px;
+    margin-top: 120px;
     z-index: 1;
 }
 .content .logo-container {
@@ -40,6 +40,7 @@
 .imgLineage{
     width: 280px;
     margin-left: 50px;
+    filter: drop-shadow(-5px 0px 5px black);
  
 }
 .imgInterlude{
@@ -62,6 +63,7 @@
     font-weight: 400;
     font-style: normal;
     text-transform: uppercase;
+    margin-top: -100px;
 }
 .spanh1 {
     font-weight: 700;
@@ -76,7 +78,7 @@
     text-align: center;
     margin: 15px auto;
     width: 80%;
-    gap: 20px;
+    margin-top: 10px;
 }
 
 .content .highlight {
@@ -100,7 +102,7 @@
     padding-left: 15px;
     padding-right: 15px;
     text-transform: uppercase;
-    margin-top: 70px;
+    margin-top: 140px;
 }
 
 .content .play-button:hover {
