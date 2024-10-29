@@ -1,45 +1,138 @@
 <div class="wrapper-home">
- 
-    <div  class="wrapper-flame-black">
-        <img src="../../../assets/footer-corner.png" alt="" srcset="">
-    </div>
-    <div class="carousel">
-        <div class="content" style="color: white;">
-            <div class="logo-container">
-                <img src="../../../assets/images/l2interludecombinado.png" class="imgLineage" alt="" srcset="">
-                
-            </div>
-            <h1 class="text-gradient">¡Bienvenido a  <span style="font-family:l2font;">L</span>2 Terra!</h1>
-            <p class="status" style="width: 800px;font-style: italic;">
-                Nuestro servidor está <span class="highlight">en línea</span> y en fase <b >Beta</b>. Aunque seguimos ajustando y optimizando la experiencia de usuario, ya puedes unirte para probarlo. Te invitamos a explorar y ayudarnos con tus comentarios. ¡Forma parte de esta aventura única!
-            </p>
-            <button class="play-button">Comenzar a Jugar</button>
+
+    <div class="carousel"  [style.background-image]="backgroundImage">
+        <div class="wrapper-flame-black">
+            <img src="../../../assets/footer-corner.png" alt="" srcset="">
         </div>
-        
-        
+        <div class="content">
+            <div class="row">
+                <div class="col-sm-3">
+                    col
+                </div>
+
+
+
+                <div class="col-sm-6 home-presentation">
+                    <div class="col-sm-6 text-content">
+                        <h1>Bienvenidos a <span style="font-family:l2font;">L</span>2 <span style="font-size: 30px;">T</span>erra</h1>
+                        <img src="../../../assets/images/title_bottom_bg.png" alt="" srcset="" style="display: block;margin: auto;">
+                        <p class="font-beaufort-regular">El servidor está en desarrollo, pero se encuentra en
+                            línea. Tus comentarios/opiniones son bienvenidos mientras trabajamos para mejorar la
+                            experiencia.
+                        </p>
+                        <p class="font-din-bold">Queremos construir una comunidad sólida, así que cualquier
+                            opinión cuenta.
+              
+                    </p>
+                            <img src="../../../assets/images/title_bottom_bg.png" alt="" srcset="" style="display: block;margin: auto;transform: rotate(180deg);">
+                            <br>
+                            <p class="font-beaufort-regular" style="text-align: center; ">
+
+                               No olvides seguirnos <a href="https://www.facebook.com/profile.php?id=61567708986480" target="_blank"><span style="border-radius: 5px; color: white;background-color: rgb(8, 102, 255);padding: 1px;font-size: 13px;"><i class="fa-solid fa-thumbs-up"></i> Me gusta</span></a>
+                            </p>
+
+                        <button class="play-button" [routerLink]="['/download']">Comenzar a Jugar</button>
+                    </div>
+                </div>
+
+
+
+                <div class="col-sm-3"
+                    style="display: flex;flex-direction: column;align-items: center;justify-content: center;gap: 10px;">
+
+                    <img src="../../../assets/images/l2.png" alt="" style="width: 190px;z-index: 1;" srcset="">
+                    <img src="../../../assets/images/pngegg.png" style="width: 110px;height: 60px; margin-top: -50px;"
+                        srcset="">
+
+
+                    <div class="status-sv" style="display: flex;justify-content: space-around;">
+                        <span class="font-beaufort-bold">
+                            ESTADO
+
+                        </span>
+                        <img src="../../../assets/images/marker_green_icon.png" alt="" srcset="">
+                    </div>
+
+                    <div class="rates-sv row">
+                        <div class="col-sm-5">
+                            <img src="../../../assets/images/tn1bZ9rL7z8g3W75oqTy7QMPhYeBEVkA8yfUkY3Y.png" alt=""
+                                srcset="">
+                        </div>
+                        <div class="col-sm-7">
+
+                            <span>
+                                <span class="font-beaufort-bold"> <b> TERRA X15</b></span>
+                                <br>
+                                <span class="font-din-normal" style="font-size: 11px;"> SERVER RATES</span>
+                            </span>
+
+                            <img src="../../../assets/images/title_bottom_bg.png" alt="" srcset=""
+                                style="width: 100%;height: 5px; margin-top: -10px;">
+                            <ul>
+                                <li class="font-beaufort-regular">EXP <span class="colorRate"> X15</span></li>
+                                <li class="font-beaufort-regular">SP <span class="colorRate"> X10</span></li>
+                                <li class="font-beaufort-regular">DROP <span class="colorRate"> X7</span></li>
+                                <li class="font-beaufort-regular">ADENA<span class="colorRate"> X10</span></li>
+                                <li class="font-beaufort-regular">SPOIL<span class="colorRate"> X6</span></li>
+                            </ul>
+
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+
         <img src="../../../assets/footer-corner.png" class="img-flame" alt="" srcset="">
 
     </div>
-    <div class="about" style="background-color: black;color: white;">
 
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae possimus quidem quam ipsam eius, eos et cupiditate inventore iusto tempora quia exercitationem tempore explicabo ea ipsum dolores sequi maiores sed!</p>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae possimus quidem quam ipsam eius, eos et cupiditate inventore iusto tempora quia exercitationem tempore explicabo ea ipsum dolores sequi maiores sed!</p>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae possimus quidem quam ipsam eius, eos et cupiditate inventore iusto tempora quia exercitationem tempore explicabo ea ipsum dolores sequi maiores sed!</p>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae possimus quidem quam ipsam eius, eos et cupiditate inventore iusto tempora quia exercitationem tempore explicabo ea ipsum dolores sequi maiores sed!</p>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae possimus quidem quam ipsam eius, eos et cupiditate inventore iusto tempora quia exercitationem tempore explicabo ea ipsum dolores sequi maiores sed!</p>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae possimus quidem quam ipsam eius, eos et cupiditate inventore iusto tempora quia exercitationem tempore explicabo ea ipsum dolores sequi maiores sed!</p>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae possimus quidem quam ipsam eius, eos et cupiditate inventore iusto tempora quia exercitationem tempore explicabo ea ipsum dolores sequi maiores sed!</p>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae possimus quidem quam ipsam eius, eos et cupiditate inventore iusto tempora quia exercitationem tempore explicabo ea ipsum dolores sequi maiores sed!</p>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae possimus quidem quam ipsam eius, eos et cupiditate inventore iusto tempora quia exercitationem tempore explicabo ea ipsum dolores sequi maiores sed!</p>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae possimus quidem quam ipsam eius, eos et cupiditate inventore iusto tempora quia exercitationem tempore explicabo ea ipsum dolores sequi maiores sed!</p>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae possimus quidem quam ipsam eius, eos et cupiditate inventore iusto tempora quia exercitationem tempore explicabo ea ipsum dolores sequi maiores sed!</p>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae possimus quidem quam ipsam eius, eos et cupiditate inventore iusto tempora quia exercitationem tempore explicabo ea ipsum dolores sequi maiores sed!</p>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae possimus quidem quam ipsam eius, eos et cupiditate inventore iusto tempora quia exercitationem tempore explicabo ea ipsum dolores sequi maiores sed!</p>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae possimus quidem quam ipsam eius, eos et cupiditate inventore iusto tempora quia exercitationem tempore explicabo ea ipsum dolores sequi maiores sed!</p>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae possimus quidem quam ipsam eius, eos et cupiditate inventore iusto tempora quia exercitationem tempore explicabo ea ipsum dolores sequi maiores sed!</p>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae possimus quidem quam ipsam eius, eos et cupiditate inventore iusto tempora quia exercitationem tempore explicabo ea ipsum dolores sequi maiores sed!</p>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae possimus quidem quam ipsam eius, eos et cupiditate inventore iusto tempora quia exercitationem tempore explicabo ea ipsum dolores sequi maiores sed!</p>
+    <div class="about">
+            <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus officia doloremque aperiam numquam odio eveniet architect
+                o labore laudantium alias qui quis, illum, nemo animi voluptatem! Exercitationem eum aliquam laboriosam harum!
+            </p>
+            <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus officia doloremque aperiam numquam odio eveniet architect
+                o labore laudantium alias qui quis, illum, nemo animi voluptatem! Exercitationem eum aliquam laboriosam harum!
+            </p>
+            <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus officia doloremque aperiam numquam odio eveniet architect
+                o labore laudantium alias qui quis, illum, nemo animi voluptatem! Exercitationem eum aliquam laboriosam harum!
+            </p>
+            <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus officia doloremque aperiam numquam odio eveniet architect
+                o labore laudantium alias qui quis, illum, nemo animi voluptatem! Exercitationem eum aliquam laboriosam harum!
+            </p>
 
-
+                        <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus officia doloremque aperiam numquam odio eveniet architect
+                o labore laudantium alias qui quis, illum, nemo animi voluptatem! Exercitationem eum aliquam laboriosam harum!
+            </p>
+            <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus officia doloremque aperiam numquam odio eveniet architect
+                o labore laudantium alias qui quis, illum, nemo animi voluptatem! Exercitationem eum aliquam laboriosam harum!
+            </p>
+            <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus officia doloremque aperiam numquam odio eveniet architect
+                o labore laudantium alias qui quis, illum, nemo animi voluptatem! Exercitationem eum aliquam laboriosam harum!
+            </p>
+            <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus officia doloremque aperiam numquam odio eveniet architect
+                o labore laudantium alias qui quis, illum, nemo animi voluptatem! Exercitationem eum aliquam laboriosam harum!
+            </p>
+            <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus officia doloremque aperiam numquam odio eveniet architect
+                o labore laudantium alias qui quis, illum, nemo animi voluptatem! Exercitationem eum aliquam laboriosam harum!
+            </p>
+            <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus officia doloremque aperiam numquam odio eveniet architect
+                o labore laudantium alias qui quis, illum, nemo animi voluptatem! Exercitationem eum aliquam laboriosam harum!
+            </p>
     </div>
+
 </div>

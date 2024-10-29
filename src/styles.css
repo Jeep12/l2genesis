@@ -37,97 +37,74 @@ body {
   font-weight: normal;
   font-style: normal;
 }
+@font-face {
+  font-family: "Beaufort";
+  src: url("assets/fonts/Beaufort/BeaufortforLOL-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Beaufort";
+  src: url("assets/fonts/Beaufort/BeaufortforLOL-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Beaufort";
+  src: url("assets/fonts/Beaufort/BeaufortforLOL-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "DIN Next W1G";
+  src: url("assets/fonts/DINNextW1G/DINNextW1G-Bold.woff2") format("woff2");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DIN Next W1G";
+  src: url("assets/fonts/DINNextW1G/DINNextW1G.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-beaufort-regular {
+  font-family: 'Beaufort', sans-serif;
+  font-weight: 400;
+}
+
+.font-beaufort-medium {
+  font-family: 'Beaufort', sans-serif;
+  font-weight: 500;
+}
+
+.font-beaufort-bold {
+  font-family: 'Beaufort', sans-serif;
+  font-weight: 700;
+
+}
+
+.font-din-bold {
+  font-family: 'DIN Next W1G', sans-serif;
+  font-weight: bold;
+}
+
+.font-din-normal {
+  font-family: 'DIN Next W1G', sans-serif;
+  font-weight: normal;
+}
 
 
 .gradient1 {
-  background-image: linear-gradient(0deg,
-      hsl(0deg 0% 0%) 0%,
-      hsl(231deg 45% 2%) 26%,
-      hsl(231deg 45% 4%) 38%,
-      hsl(231deg 45% 4%) 48%,
-      hsl(231deg 45% 5%) 55%,
-      hsl(231deg 45% 6%) 61%,
-      hsl(231deg 45% 6%) 67%,
-      hsl(231deg 45% 7%) 72%,
-      hsl(231deg 45% 7%) 77%,
-      hsl(231deg 45% 7%) 82%,
-      hsl(231deg 45% 8%) 87%,
-      hsl(231deg 45% 8%) 93%,
-      hsl(231deg 45% 9%) 100%);
-}
+  background: linear-gradient(180deg, #000000 0%, #060810 50%, #000000 100%);
 
-.roboto-thin {
-  font-family: "Roboto", sans-serif;
-  font-weight: 100;
-  font-style: normal;
 }
-
-.roboto-light {
-  font-family: "Roboto", sans-serif;
-  font-weight: 300;
-  font-style: normal;
-}
-
-.roboto-regular {
-  font-family: "Roboto", sans-serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.roboto-medium {
-  font-family: "Roboto", sans-serif;
-  font-weight: 500;
-  font-style: normal;
-}
-
-.roboto-bold {
-  font-family: "Roboto", sans-serif;
-  font-weight: 700;
-  font-style: normal;
-}
-
-.roboto-black {
-  font-family: "Roboto", sans-serif;
-  font-weight: 900;
-  font-style: normal;
-}
-
-.roboto-thin-italic {
-  font-family: "Roboto", sans-serif;
-  font-weight: 100;
-  font-style: italic;
-}
-
-.roboto-light-italic {
-  font-family: "Roboto", sans-serif;
-  font-weight: 300;
-  font-style: italic;
-}
-
-.roboto-regular-italic {
-  font-family: "Roboto", sans-serif;
-  font-weight: 400;
-  font-style: italic;
-}
-
-.roboto-medium-italic {
-  font-family: "Roboto", sans-serif;
-  font-weight: 500;
-  font-style: italic;
-}
-
-.roboto-bold-italic {
-  font-family: "Roboto", sans-serif;
-  font-weight: 700;
-  font-style: italic;
-}
-
-.roboto-black-italic {
-  font-family: "Roboto", sans-serif;
-  font-weight: 900;
-  font-style: italic;
-}
-
 
 
 
