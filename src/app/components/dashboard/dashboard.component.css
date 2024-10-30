@@ -121,7 +121,7 @@
 /* Cuando la sidebar está abierta */
 .sidebar:not(.closed) ul li a {
     justify-content: start; /* Alinea los íconos al inicio */
-    text-align: start;
+    text-align: flex-start;
 
 }
 

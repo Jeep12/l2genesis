@@ -5,6 +5,8 @@
 
 }
 
+
+
 .wrapper-flame-black {
     transform: rotate(180deg);
     height: 295px;
@@ -13,18 +15,19 @@
 }
 
 .carousel {
-    height: calc(100dvh - 55px);
-    background-image: url('../../../assets/images/bgc2.jpg');
+    height: calc(100vh - 55px);
+    width: 100%;
+    background-image: 
+    var(--background-image);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     display: flex;
     flex-direction: column;
-    justify-content: start;
+    justify-content: flex-start;
     align-items: center;
-    transition: background-image 1s ease-in-out;
+    transition: background-image 2s ease-out; 
     filter: grayscale(50%);
-
 }
 
 .content {
@@ -32,41 +35,106 @@
     width: 100%;
     margin-top: -150px;
     z-index: 1;
-    
-    
-}
-
-.rates-sv {
     display: flex;
-    width: 200px;
-    align-items: start;
-    justify-content: center;
-    padding: 10px;
+    align-items: center;
+    justify-content: space-around;
+    align-self: stretch;
+
+    
+    
+}
+
+.events {
+    width: 150px;
+    align-self: stretch; /* Hace que cada hijo ocupe el 100% de la altura de .content */
+
+
+}
+.events-item{
+    display: flex;
+    align-items: center;
     color: white;
-    border-radius: 3px;
-    box-shadow: 0px 0px 30px 15px black;
+    gap: 5px;
+    margin-top: 10px;
+}
+.feature-item {
+    background-image: url("../../../assets/images/iconl2.png");
+    background-size: cover; /* Ajusta la imagen para que ocupe todo el div */
+    background-position: center; /* Centra la imagen de fondo */
+    display: flex; /* Usa flexbox para centrar el ícono */
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+    width: 100px; /* Ajusta el tamaño de .feature-item */
+    height: 100px; /* Ajusta el tamaño de .feature-item */
+    position: relative; /* Permite una posición de overlay para el icono */
+}
+.feature-item i {
+    font-size: 30px;
+    color: inherit;
+}
+.rates-sv {
     backdrop-filter: blur(5px);
+    width: 200px;
+    padding: 10px;
+    box-shadow: 0px 0px 30px 15px black;
+    color: white;
     background-color: rgba(0, 0, 0, 0.479);
-}
 
-.rates-sv ul {
-    padding: 0px;
-}
 
-.rates-sv ul li {
-    list-style-type: none;
+}
+.header-rates-sv {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+.filter {
+    background-color: rgba(0, 0, 0, 0.514);
+    height: 100%;
     width: 100%;
-    font-size: 12px;
 }
+.rates {
+
+}
+.imgInterlude {
+    display: block;
+    width: 150px;
+    height: 60px;
+    margin-bottom: -10x;
+    
+}
+.rates img {
+    margin-top: 5px !important;
+}
+.rates ul {
+    padding: 0px;
+    text-align: center;
+    width: 70%;
+    margin: auto;
+}
+.rates ul li {
+    list-style: none;
+    text-align: start;
+    border-bottom: 1px solid #cfbc9a;
+}
+
 
 .status-sv {
     width: 200px;
     padding: 10px;
     color: white;
     border-radius: 3px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
     box-shadow: 0px 0px 30px 15px black;
     backdrop-filter: blur(5px);
-    background-color: rgba(0, 0, 0, 0.479);}
+    background-color: rgba(0, 0, 0, 0.479);
+}
+.status-sv img {
+    width: 30px;
+    height: 30px;
+}
 
 .carousel .img-flame {
     position: absolute;
@@ -74,38 +142,53 @@
 }
 
 .about {
-  background: linear-gradient(180deg, #000000 0%, #000000 50%, #0a0a0a 70%, #000000 100%);
     padding: 15px;
 }
+.information {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 20px;
+    align-self: stretch; /* Hace que cada hijo ocupe el 100% de la altura de .content */
+
+}
+
 
 .colorRate {
     color: #ffc24c;
     font-weight: 700;
     font-size: 14px;
+    float: right;
+   
 }
 
 .home-presentation {
     display: flex;
     align-items: center;
     justify-content:center;
+    align-self: stretch; /* Hace que cada hijo ocupe el 100% de la altura de .content */
 
 }
-.text-content :hover {
- 
-}
+
 .text-content {
     color: white;
-    width: 80%;
-    backdrop-filter: blur(5px);
-    background-color: rgba(0, 0, 0, 0.479);
+    width: 60%;
     border-radius: 3px;
-    box-shadow: 0px 0px 30px 15px black;
     padding: 10px;
-    
-
+}
+.text-content .divider-top, .text-content .divider-bottom {
+    width: 100%;
+    display: block;
+    padding-top: 10px;
+}
+.divider-bottom {
+    transform: rotate(180deg);
 }
 .text-content p {
-    width: 400px;
+    width: 100%;
+    padding: 10px;
+    text-align: center;
     margin: auto;
     margin-top: 5px;
     display: block;
@@ -128,7 +211,107 @@
     font-size: 13.5px;
     color: white;
     font-weight: 700;
-  
+    padding: 10px;
     text-transform: uppercase;
     margin-top: 20px;
+    margin-bottom: 20px;
+    position: relative;
+}
+.play-button::before{
+    content: "";
+    display: block;
+    position:absolute;
+
+}
+
+@media (min-width: 1175px) and (max-width: 1440px) {
+    /* Estilos para pantallas entre 400px y 800px */
+
+    .content {
+        flex-wrap: nowrap;
+        flex-direction: row;
+        justify-content: space-around;
+        gap: 0px;
+    }
+    .events {
+        width: 25%;
+    
+    }
+    .home-presentation {
+        width: 50%;
+
+    }
+    .information{
+        width: 25%;
+        justify-content: center;
+    }
+
+ 
+}
+@media (width <=991px) {
+
+    .content {
+        flex-wrap: nowrap;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: flex-start;
+        gap: 0px;
+    }
+    .list-events {
+        display: flex;
+        flex-direction: row;
+
+    }
+    .list-events li {
+        filter: drop-shadow(0px 0px 15px black);
+        gap: 5px;
+        
+    }
+    .events {
+        width: 100%;
+        display: none;
+    
+    }
+    .home-presentation {
+        display: none;
+
+    }
+    .information{
+        width: 100%;
+        justify-content: center;
+    }
+    .imgInterlude {
+        display: block;
+        width: 150px;
+        height: 60px;
+        margin-bottom: -10x;
+        
+    }
+    .header-rates-sv {
+        justify-content: center;
+        gap: 5px;
+    }
+    .status-sv {
+        width: 100%;
+    }
+    .status-sv img {
+        width: 15px;
+        height: 15px;
+    }
+    .rates-sv {
+        width: 100%;
+    }
+}
+.rotating {
+    width: 100px; /* Ajusta el tamaño según necesites */
+    animation: rotate 15s linear infinite; /* Llama a la animación, dura 2s, es lineal y se repite infinitamente */
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg); /* Comienza en 0 grados */
+    }
+    to {
+        transform: rotate(360deg); /* Termina en 360 grados */
+    }
 }

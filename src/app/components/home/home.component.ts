@@ -27,7 +27,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   private startCarousel() {
     this.intervalId = setInterval(() => {
       this.currentIndex = (this.currentIndex + 1) % this.images.length;
-      this.backgroundImage = `url(${this.images[this.currentIndex]})`;
+      this.backgroundImage = ` url(${this.images[this.currentIndex]})`;
     }, 5500); // Cambia cada 2.5 segundos
   }
 }
+
+
+
+
+
