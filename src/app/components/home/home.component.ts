@@ -7,10 +7,10 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private images: string[] = [
-    '../../../assets/images/bgc1.jpg',
-    '../../../assets/images/bgc5.jpg',
-    '../../../assets/images/bgc3.jpg',
-    '../../../assets/images/bgc4.jpg'
+    '/assets/images/bgc1.jpg',
+    '/assets/images/bgc5.jpg',
+    '/assets/images/bgc3.jpg',
+    '/assets/images/bgc4.jpg'
   ];
   private currentIndex = 0;
   private intervalId: any;
