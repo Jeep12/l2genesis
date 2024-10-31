@@ -6,3 +6,30 @@
 </div>
 
 <router-outlet (activate)="onActivate()"></router-outlet>
+
+<!-- Botón de volver arriba -->
+<button *ngIf="shouldShowScrollBtn()" (click)="scrollToTop()" class="scrollToTopBtn">
+    <i class="fa-solid fa-up-long"></i>
+</button>
+
+<div class="wrapper-social">
+    <ul class="list-social">
+        <li class="terra l2font">Terra</li>
+        <li class="social-item">
+            <i class="fa-brands fa-facebook"></i>
+            <span class="social-name">Facebook</span>
+        </li>
+        <li class="social-item">
+            <i class="fa-brands fa-instagram"></i>
+            <span class="social-name">Instagram</span>
+        </li>
+        <li class="social-item">
+            <i class="fa-brands fa-discord"></i>
+            <span class="social-name">Discord</span>
+        </li>
+        <li class="social-item">
+            <i class="fa-brands fa-youtube"></i>
+            <span class="social-name">YouTube</span>
+        </li>
+    </ul>
+</div>

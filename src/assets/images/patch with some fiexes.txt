@@ -1,0 +1,5918 @@
+
+Important  ************************** if you made any changes save it and put it back after applying this setting **************************
+
+in your individualvotes table, replace table field serverVotingTime for diffTime
+
+
+replace all info in tle class
+*************************************For Frozen******************************************************
+/*
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.l2jfrozen.gameserver.votesystem.Handler;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import com.l2jfrozen.Config;
+import com.l2jfrozen.gameserver.votesystem.Model.individualVoteResponse;
+import com.l2jfrozen.gameserver.votesystem.VoteUtil.VoteSiteXml;
+import com.l2jfrozen.gameserver.votesystem.VoteUtil.VoteUtil;
+
+/**
+ * @author l2.topgameserver.net
+ *
+ */
+public class voteHandler
+{
+public static final Logger LOGGER = Logger.getLogger(voteHandler.class.getName());
+	
+	protected static String getNetWorkResponse(String URL,int ordinal) {
+				try {
+				String API_URL = Config.VOTE_NETWORK_LINK;
+				String detail = URL;
+				String postParameters = "";
+				postParameters +="apiKey="+VoteUtil.between("apiKey=", detail, "&type=");
+				postParameters += "&type="+VoteUtil.between("&type=", detail, "&player");
+				String beginIndexPlayer = "&player=";
+				String player = detail.substring(detail.indexOf(beginIndexPlayer)+beginIndexPlayer.length());
+				
+				if (player != null && !player.equals(""))
+					postParameters += "&player=" + player;
+
+				byte[] postData = postParameters.getBytes(Charset.forName("UTF-8"));
+				URL url = new URL(API_URL);
+				HttpURLConnection con = (HttpURLConnection)url.openConnection();
+				con.setConnectTimeout(5000);
+				con.setRequestMethod("POST");
+				con.setRequestProperty("Content-Length", Integer.toString(postData.length));
+				con.setRequestProperty("User-Agent", "Mozilla/5.0");
+				con.setDoOutput(true);
+				
+				DataOutputStream os = new DataOutputStream(con.getOutputStream());
+				os.write(postData);
+				os.flush();
+				os.close();
+				
+				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+				String inputLine;
+				StringBuffer response = new StringBuffer();
+				
+				while ((inputLine = in.readLine()) != null) {
+					response.append(inputLine);
+				}
+				in.close();
+					return response.toString();
+					
+				} catch (Exception e) {
+				LOGGER.warning(VoteUtil.Sites[ordinal]+ " Say: An error ocurred "+ e.getCause());
+				return "";
+				}
+	}
+	
+	protected static String getResponse(String Url, int ordinal) 
+	{
+		
+		try
+		  {
+			int responseCode = 0;
+			URL objUrl = new URL(Url);
+			HttpURLConnection con = (HttpURLConnection) objUrl.openConnection();
+			con.setRequestMethod("GET");
+			con.setRequestProperty("User-Agent", "Mozilla/5.0");
+			con.setConnectTimeout(5000);
+			responseCode = con.getResponseCode();
+			if (responseCode == HttpURLConnection.HTTP_OK) {
+				String inputLine;
+				StringBuffer response = new StringBuffer();
+				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+				while ((inputLine = in.readLine()) != null) {
+					response.append(inputLine);
+				}
+				in.close();
+				return response.toString();
+			} 
+		
+		  }
+		       catch (Exception e)
+		       {
+		    	   LOGGER.warning(VoteSiteXml.getInstance().getSiteName(ordinal)+" Say: An error ocurred "+e.getCause());
+		           return "";
+		       }
+
+		return "";
+	}
+	
+	
+	public static individualVoteResponse getIndividualVoteResponse(int ordinal,String ip, String AccountName) 
+	{
+		String response = "";
+		boolean isVoted = false;
+		long voteSiteTime = 0L, diffTime = 0L;
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		individualVoteResponse ivr = new individualVoteResponse();
+		
+			switch(ordinal) 
+			{
+				case 0:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(VoteUtil.between("\"already_voted\":", response, ",\"vote_time\""));
+						if(isVoted) {
+                            try
+							{
+								voteSiteTime = format.parse(VoteUtil.between("\"vote_time\":\"", response, "\",\"server_time\"")).getTime();
+								diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"server_time\":\"", response, "\"}")).getTime();
+							}
+							catch (ParseException e)
+							{
+								e.printStackTrace();
+							}					
+						}
+						break;
+						
+				case 1:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(response);
+					if(isVoted) {
+							voteSiteTime = System.currentTimeMillis();
+							diffTime = 0;
+					}
+					break;
+						
+				case 2:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(response);
+					if(isVoted) {
+							voteSiteTime = System.currentTimeMillis();
+							diffTime = 0;
+					}
+					break;
+					
+				case 3:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Integer.parseInt(VoteUtil.between("\"status\":\"", response, "\",\"date\"")) == 1 ? true : false;
+					if(isVoted) {
+							String dateString = VoteUtil.between("\"date\":\"", response, "\"}]");
+							try
+							{
+								voteSiteTime = format.parse(String.format("%s-%s-%s %s:%s:%s", dateString.substring(0, 4),dateString.substring(4, 6),dateString.substring(6, 8),dateString.substring(8, 10),dateString.substring(10, 12),dateString.substring(12, 14))).getTime();
+								diffTime = System.currentTimeMillis() - VoteUtil.getTimeVotingSite(ordinal);
+							}
+							catch (ParseException e)
+							{
+								e.printStackTrace();
+							}
+							
+					}
+					break;
+				
+				case 4:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(VoteUtil.between("\"voted\":", response, ",\"voteTime\""));
+					if(isVoted) {
+					try
+					{
+						voteSiteTime = format.parse(VoteUtil.between("\"voteTime\":\"", response, "\",\"hopzoneServerTime\"")).getTime();
+						diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"hopzoneServerTime\":\"", response, "\",\"status_code\":")).getTime();
+					}
+					catch (ParseException e)
+					{
+						e.printStackTrace();
+					}
+				}
+					break;
+					
+				case 5:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = (Integer.parseInt(response) == 1) ? true : false;
+					if(isVoted) {
+					voteSiteTime = System.currentTimeMillis();
+					diffTime = 0;
+					}
+					break;
+					
+				case 6:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(VoteUtil.between("\"voted\":", response, ",\"voteTime\""));
+					if(isVoted) {
+						try
+						{
+							voteSiteTime = format.parse(VoteUtil.between("\"voteTime\":\"", response, "\",\"l2topserversServerTime\"")).getTime();
+							diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"l2topserversServerTime\":\"", response, "\",\"status_code\"")).getTime();
+						}
+						catch (ParseException e)
+						{
+							e.printStackTrace();
+						}
+						
+					}
+					break;
+					
+				case 7:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Integer.parseInt(VoteUtil.between("\"status\":\"", response, "\",\"server_time\"")) == 1 ? true : false;
+					if(isVoted) {
+							try
+							{
+								voteSiteTime = format.parse(VoteUtil.between("\"date\":\"", response, "\",\"status\"")).getTime();
+								diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"server_time\":\"", response, "\",\"hours_since_vote\"")).getTime();
+							}
+							catch (ParseException e)
+							{
+								e.printStackTrace();
+							}
+					}
+					break;
+					
+				case 8:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(VoteUtil.between("\"is_voted\":", response, ",\"vote_time\""));
+					if(isVoted) {
+						try
+						{
+							voteSiteTime = (Long.parseLong(VoteUtil.between("\"vote_time\":", response, ",\"server_time\"")))*1000;
+							diffTime = System.currentTimeMillis() - Long.parseLong(VoteUtil.between("\"server_time\":",response,"}}"))*1000;
+						}
+						catch (Exception e)
+						{
+							e.printStackTrace();
+						}
+					}
+					break;
+					
+				case 9:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(VoteUtil.between("\"isVoted\": ", response, ",\"voteTime\""));
+					if(isVoted) {
+						voteSiteTime = Long.parseLong(VoteUtil.between("\"voteTime\": \"", response, "\",\"serverTime\""))*1000;
+						diffTime = System.currentTimeMillis() - Long.parseLong(VoteUtil.between("\"serverTime\": ",response,"}}"));
+					}
+					break;
+					
+				case 10:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(response);
+					if(isVoted) {
+							voteSiteTime = System.currentTimeMillis();
+							diffTime = 0;
+					}
+					break;
+					
+			}
+				if(!response.equals("")) {
+				ivr.setIsVoted(isVoted);
+				ivr.setDiffTime(diffTime);
+				ivr.setVoteSiteTime(voteSiteTime);
+				return ivr;
+				}
+				return null;
+	}
+	
+	public int getGlobalVotesResponse(int ordinal) 
+	{
+		
+		String response = "";
+		int totalVotes = 0;
+		
+		switch(ordinal) 
+		{
+			case 0:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("\"getVotes\":",response,"}");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 1:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("[server_votes]=>",response.replace(" ", ""),"[server_rank]");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 2:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 3:
+				response = VoteUtil.getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("Votes:</th><th><a class='votes'>", response, "</a></th></tr><tr><th>Clicks:");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 4:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("\"totalvotes\":",response,",\"status_code\"");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 5:
+				String responseNetwork = getNetWorkResponse(getGlobalUrl(ordinal),ordinal);
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(responseNetwork) : -1;
+				break;
+			
+			/*case 6:
+				
+				break;*/
+				
+			case 7:
+				response = VoteUtil.getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("nicas:</b> ", response, "<br /><br />");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 8:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("\"monthly_votes\":",response,"}}");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 9:
+			  	response = getResponse(getGlobalUrl(ordinal), ordinal);
+			  	response = VoteUtil.between("\"totalVotes\":\"", response, "\",\"serverRank\"");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 10:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+		}
+		
+		
+		return totalVotes;
+	}
+	
+	public static String getIndividualUrl(int ordinal,String ip,String AccountName) 
+	{
+		String url = "";
+		switch(ordinal) {
+			case 0:
+			    //l2.topgameserver.net
+				url =  String.format("%sAPI_KEY=%s/getData/%s", Config.VOTE_LINK_TGS, Config.TGS_API_KEY,ip); 
+				break;
+				
+			case 1:
+				//itopz.com
+				url = String.format("%s%s/%s/%s", Config.VOTE_LINK_ITOPZ,Config.ITOPZ_API_KEY,Config.ITOPZ_SRV_ID,ip); 
+				break;
+				
+			case 2:
+				//l2top.co
+				url = String.format("%sVoteCheck.php?id=%s&ip=%s", Config.VOTE_LINK_TOP_CO,Config.TOP_CO_SRV_ID,ip); 
+				break;
+				
+			case 3:
+				//l2votes.com
+				url = String.format("%sapi.php?apiKey=%s&ip=%s", Config.VOTE_LINK_VTS,Config.VTS_API_KEY,ip); 
+				break;
+				
+			case 4:
+				//hopzone.net
+				url = String.format("%svote?token=%s&ip_address=%s",Config.VOTE_LINK_HZ,Config.HZ_API_KEY,ip);
+				break;
+				
+			case 5:
+				//l2network.eu
+				url = String.format("https://l2network.eu/index.php?a=in&u=%s&ipc=%s", Config.VOTE_NETWORK_USER_NAME,ip);
+				break;
+				
+			case 6:
+				//l2topservers.com
+				url = String.format("%stoken=%s&ip=%s", Config.VOTE_LINK_TSS,Config.TSS_API_TOKEN,ip); 
+				break;
+				
+			case 7:
+				//top.l2jbrasil.com
+				url = String.format("%susername=%s&ip=%s&type=json",Config.BRASIL_VOTE_LINK,Config.BRASIL_USER_NAME,ip); 
+				break;
+				
+			case 8:
+				//mmotop
+				url = String.format("%s%s/%s", Config.VOTE_LINK_MMOTOP,Config.MMOTOP_API_KEY,ip); 
+				break;
+				
+			case 9:
+				//topzone.com
+				url = String.format("%svote?token=%s&ip=%s", Config.VOTE_LINK_TZ,Config.TZ_API_KEY,ip); 
+				break;
+				
+			case 10:
+				//l2servers.com
+				url = String.format("%scheckip.php?hash=%s&server_id=%s&ip=%s", Config.VOTE_LINK_SERVERS,Config.SERVERS_HASH_CODE,Config.SERVERS_SRV_ID,ip); 
+				break;
+		}
+		
+		return url;
+	}
+	
+	public String getGlobalUrl(int ordinal) 
+	{
+		String url = "";
+		
+		switch(ordinal) {
+			case 0:
+			    //l2.topgameserver.net
+				url = String.format("%sAPI_KEY=%s/getData", Config.VOTE_LINK_TGS,Config.TGS_API_KEY);
+				break;
+			
+			case 1:
+				//itopz.com
+				url = String.format("%s%s/%s", Config.VOTE_LINK_ITOPZ,Config.ITOPZ_API_KEY,Config.ITOPZ_SRV_ID); 
+				break;
+
+			case 2:
+				//l2top.co
+				url = String.format("%sVoteCheck_Total.php?id=%s", Config.VOTE_LINK_TOP_CO,Config.TOP_CO_SRV_ID); 
+				break;
+				
+			case 3:
+				//l2votes.com
+				url = String.format("%sserverPage.php?sid=%s",Config.VOTE_LINK_VTS,Config.VTS_SID); 
+				break;
+				
+			case 4:
+				//hopzone.net
+				url = String.format("%svotes?token=%s", Config.VOTE_LINK_HZ,Config.HZ_API_KEY);
+				break;
+				
+			case 5:
+				//l2network.eu
+				url = String.format("apiKey=%s&type=%s&player=",Config.VOTE_NETWORK_API_KEY,1);
+				break;
+				
+			/*case 6:
+				//l2topservers
+				return String.format("%sAPI_KEY=%s/getData", Config.VOTE_LINK_TGS,Config.TGS_API_KEY); 
+				break;*/
+								
+			case 7:
+				//top.l2jbrasil.com
+				url = "https://top.l2jbrasil.com/index.php?a=stats&u=julioguzman"; 
+				break;
+				
+			case 8:
+				//mmotop.eu/l2/
+				url = String.format("%s%s/info/", Config.VOTE_LINK_MMOTOP,Config.MMOTOP_API_KEY); 
+				break;
+				
+			case 9:
+				//l2topzone.com
+				url = String.format("%sserver_%s/getServerData", Config.VOTE_LINK_TZ,Config.TZ_API_KEY); 
+				break;
+			
+			case 10:
+				//l2servers.com
+				url = String.format("%syearlyvotes.php?server_id=%s", Config.VOTE_LINK_SERVERS,Config.SERVERS_SRV_ID);
+				break;
+		}
+		
+		return url;
+	}
+}
+
+**************************************************************************
+
+/*
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.l2jfrozen.gameserver.votesystem.Model;
+
+/**
+ * @author l2.topgameserver.net
+ *
+ */
+public class individualVote
+{
+	private String _voterIp;
+	private long _diffTime;
+	private long _votingTimeSite;
+	private int _voteSite;
+	private boolean _alreadyRewarded;
+	
+	
+	public individualVote(String voterIp, long diffTime, long votingTimeSite, int voteSite, boolean alreadyRewarded){
+		_voterIp = voterIp;
+		_diffTime = diffTime;
+		_votingTimeSite = votingTimeSite;
+		_voteSite = voteSite;
+		_alreadyRewarded = alreadyRewarded;
+	}
+	
+	public individualVote(){
+		
+	}
+	
+	public void setVoterIp(String voterIp) {
+		_voterIp = voterIp;
+	}
+	
+	public void setDiffTime(long diffTime) {
+		_diffTime = diffTime;
+	}
+	
+	public void setVotingTimeSite(long votingTimeSite) {
+		_votingTimeSite = votingTimeSite;
+	}
+	
+	public void setVoteSite(int voteSite) {
+		_voteSite = voteSite;
+	}
+	
+	public void setAlreadyRewarded(boolean alreadyRewarded) {
+		_alreadyRewarded = alreadyRewarded;
+	}
+	
+	public String getVoterIp() {
+		return _voterIp;
+	}
+	
+	public long getDiffTime() {
+		return _diffTime;
+	}
+	
+	public long  getVotingTimeSite() {
+		return _votingTimeSite;
+	}
+	
+	public int getVoteSite() {
+		return _voteSite;
+	}
+	
+	public boolean getAlreadyRewarded() {
+		return _alreadyRewarded;
+	}
+	
+}
+
+*******************************************************************************
+
+/*
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.l2jfrozen.gameserver.votesystem.Handler;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
+import java.util.stream.Collectors;
+
+import com.l2jfrozen.Config;
+import com.l2jfrozen.gameserver.model.L2World;
+import com.l2jfrozen.gameserver.model.actor.instance.L2PcInstance;
+import com.l2jfrozen.gameserver.network.L2GameClient;
+import com.l2jfrozen.gameserver.network.SystemMessageId;
+import com.l2jfrozen.gameserver.network.serverpackets.ItemList;
+import com.l2jfrozen.gameserver.network.serverpackets.SystemMessage;
+import com.l2jfrozen.gameserver.thread.ThreadPoolManager;
+import com.l2jfrozen.gameserver.util.Broadcast;
+import com.l2jfrozen.gameserver.votesystem.DB.globalVoteDB;
+import com.l2jfrozen.gameserver.votesystem.DB.individualVoteDB;
+import com.l2jfrozen.gameserver.votesystem.Enum.voteSite;
+import com.l2jfrozen.gameserver.votesystem.Model.Reward;
+import com.l2jfrozen.gameserver.votesystem.Model.globalVote;
+import com.l2jfrozen.gameserver.votesystem.Model.individualVote;
+import com.l2jfrozen.gameserver.votesystem.Model.individualVoteResponse;
+import com.l2jfrozen.gameserver.votesystem.VoteUtil.VoteSiteXml;
+import com.l2jfrozen.gameserver.votesystem.VoteUtil.VoteUtil;
+
+/**
+ * @author l2.topgameserver.net
+ *
+ */
+public class voteManager extends voteHandler
+{
+	private ScheduledFuture<?> _saveGlobalVotes;
+	private ScheduledFuture<?> _updateIndividualVotes;
+	private ScheduledFuture<?> _autoGlobalVotesReward;
+	
+	private HashSet<individualVote> _votes;
+	private Map<String,individualVote[]> _foundVoters;
+	private globalVote[] _globalVotes = new globalVote[voteSite.values().length];
+	
+	public voteManager() {
+		loadVotes();
+		loadGlobalVotes();
+		_foundVoters = new ConcurrentHashMap<>();
+		checkAllResponseGlobalVotes();
+		stopAutoTasks();
+		
+		if(Config.ENABLE_INDIVIDUAL_VOTE && Config.ENABLE_VOTE_SYSTEM) {
+			_updateIndividualVotes = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new AutoUpdateIndividualVotesTask(), 30000, 	Config.NEXT_TIME_TO_AUTO_UPDATE_INDIVIDUAL_VOTES);
+		}
+		if(Config.ENABLE_GLOBAL_VOTE && Config.ENABLE_VOTE_SYSTEM) {
+			_autoGlobalVotesReward = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new AutoGlobalVoteRewardTask(), 10000, Config.NEXT_TIME_TO_CHECK_AUTO_GLOBAL_VOTES_REWARD);
+			_saveGlobalVotes = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new AutoSaveGlobalVotesTask(), 30000, Config.NEXT_TIME_TO_AUTO_UPDATE_TOTAL_VOTE);		
+		}
+	}
+	
+	private void stopAutoTasks() {
+		if(_saveGlobalVotes != null) {
+			_saveGlobalVotes.cancel(true);
+			_saveGlobalVotes = null;
+		}
+		if(_updateIndividualVotes != null) {
+			_updateIndividualVotes.cancel(true);
+			_updateIndividualVotes = null;
+		}
+		if(_autoGlobalVotesReward != null) {
+			_autoGlobalVotesReward.cancel(true);
+			_autoGlobalVotesReward = null;
+		}
+	}
+	
+	public void getReward(L2PcInstance player, int ordinalSite) {
+		String ip = existIp(player);
+			if(ip == null) {
+				return;
+			}
+			individualVoteResponse ivr = getIndividualVoteResponse(ordinalSite,ip,player.getAccountName());
+			if(ivr == null) {
+				player.sendMessage("We were unable to verify your vote with: "+VoteSiteXml.getInstance().getSiteName(ordinalSite)+", please try again");
+				return;
+			}
+			if(!ivr.getIsVoted()) {
+				player.sendMessage(String.format("You haven't vote on %s yet!", VoteSiteXml.getInstance().getSiteName(ordinalSite)));
+				return;
+			}
+			if(!checkIndividualAvailableVote(player,ordinalSite)) {
+				player.sendMessage(String.format("You can get the reward again on %s at %s", VoteSiteXml.getInstance().getSiteName(ordinalSite),getTimeRemainingWithSampleFormat(player,ordinalSite)));
+				return;
+			}
+			individualVote iv = new individualVote(ip,ivr.getDiffTime(),ivr.getVoteSiteTime(),ordinalSite,true);
+			_votes.add(iv);
+			individualVote[] aiv;
+			if(!_foundVoters.containsKey(ip)) {
+				Set<individualVote> ivts = _votes.stream().filter(st -> st.getVoterIp().equalsIgnoreCase(iv.getVoterIp())).collect(Collectors.toSet());
+				aiv = new individualVote[voteSite.values().length];
+				if(ivts.size()>1) {
+					ivts.forEach(x -> {
+						aiv[x.getVoteSite()] = x;
+					});
+					_foundVoters.put(ip, aiv);
+				}else {
+				aiv[ordinalSite] = iv; 
+				_foundVoters.put(ip, aiv);
+				}
+				for(Reward reward : VoteSiteXml.getInstance().getRewards(ordinalSite)) {
+					player.getInventory().addItem("VoteSystem", reward.getItemId(), reward.getItemCount(), player, null);
+					player.sendPacket(SystemMessage.getSystemMessage(SystemMessageId.EARNED_S2_S1_S).addItemName(reward.getItemId()).addNumber(reward.getItemCount()));
+					}
+					player.sendMessage(String.format("%s: Thank you for voting for our server, your reward has been delivered.", VoteSiteXml.getInstance().getSiteName(ordinalSite)));
+					player.sendPacket(new ItemList(player, true));
+			}else {
+				aiv = _foundVoters.get(ip);
+				aiv[ordinalSite] = iv;
+				_foundVoters.replace(ip, aiv);
+				for(Reward reward : VoteSiteXml.getInstance().getRewards(ordinalSite)) {
+					player.getInventory().addItem("VoteSystem", reward.getItemId(), reward.getItemCount(), player, null);
+					player.sendPacket(SystemMessage.getSystemMessage(SystemMessageId.EARNED_S2_S1_S).addItemName(reward.getItemId()).addNumber(reward.getItemCount()));
+					}
+					player.sendMessage(String.format("%s: Thank you for voting for our server, your reward has been delivered.", VoteSiteXml.getInstance().getSiteName(ordinalSite)));
+					player.sendPacket(new ItemList(player, true));
+			}
+	}
+	
+	public boolean checkIndividualAvailableVote(L2PcInstance player, int ordinalSite) {
+		String ip = existIp(player);
+		//If player has registered almost 1 vote before this revision
+		if(_foundVoters.containsKey(ip)) {
+			individualVote[] ivs=_foundVoters.get(ip);
+			if(ivs[ordinalSite] == null) {
+				return true;
+			}if(ivs[ordinalSite] != null) {
+				individualVote iv = ivs[ordinalSite];
+				if(getTimeRemaining(iv)<0) {
+					return true;
+				}
+			}
+		}
+		
+		//if the player hasn't registered a vote or after the initial charge and not have votes registered
+		Optional<individualVote> iv = _votes.stream().filter(s -> s.getVoterIp().equalsIgnoreCase(ip)).filter(y -> y.getVoteSite() == ordinalSite).findFirst();
+		if(iv.isEmpty()) 
+			return true;
+		if(getTimeRemaining(iv.get()) <0)
+			return true;
+			
+		return false;
+	}
+	
+	public long getTimeRemaining(individualVote iv) {
+		long timeRemaining = 0L;
+			timeRemaining = (iv.getVotingTimeSite() + Config.INTERVAL_TO_NEXT_VOTE - (iv.getDiffTime()>0? iv.getDiffTime() : -1*iv.getDiffTime())) -System.currentTimeMillis();
+		return timeRemaining;
+	}
+	
+	public String getTimeRemainingWithSampleFormat(L2PcInstance player, int ordinalSite) {
+		String ip = existIp(player);
+		String timeRemainingWithSampleFormat ="";
+		if(_foundVoters.containsKey(ip)) {
+			individualVote[] ivs=_foundVoters.get(ip);
+			if(ivs[ordinalSite] != null) {
+				individualVote iv = ivs[ordinalSite];
+				long timeRemaining = getTimeRemaining(iv); 
+				if(timeRemaining>0 && iv.getAlreadyRewarded()) {
+					timeRemainingWithSampleFormat = CalculateTimeRemainingWithSampleDateFormat(timeRemaining);
+					return timeRemainingWithSampleFormat;
+				}
+			}
+		}
+		Optional<individualVote> iv = _votes.stream().filter(s -> s.getVoterIp().equalsIgnoreCase(ip)).filter(y -> y.getVoteSite() == ordinalSite).findFirst();
+		if(!iv.isEmpty()) {
+			if(getTimeRemaining(iv.get()) > 0 && iv.get().getAlreadyRewarded()) {
+				long timeRemaining = getTimeRemaining(iv.get()); 
+				timeRemainingWithSampleFormat = CalculateTimeRemainingWithSampleDateFormat(timeRemaining);
+				return timeRemainingWithSampleFormat;
+			}
+		}
+		
+		return timeRemainingWithSampleFormat;
+	}
+	
+	public String CalculateTimeRemainingWithSampleDateFormat(long timeRemaining) {
+		long t = timeRemaining/1000;
+		int hours = Math.round((t/3600%24));
+		 int minutes = Math.round((t/60)%60);
+		 int seconds = Math.round(t%60);
+		 return String.format("%sH:%sm:%ss", hours,minutes,seconds);
+	}
+	
+	public String existIp(L2PcInstance p) {
+		 
+		 L2GameClient client = p.getClient();
+		 if(client.getConnection() != null && client.getActiveChar() != null && !client.isDetached()) {
+		 try
+		{
+			 return client.getConnection().getInetAddress().getHostAddress();
+		}
+		catch (Exception e)
+		{
+				e.printStackTrace();
+		}
+	}
+		return null;
+		 
+	 }
+	
+	public final void loadVotes() {
+	 _votes = individualVoteDB.getInstance().getVotesDB();
+	}
+	protected void loadGlobalVotes(){
+		_globalVotes = globalVoteDB.getInstance().getGlobalVotes();
+	}
+	protected void saveVotes() {
+		individualVoteDB.getInstance().SaveVotes(_votes);
+	}
+	
+	protected void AutoGlobalVoteReward() {
+		HashSet<String> ipList = new HashSet<>();
+		for(voteSite vs : voteSite.values()) {
+			new Thread(() -> {
+				checkNewUpdate(vs.ordinal());
+				if(_globalVotes[vs.ordinal()].getCurrentVotes() >= _globalVotes[vs.ordinal()].getVotesLastReward() + (vs.ordinal() == voteSite.L2SERVERS.ordinal() ? 25*Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD)) {
+					_globalVotes[vs.ordinal()].setVotesLastReward(_globalVotes[vs.ordinal()].getVotesLastReward() + (vs.ordinal() == voteSite.L2SERVERS.ordinal() ? 25*Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD));
+					for(L2PcInstance player : L2World.getInstance().getAllPlayers()) {
+						String ip = existIp(player);
+						if(ip == null) {
+							continue;
+						}
+						if(ipList.contains(ip)) {
+							continue;
+						}
+						for(Reward reward : VoteSiteXml.getInstance().getRewards(11)) {
+							player.getInventory().addItem("VoteSystem: ", reward.getItemId(), reward.getItemCount(), player, null);
+							player.sendPacket(SystemMessage.getSystemMessage(SystemMessageId.EARNED_S2_S1_S).addItemName(reward.getItemId()).addNumber(reward.getItemCount()));
+						}
+						ipList.add(ip);
+						player.sendPacket(new ItemList(player, true));
+					}
+					Broadcast.announceToOnlinePlayers(VoteUtil.Sites[vs.ordinal()]+": All players has been rewarded, please check your inventory", true);
+				}else {
+					String encourage =""; 
+					int nextReward = _globalVotes[vs.ordinal()].getVotesLastReward() + (vs.ordinal() == voteSite.L2SERVERS.ordinal() ? 25*Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD);
+					encourage = String.format("Vote for %s current Votes: %s, next quantity of votes to reward : %s, need votes to next reward: %s", VoteUtil.Sites[vs.ordinal()], _globalVotes[vs.ordinal()].getCurrentVotes(),nextReward, nextReward-_globalVotes[vs.ordinal()].getCurrentVotes() );
+					Broadcast.announceToOnlinePlayers(encourage, true);
+				}
+			}).start();
+			
+		}
+	}
+	
+	protected void AutoSaveGlobalVotes() {
+		globalVoteDB.getInstance().saveGlobalVotes(_globalVotes);
+	}
+	
+	protected synchronized void  AutoUpdateIndividualVotes() {
+		AutoCleanInnecesaryIndividualVotes();
+		individualVoteDB.getInstance().SaveVotes(_votes);
+	}
+	
+	protected synchronized void AutoCleanInnecesaryIndividualVotes() {
+		HashSet<individualVote> removeVotes= new HashSet<>();
+		Iterator<individualVote> iv = _votes.iterator();
+		while(iv.hasNext()){
+			individualVote individualvote = iv.next();
+			if(getTimeRemaining(individualvote) < 0) {
+				removeVotes.add(individualvote);
+				iv.remove();
+				if(_foundVoters.containsKey(individualvote.getVoterIp())) {
+					if(_foundVoters.get(individualvote.getVoterIp())[individualvote.getVoteSite()] != null) {
+						_foundVoters.get(individualvote.getVoterIp())[individualvote.getVoteSite()] = null;
+					}
+				}
+			}
+		}
+		individualVoteDB.getInstance().DeleteVotes(removeVotes);
+	}
+	
+	public void checkAllResponseGlobalVotes() {
+		for(voteSite vs : voteSite.values()) {
+			new Thread(()-> {
+				checkNewUpdate(vs.ordinal());
+			});
+		}
+	}
+	
+	public void checkNewUpdate(int ordinalSite) {
+			int globalVotesResponse = getGlobalVotesResponse(ordinalSite); 
+			if(globalVotesResponse == -1) {
+				return;
+			}
+			_globalVotes[ordinalSite].setCurrentVotes(globalVotesResponse);
+			int last = globalVotesResponse - (ordinalSite == voteSite.L2SERVERS.ordinal() ? 25 * Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD);
+			if(last <0 ) {
+				_globalVotes[ordinalSite].setVotesLastReward(0);
+				return;
+			} 
+			if((_globalVotes[ordinalSite].getVotesLastReward() + (ordinalSite == voteSite.L2SERVERS.ordinal() ? 25 * Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD)) < globalVotesResponse) {
+				_globalVotes[ordinalSite].setVotesLastReward(globalVotesResponse);
+				return;
+			}
+	}
+	
+	public void Shutdown() {
+		AutoSaveGlobalVotes();
+		AutoCleanInnecesaryIndividualVotes();
+		AutoUpdateIndividualVotes();
+	}
+
+	protected class AutoGlobalVoteRewardTask implements Runnable {
+
+		@Override
+		public void run()
+		{
+			AutoGlobalVoteReward();
+			
+		}
+		
+	}
+	
+	protected class AutoSaveGlobalVotesTask implements Runnable {
+		
+		@Override
+		public void run()
+		{
+			AutoSaveGlobalVotes();
+			
+		}
+		
+	}
+	
+	protected class AutoUpdateIndividualVotesTask implements Runnable {
+
+		@Override
+		public void run()
+		{
+			AutoUpdateIndividualVotes();
+			
+		}
+		
+	}
+	
+	public static voteManager getInatance() {
+		return SingleHolder.INSTANCE;
+	}
+	
+	private static class SingleHolder {
+		protected static final voteManager INSTANCE = new voteManager();
+	}
+	
+}
+
+*******************************************************
+
+/*
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.l2jfrozen.gameserver.votesystem.DB;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashSet;
+import java.util.logging.Logger;
+
+import com.l2jfrozen.gameserver.votesystem.Model.individualVote;
+import com.l2jfrozen.util.database.L2DatabaseFactory;
+
+
+/**
+ * @author l2.topgameserver.net
+ *
+ */
+public class individualVoteDB
+{
+	private static final Logger LOGGER = Logger.getLogger(individualVoteDB.class.getName());
+	private HashSet<individualVote> _votes;
+	private Statement st;
+	private Connection con;
+	
+	private individualVoteDB() {
+		_votes = new HashSet<>();
+		loadVotes();
+	}
+	
+	public void loadVotes() {
+		
+		_votes.clear();
+		try(Connection con = L2DatabaseFactory.getInstance().getConnection();PreparedStatement ps = con.prepareStatement("SELECT voterIp,voteSite,diffTime,votingTimeSite,alreadyRewarded FROM individualVotes");
+			ResultSet rs = ps.executeQuery();)
+		{
+			while(rs.next()) {
+				individualVote iv = new individualVote();
+				iv.setVoterIp(rs.getString("voterIp"));
+				iv.setVoteSite(rs.getInt("voteSite"));
+				iv.setDiffTime(rs.getLong("diffTime"));
+				iv.setVotingTimeSite(rs.getLong("votingTimeSite"));
+				iv.setAlreadyRewarded(rs.getBoolean("alreadyRewarded"));
+				_votes.add(iv);
+			}
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void SaveVotes(HashSet<individualVote> votes) {
+		
+		if(votes == null)
+			return;
+		if(votes.size() == 0) {
+			return;
+		}
+			try(Connection con = L2DatabaseFactory.getInstance().getConnection(); PreparedStatement ps = con.prepareStatement("INSERT INTO individualVotes(voterIp,voteSite,diffTime,votingTimeSite,alreadyRewarded) VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+				+ "voterIp = VALUES(voterIp), voteSite = VALUES(voteSite), diffTime = VALUES(diffTime), votingTimeSite = VALUES(votingTimeSite),alreadyRewarded = VALUES(alreadyRewarded)");)
+			{
+				
+				for(individualVote iv : votes) {
+					ps.setString(1, iv.getVoterIp());
+					ps.setInt(2, iv.getVoteSite());
+					ps.setLong(3, iv.getDiffTime());
+					ps.setLong(4, iv.getVotingTimeSite());
+					ps.setBoolean(5, iv.getAlreadyRewarded());
+					ps.addBatch();
+				}
+				ps.executeBatch();
+			}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+			}
+	}
+	
+public void SaveVote(individualVote vote) {
+		
+		if(vote == null)
+			return;
+		
+			try(Connection con = L2DatabaseFactory.getInstance().getConnection(); PreparedStatement ps = con.prepareStatement("INSERT INTO individualVotes(voterIp,voteSite,diffTime,votingTimeSite,alreadyRewarded) VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE"
+				+ "voterIp = VALUES(voterIp), voteSite = VALUES(voteSite), diffTime = VALUES(diffTime), votingTimeSite = VALUES(votingTimeSite), alreadyRewarded = VALUES(alreadyRewarded)");)
+			{
+					ps.setString(1, vote.getVoterIp());
+					ps.setInt(2, vote.getVoteSite());
+					ps.setLong(3, vote.getDiffTime());
+					ps.setLong(4, vote.getVotingTimeSite());
+					ps.setBoolean(5, vote.getAlreadyRewarded());
+					ps.executeUpdate();
+			}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+			}
+	}
+
+	public void DeleteVotes(HashSet<individualVote> deleteVotes) {
+		if(deleteVotes == null) {
+			return;
+		}
+		if(deleteVotes.size() == 0) {
+			return;
+		}
+		try {
+			con = L2DatabaseFactory.getInstance().getConnection();
+			st = con.createStatement();
+			for(individualVote iv : deleteVotes) {
+			String sql = String.format("Delete from individualVotes where voterIp = '%s' AND voteSite = %s", iv.getVoterIp(),iv.getVoteSite());
+			st.addBatch(sql);
+			}
+			int[] result = st.executeBatch();
+			st.close();
+			con.close();
+			LOGGER.info(result.length+" Innecesary votes has been deleted");
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public HashSet<individualVote> getVotesDB(){
+		return _votes;
+	}
+
+	public static final individualVoteDB getInstance()
+	{
+		return SingleHolder.INSTANCE;
+	}
+	
+	private static final class SingleHolder {
+		protected static final individualVoteDB INSTANCE = new individualVoteDB();
+	}
+}
+
+**************************************************************
+
+/*
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.l2jfrozen.gameserver.votesystem.Model;
+
+/**
+ * @author l2.topgameserver.net
+ *
+ */
+public class individualVoteResponse
+{
+	private boolean _isVoted;
+	private long _diffTime;
+	private long _voteSiteTime;
+	
+	public individualVoteResponse() {
+		
+	}
+	
+	public void setIsVoted(boolean isVoted) {
+		_isVoted = isVoted;
+	}
+	public void setDiffTime(long diffTime) {
+		_diffTime = diffTime;
+	}
+	public void setVoteSiteTime(long voteSiteTime) {
+		_voteSiteTime = voteSiteTime;
+	}
+	
+	public boolean getIsVoted() {
+		return _isVoted;
+	}
+	public long getDiffTime() {
+		return  _diffTime;
+	}
+	public long getVoteSiteTime() {
+		return _voteSiteTime;
+	}
+}
+
+************************************************************************************************************************************************
+
+**********************************************For aCis********************************************************
+
+package net.sf.l2j.gameserver.votesystem.DB;
+
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashSet;
+
+import net.sf.l2j.commons.logging.CLogger;
+
+import net.sf.l2j.L2DatabaseFactory;
+import net.sf.l2j.gameserver.votesystem.Model.individualVote;
+
+/**
+ * @author l2.topgameserver.net
+ *
+ */
+public class individualVoteDB
+{
+	public static final CLogger LOGGER = new CLogger(individualVoteDB.class.getName());
+	private HashSet<individualVote> _votes;
+	private Statement st;
+	private Connection con;
+	
+	private individualVoteDB() {
+		_votes = new HashSet<>();
+		loadVotes();
+	}
+	
+	public void loadVotes() {
+		
+		con = L2DatabaseFactory.getInstance().getConnection();
+		_votes.clear();
+		try(PreparedStatement ps = con.prepareStatement("SELECT voterIp,voteSite,diffTime,votingTimeSite,alreadyRewarded FROM individualVotes");
+			ResultSet rs = ps.executeQuery();)
+		{
+			while(rs.next()) {
+				individualVote iv = new individualVote();
+				iv.setVoterIp(rs.getString("voterIp"));
+				iv.setVoteSite(rs.getInt("voteSite"));
+				iv.setDiffTime(rs.getLong("diffTime"));
+				iv.setVotingTimeSite(rs.getLong("votingTimeSite"));
+				iv.setAlreadyRewarded(rs.getBoolean("alreadyRewarded"));
+				_votes.add(iv);
+			}
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void SaveVotes(HashSet<individualVote> votes) {
+		
+		if(votes == null)
+			return;
+		if(votes.size() == 0) {
+			return;
+		}
+			try(Connection con = L2DatabaseFactory.getInstance().getConnection(); PreparedStatement ps = con.prepareStatement("INSERT INTO individualVotes(voterIp,voteSite,diffTime,votingTimeSite,alreadyRewarded) VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+				+ "voterIp = VALUES(voterIp), voteSite = VALUES(voteSite), diffTime = VALUES(diffTime), votingTimeSite = VALUES(votingTimeSite),alreadyRewarded = VALUES(alreadyRewarded)");)
+			{
+				
+				for(individualVote iv : votes) {
+					ps.setString(1, iv.getVoterIp());
+					ps.setInt(2, iv.getVoteSite());
+					ps.setLong(3, iv.getDiffTime());
+					ps.setLong(4, iv.getVotingTimeSite());
+					ps.setBoolean(5, iv.getAlreadyRewarded());
+					ps.addBatch();
+				}
+				ps.executeBatch();
+			}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+			}
+	}
+	
+public void SaveVote(individualVote vote) {
+		
+		if(vote == null)
+			return;
+		
+			try(Connection con = L2DatabaseFactory.getInstance().getConnection(); PreparedStatement ps = con.prepareStatement("INSERT INTO individualVotes(voterIp,voteSite,diffTime,votingTimeSite,alreadyRewarded) VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE"
+				+ "voterIp = VALUES(voterIp), voteSite = VALUES(voteSite), diffTime = VALUES(diffTime), votingTimeSite = VALUES(votingTimeSite), alreadyRewarded = VALUES(alreadyRewarded)");)
+			{
+					ps.setString(1, vote.getVoterIp());
+					ps.setInt(2, vote.getVoteSite());
+					ps.setLong(3, vote.getDiffTime());
+					ps.setLong(4, vote.getVotingTimeSite());
+					ps.setBoolean(5, vote.getAlreadyRewarded());
+					ps.executeUpdate();
+			}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+			}
+	}
+
+	public void DeleteVotes(HashSet<individualVote> deleteVotes) {
+		if(deleteVotes == null) {
+			return;
+		}
+		if(deleteVotes.size() == 0) {
+			return;
+		}
+		try {
+			con = L2DatabaseFactory.getInstance().getConnection();
+			st = con.createStatement();
+			for(individualVote iv : deleteVotes) {
+			String sql = String.format("Delete from individualVotes where voterIp = '%s' AND voteSite = %s", iv.getVoterIp(),iv.getVoteSite());
+			st.addBatch(sql);
+			}
+			int[] result = st.executeBatch();
+			st.close();
+			con.close();
+			LOGGER.info(result.length+" Innecesary votes has been deleted");
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public HashSet<individualVote> getVotesDB(){
+		return _votes;
+	}
+
+	public static final individualVoteDB getInstance()
+	{
+		return SingleHolder.INSTANCE;
+	}
+	
+	private static final class SingleHolder {
+		protected static final individualVoteDB INSTANCE = new individualVoteDB();
+	}
+}
+
+
+*********************************************************
+package net.sf.l2j.gameserver.votesystem.Handler;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import net.sf.l2j.commons.logging.CLogger;
+
+import net.sf.l2j.Config;
+import net.sf.l2j.gameserver.votesystem.Model.individualVoteResponse;
+import net.sf.l2j.gameserver.votesystem.VoteUtil.VoteSiteXml;
+import net.sf.l2j.gameserver.votesystem.VoteUtil.VoteUtil;
+
+/**
+ * @author l2.topgameserver.net
+ *
+ */
+public class voteHandler
+{
+	public static final CLogger LOGGER = new CLogger(voteHandler.class.getName());
+	
+	protected static String getNetWorkResponse(String URL,int ordinal) {
+				try {
+				String API_URL = Config.VOTE_NETWORK_LINK;
+				String detail = URL;
+				String postParameters = "";
+				postParameters +="apiKey="+VoteUtil.between("apiKey=", detail, "&type=");
+				postParameters += "&type="+VoteUtil.between("&type=", detail, "&player");
+				String beginIndexPlayer = "&player=";
+				String player = detail.substring(detail.indexOf(beginIndexPlayer)+beginIndexPlayer.length());
+				
+				if (player != null && !player.equals(""))
+					postParameters += "&player=" + player;
+
+				byte[] postData = postParameters.getBytes(Charset.forName("UTF-8"));
+				URL url = new URL(API_URL);
+				HttpURLConnection con = (HttpURLConnection)url.openConnection();
+				con.setConnectTimeout(5000);
+				con.setRequestMethod("POST");
+				con.setRequestProperty("Content-Length", Integer.toString(postData.length));
+				con.setRequestProperty("User-Agent", "Mozilla/5.0");
+				con.setDoOutput(true);
+				
+				DataOutputStream os = new DataOutputStream(con.getOutputStream());
+				os.write(postData);
+				os.flush();
+				os.close();
+				
+				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+				String inputLine;
+				StringBuffer response = new StringBuffer();
+				
+				while ((inputLine = in.readLine()) != null) {
+					response.append(inputLine);
+				}
+				in.close();
+					return response.toString();
+					
+				} catch (Exception e) {
+				LOGGER.error(VoteUtil.Sites[ordinal]+ " Say: An error ocurred ", e.getCause());
+				return "";
+				}
+	}
+	
+	protected static String getResponse(String Url, int ordinal) 
+	{
+		
+		try
+		  {
+			int responseCode = 0;
+			URL objUrl = new URL(Url);
+			HttpURLConnection con = (HttpURLConnection) objUrl.openConnection();
+			con.setRequestMethod("GET");
+			con.setRequestProperty("User-Agent", "Mozilla/5.0");
+			con.setConnectTimeout(5000);
+			responseCode = con.getResponseCode();
+			if (responseCode == HttpURLConnection.HTTP_OK) {
+				String inputLine;
+				StringBuffer response = new StringBuffer();
+				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+				while ((inputLine = in.readLine()) != null) {
+					response.append(inputLine);
+				}
+				in.close();
+				return response.toString();
+			} 
+		
+		  }
+		       catch (Exception e)
+		       {
+		    	   LOGGER.error(VoteSiteXml.getInstance().getSiteName(ordinal)+" Say: An error ocurred "+e.getCause());
+		           return "";
+		       }
+
+		return "";
+	}
+	
+	
+	public static individualVoteResponse getIndividualVoteResponse(int ordinal,String ip, String AccountName) 
+	{
+		String response = "";
+		boolean isVoted = false;
+		long voteSiteTime = 0L, diffTime = 0L;
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		individualVoteResponse ivr = new individualVoteResponse();
+		
+			switch(ordinal) 
+			{
+				case 0:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(VoteUtil.between("\"already_voted\":", response, ",\"vote_time\""));
+						if(isVoted) {
+                            try
+							{
+								voteSiteTime = format.parse(VoteUtil.between("\"vote_time\":\"", response, "\",\"server_time\"")).getTime();
+								diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"server_time\":\"", response, "\"}")).getTime();
+							}
+							catch (ParseException e)
+							{
+								e.printStackTrace();
+							}					
+						}
+						break;
+						
+				case 1:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(response);
+					if(isVoted) {
+							voteSiteTime = System.currentTimeMillis();
+							diffTime = 0;
+					}
+					break;
+						
+				case 2:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(response);
+					if(isVoted) {
+							voteSiteTime = System.currentTimeMillis();
+							diffTime = 0;
+					}
+					break;
+					
+				case 3:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Integer.parseInt(VoteUtil.between("\"status\":\"", response, "\",\"date\"")) == 1 ? true : false;
+					if(isVoted) {
+							String dateString = VoteUtil.between("\"date\":\"", response, "\"}]");
+							try
+							{
+								voteSiteTime = format.parse(String.format("%s-%s-%s %s:%s:%s", dateString.substring(0, 4),dateString.substring(4, 6),dateString.substring(6, 8),dateString.substring(8, 10),dateString.substring(10, 12),dateString.substring(12, 14))).getTime();
+								diffTime = System.currentTimeMillis() - VoteUtil.getTimeVotingSite(ordinal);
+							}
+							catch (ParseException e)
+							{
+								e.printStackTrace();
+							}
+							
+					}
+					break;
+				
+				case 4:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(VoteUtil.between("\"voted\":", response, ",\"voteTime\""));
+					if(isVoted) {
+					try
+					{
+						voteSiteTime = format.parse(VoteUtil.between("\"voteTime\":\"", response, "\",\"hopzoneServerTime\"")).getTime();
+						diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"hopzoneServerTime\":\"", response, "\",\"status_code\":")).getTime();
+					}
+					catch (ParseException e)
+					{
+						e.printStackTrace();
+					}
+				}
+					break;
+					
+				case 5:
+					
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = (Integer.parseInt(response) == 1) ? true : false;
+					if(isVoted) {
+					voteSiteTime = System.currentTimeMillis();
+					diffTime = 0;
+					}
+					break;
+					
+				case 6:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(VoteUtil.between("\"voted\":", response, ",\"voteTime\""));
+					if(isVoted) {
+						try
+						{
+							voteSiteTime = format.parse(VoteUtil.between("\"voteTime\":\"", response, "\",\"l2topserversServerTime\"")).getTime();
+							diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"l2topserversServerTime\":\"", response, "\",\"status_code\"")).getTime();
+						}
+						catch (ParseException e)
+						{
+							e.printStackTrace();
+						}
+						
+					}
+					break;
+					
+				case 7:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Integer.parseInt(VoteUtil.between("\"status\":\"", response, "\",\"server_time\"")) == 1 ? true : false;
+					if(isVoted) {
+							try
+							{
+								voteSiteTime = format.parse(VoteUtil.between("\"date\":\"", response, "\",\"status\"")).getTime();
+								diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"server_time\":\"", response, "\",\"hours_since_vote\"")).getTime();
+							}
+							catch (ParseException e)
+							{
+								e.printStackTrace();
+							}
+					}
+					break;
+					
+				case 8:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(VoteUtil.between("\"is_voted\":", response, ",\"vote_time\""));
+					if(isVoted) {
+						try
+						{
+							voteSiteTime = (Long.parseLong(VoteUtil.between("\"vote_time\":", response, ",\"server_time\"")))*1000;
+							diffTime = System.currentTimeMillis() - Long.parseLong(VoteUtil.between("\"server_time\":",response,"}}"))*1000;
+						}
+						catch (Exception e)
+						{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					break;
+					
+				case 9:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(VoteUtil.between("\"isVoted\": ", response, ",\"voteTime\""));
+					if(isVoted) {
+						voteSiteTime = Long.parseLong(VoteUtil.between("\"voteTime\": \"", response, "\",\"serverTime\""))*1000;
+						diffTime = System.currentTimeMillis() - Long.parseLong(VoteUtil.between("\"serverTime\": ",response,"}}"));
+					}
+					break;
+					
+				case 10:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(response);
+					if(isVoted) {
+							voteSiteTime = System.currentTimeMillis();
+							diffTime = 0;
+					}
+					break;
+					
+			}
+				if(!response.equals("")) {
+				ivr.setIsVoted(isVoted);
+				ivr.setDiffTime(diffTime);
+				ivr.setVoteSiteTime(voteSiteTime);
+				return ivr;
+				}
+				return null;
+	}
+	
+	public int getGlobalVotesResponse(int ordinal) 
+	{
+		
+		String response = "";
+		int totalVotes = 0;
+		
+		switch(ordinal) 
+		{
+			case 0:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("\"getVotes\":",response,"}");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 1:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("[server_votes]=>",response.replace(" ", ""),"[server_rank]");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 2:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 3:
+				response = VoteUtil.getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("Votes:</th><th><a class='votes'>", response, "</a></th></tr><tr><th>Clicks:");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 4:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("\"totalvotes\":",response,",\"status_code\"");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 5:
+				String responseNetwork = getNetWorkResponse(getGlobalUrl(ordinal),ordinal);
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(responseNetwork) : -1;
+				break;
+			
+			/*case 6:
+				
+				break;*/
+				
+			case 7:
+				response = VoteUtil.getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("nicas:</b> ", response, "<br /><br />");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 8:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("\"monthly_votes\":",response,"}}");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 9:
+			  	response = getResponse(getGlobalUrl(ordinal), ordinal);
+			  	response = VoteUtil.between("\"totalVotes\":\"", response, "\",\"serverRank\"");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 10:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+		}
+		
+		
+		return totalVotes;
+	}
+	
+	public static String getIndividualUrl(int ordinal,String ip,String AccountName) 
+	{
+		String url = "";
+		switch(ordinal) {
+			case 0:
+			    //l2.topgameserver.net
+				url =  String.format("%sAPI_KEY=%s/getData/%s", Config.VOTE_LINK_TGS, Config.TGS_API_KEY,ip); 
+				break;
+				
+			case 1:
+				//itopz.com
+				url = String.format("%s%s/%s/%s", Config.VOTE_LINK_ITOPZ,Config.ITOPZ_API_KEY,Config.ITOPZ_SRV_ID,ip); 
+				break;
+				
+			case 2:
+				//l2top.co
+				url = String.format("%sVoteCheck.php?id=%s&ip=%s", Config.VOTE_LINK_TOP_CO,Config.TOP_CO_SRV_ID,ip); 
+				break;
+				
+			case 3:
+				//l2votes.com
+				url = String.format("%sapi.php?apiKey=%s&ip=%s", Config.VOTE_LINK_VTS,Config.VTS_API_KEY,ip); 
+				break;
+				
+			case 4:
+				//hopzone.net
+				url = String.format("%svote?token=%s&ip_address=%s",Config.VOTE_LINK_HZ,Config.HZ_API_KEY,ip);
+				break;
+				
+			case 5:
+				//l2network.eu
+				url = String.format("https://l2network.eu/index.php?a=in&u=%s&ipc=%s", Config.VOTE_NETWORK_USER_NAME,ip);
+				break;
+				
+			case 6:
+				//l2topservers.com
+				url = String.format("%stoken=%s&ip=%s", Config.VOTE_LINK_TSS,Config.TSS_API_TOKEN,ip); 
+				break;
+				
+			case 7:
+				//top.l2jbrasil.com
+				url = String.format("%susername=%s&ip=%s&type=json",Config.BRASIL_VOTE_LINK,Config.BRASIL_USER_NAME,ip); 
+				break;
+				
+			case 8:
+				//mmotop
+				url = String.format("%s%s/%s", Config.VOTE_LINK_MMOTOP,Config.MMOTOP_API_KEY,ip); 
+				break;
+				
+			case 9:
+				//topzone.com
+				url = String.format("%svote?token=%s&ip=%s", Config.VOTE_LINK_TZ,Config.TZ_API_KEY,ip); 
+				break;
+				
+			case 10:
+				//l2servers.com
+				url = String.format("%scheckip.php?hash=%s&server_id=%s&ip=%s", Config.VOTE_LINK_SERVERS,Config.SERVERS_HASH_CODE,Config.SERVERS_SRV_ID,ip); 
+				break;
+		}
+		
+		return url;
+	}
+	
+	public String getGlobalUrl(int ordinal) 
+	{
+		String url = "";
+		
+		switch(ordinal) {
+			case 0:
+			    //l2.topgameserver.net
+				url = String.format("%sAPI_KEY=%s/getData", Config.VOTE_LINK_TGS,Config.TGS_API_KEY);
+				break;
+			
+			case 1:
+				//itopz.com
+				url = String.format("%s%s/%s", Config.VOTE_LINK_ITOPZ,Config.ITOPZ_API_KEY,Config.ITOPZ_SRV_ID); 
+				break;
+
+			case 2:
+				//l2top.co
+				url = String.format("%sVoteCheck_Total.php?id=%s", Config.VOTE_LINK_TOP_CO,Config.TOP_CO_SRV_ID); 
+				break;
+				
+			case 3:
+				//l2votes.com
+				url = String.format("%sserverPage.php?sid=%s",Config.VOTE_LINK_VTS,Config.VTS_SID); 
+				break;
+				
+			case 4:
+				//hopzone.net
+				url = String.format("%svotes?token=%s", Config.VOTE_LINK_HZ,Config.HZ_API_KEY);
+				break;
+				
+			case 5:
+				//l2network.eu
+				url = String.format("apiKey=%s&type=%s&player=",Config.VOTE_NETWORK_API_KEY,1);
+				break;
+				
+			/*case 6:
+				//l2topservers
+				return String.format("%sAPI_KEY=%s/getData", Config.VOTE_LINK_TGS,Config.TGS_API_KEY); 
+				break;*/
+								
+			case 7:
+				//top.l2jbrasil.com
+				url = "https://top.l2jbrasil.com/index.php?a=stats&u=julioguzman"; 
+				break;
+				
+			case 8:
+				//mmotop.eu/l2/
+				url = String.format("%s%s/info/", Config.VOTE_LINK_MMOTOP,Config.MMOTOP_API_KEY); 
+				break;
+				
+			case 9:
+				//l2topzone.com
+				url = String.format("%sserver_%s/getServerData", Config.VOTE_LINK_TZ,Config.TZ_API_KEY); 
+				break;
+			
+			case 10:
+				//l2servers.com
+				url = String.format("%syearlyvotes.php?server_id=%s", Config.VOTE_LINK_SERVERS,Config.SERVERS_SRV_ID);
+				break;
+		}
+		
+		return url;
+	}
+}
+
+**************************************************
+
+package net.sf.l2j.gameserver.votesystem.Handler;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
+import java.util.stream.Collectors;
+
+import net.sf.l2j.commons.concurrent.ThreadPool;
+
+import net.sf.l2j.Config;
+import net.sf.l2j.gameserver.model.World;
+import net.sf.l2j.gameserver.model.actor.Player;
+import net.sf.l2j.gameserver.network.GameClient;
+import net.sf.l2j.gameserver.network.SystemMessageId;
+import net.sf.l2j.gameserver.network.serverpackets.ItemList;
+import net.sf.l2j.gameserver.network.serverpackets.SystemMessage;
+import net.sf.l2j.gameserver.votesystem.DB.globalVoteDB;
+import net.sf.l2j.gameserver.votesystem.DB.individualVoteDB;
+import net.sf.l2j.gameserver.votesystem.Enum.voteSite;
+import net.sf.l2j.gameserver.votesystem.Model.Reward;
+import net.sf.l2j.gameserver.votesystem.Model.globalVote;
+import net.sf.l2j.gameserver.votesystem.Model.individualVote;
+import net.sf.l2j.gameserver.votesystem.Model.individualVoteResponse;
+import net.sf.l2j.gameserver.votesystem.VoteUtil.VoteSiteXml;
+import net.sf.l2j.gameserver.votesystem.VoteUtil.VoteUtil;
+
+/**
+ * @author l2.topgameserver.net
+ *
+ */
+public class voteManager extends voteHandler
+{
+	private ScheduledFuture<?> _saveGlobalVotes;
+	private ScheduledFuture<?> _updateIndividualVotes;
+	private ScheduledFuture<?> _autoGlobalVotesReward;
+	
+	private HashSet<individualVote> _votes;
+	private Map<String,individualVote[]> _foundVoters;
+	private globalVote[] _globalVotes = new globalVote[voteSite.values().length];
+	
+	public voteManager() {
+		loadVotes();
+		loadGlobalVotes();
+		_foundVoters = new ConcurrentHashMap<>();
+		checkAllResponseGlobalVotes();
+		stopAutoTasks();
+		
+		if(Config.ENABLE_INDIVIDUAL_VOTE && Config.ENABLE_VOTE_SYSTEM) {
+			_updateIndividualVotes = ThreadPool.scheduleAtFixedRate(new AutoUpdateIndividualVotesTask(), 30000, 	Config.NEXT_TIME_TO_AUTO_UPDATE_INDIVIDUAL_VOTES);
+		}
+		if(Config.ENABLE_GLOBAL_VOTE && Config.ENABLE_VOTE_SYSTEM) {
+			_autoGlobalVotesReward = ThreadPool.scheduleAtFixedRate(new AutoGlobalVoteRewardTask(), 10000, Config.NEXT_TIME_TO_CHECK_AUTO_GLOBAL_VOTES_REWARD);
+			_saveGlobalVotes = ThreadPool.scheduleAtFixedRate(new AutoSaveGlobalVotesTask(), 30000, Config.NEXT_TIME_TO_AUTO_UPDATE_TOTAL_VOTE);		
+		}
+	}
+	
+	private void stopAutoTasks() {
+		if(_saveGlobalVotes != null) {
+			_saveGlobalVotes.cancel(true);
+			_saveGlobalVotes = null;
+		}
+		if(_updateIndividualVotes != null) {
+			_updateIndividualVotes.cancel(true);
+			_updateIndividualVotes = null;
+		}
+		if(_autoGlobalVotesReward != null) {
+			_autoGlobalVotesReward.cancel(true);
+			_autoGlobalVotesReward = null;
+		}
+	}
+	
+	public void getReward(Player player, int ordinalSite) {
+		String ip = existIp(player);
+			if(ip == null) {
+				return;
+			}
+			individualVoteResponse ivr = getIndividualVoteResponse(ordinalSite,ip,player.getAccountName());
+			if(ivr == null) {
+				player.sendMessage("We were unable to verify your vote with: "+VoteSiteXml.getInstance().getSiteName(ordinalSite)+", please try again");
+				return;
+			}
+			if(!ivr.getIsVoted()) {
+				player.sendMessage(String.format("You haven't vote on %s yet!", VoteSiteXml.getInstance().getSiteName(ordinalSite)));
+				return;
+			}
+			if(!checkIndividualAvailableVote(player,ordinalSite)) {
+				player.sendMessage(String.format("You can get the reward again on %s at %s", VoteSiteXml.getInstance().getSiteName(ordinalSite),getTimeRemainingWithSampleFormat(player,ordinalSite)));
+				return;
+			}
+			individualVote iv = new individualVote(ip,ivr.getDiffTime(),ivr.getVoteSiteTime(),ordinalSite,true);
+			_votes.add(iv);
+			individualVote[] aiv;
+			if(!_foundVoters.containsKey(ip)) {
+				Set<individualVote> ivts = _votes.stream().filter(st -> st.getVoterIp().equalsIgnoreCase(iv.getVoterIp())).collect(Collectors.toSet());
+				aiv = new individualVote[voteSite.values().length];
+				if(ivts.size()>1) {
+					ivts.forEach(x -> {
+						aiv[x.getVoteSite()] = x;
+					});
+					_foundVoters.put(ip, aiv);
+				}else {
+				aiv[ordinalSite] = iv; 
+				_foundVoters.put(ip, aiv);
+				}
+				for(Reward reward : VoteSiteXml.getInstance().getRewards(ordinalSite)) {
+					player.getInventory().addItem("VoteSystem", reward.getItemId(), reward.getItemCount(), player, null);
+					player.sendPacket(SystemMessage.getSystemMessage(SystemMessageId.EARNED_S2_S1_S).addItemName(reward.getItemId()).addNumber(reward.getItemCount()));
+					}
+					player.sendMessage(String.format("%s: Thank you for voting for our server, your reward has been delivered.", VoteSiteXml.getInstance().getSiteName(ordinalSite)));
+					player.sendPacket(new ItemList(player, true));
+			}else {
+				aiv = _foundVoters.get(ip);
+				aiv[ordinalSite] = iv;
+				_foundVoters.replace(ip, aiv);
+				for(Reward reward : VoteSiteXml.getInstance().getRewards(ordinalSite)) {
+					player.getInventory().addItem("VoteSystem", reward.getItemId(), reward.getItemCount(), player, null);
+					player.sendPacket(SystemMessage.getSystemMessage(SystemMessageId.EARNED_S2_S1_S).addItemName(reward.getItemId()).addNumber(reward.getItemCount()));
+					}
+					player.sendMessage(String.format("%s: Thank you for voting for our server, your reward has been delivered.", VoteSiteXml.getInstance().getSiteName(ordinalSite)));
+					player.sendPacket(new ItemList(player, true));
+			}
+	}
+	
+	public boolean checkIndividualAvailableVote(Player player, int ordinalSite) {
+		String ip = existIp(player);
+		//If player has registered almost 1 vote before this revision
+		if(_foundVoters.containsKey(ip)) {
+			individualVote[] ivs=_foundVoters.get(ip);
+			if(ivs[ordinalSite] == null) {
+				return true;
+			}if(ivs[ordinalSite] != null) {
+				individualVote iv = ivs[ordinalSite];
+				if(getTimeRemaining(iv)<0) {
+					return true;
+				}
+			}
+		}
+		
+		//if the player hasn't registered a vote or after the initial charge and not have votes registered
+		Optional<individualVote> iv = _votes.stream().filter(s -> s.getVoterIp().equalsIgnoreCase(ip)).filter(y -> y.getVoteSite() == ordinalSite).findFirst();
+		if(iv.isEmpty()) 
+			return true;
+		if(getTimeRemaining(iv.get()) <0)
+			return true;
+			
+		return false;
+	}
+	
+	public long getTimeRemaining(individualVote iv) {
+		long timeRemaining = 0L;
+			timeRemaining = (iv.getVotingTimeSite() + Config.INTERVAL_TO_NEXT_VOTE - (iv.getDiffTime()>0? iv.getDiffTime() : -1*iv.getDiffTime())) -System.currentTimeMillis();
+		return timeRemaining;
+	}
+	
+	public String getTimeRemainingWithSampleFormat(Player player, int ordinalSite) {
+		String ip = existIp(player);
+		String timeRemainingWithSampleFormat ="";
+		if(_foundVoters.containsKey(ip)) {
+			individualVote[] ivs=_foundVoters.get(ip);
+			if(ivs[ordinalSite] != null) {
+				individualVote iv = ivs[ordinalSite];
+				long timeRemaining = getTimeRemaining(iv); 
+				if(timeRemaining>0 && iv.getAlreadyRewarded()) {
+					timeRemainingWithSampleFormat = CalculateTimeRemainingWithSampleDateFormat(timeRemaining);
+					return timeRemainingWithSampleFormat;
+				}
+			}
+		}
+		Optional<individualVote> iv = _votes.stream().filter(s -> s.getVoterIp().equalsIgnoreCase(ip)).filter(y -> y.getVoteSite() == ordinalSite).findFirst();
+		if(!iv.isEmpty()) {
+			if(getTimeRemaining(iv.get()) > 0 && iv.get().getAlreadyRewarded()) {
+				long timeRemaining = getTimeRemaining(iv.get()); 
+				timeRemainingWithSampleFormat = CalculateTimeRemainingWithSampleDateFormat(timeRemaining);
+				return timeRemainingWithSampleFormat;
+			}
+		}
+		
+		return timeRemainingWithSampleFormat;
+	}
+	
+	public String CalculateTimeRemainingWithSampleDateFormat(long timeRemaining) {
+		long t = timeRemaining/1000;
+		int hours = Math.round((t/3600%24));
+		 int minutes = Math.round((t/60)%60);
+		 int seconds = Math.round(t%60);
+		 return String.format("%sH:%sm:%ss", hours,minutes,seconds);
+	}
+	
+	public String existIp(Player p) {
+		 
+		 GameClient client = p.getClient();
+		 if(client.getConnection() != null && client.getPlayer() != null && !client.isDetached()) {
+		 try
+		{
+			 return client.getConnection().getInetAddress().getHostAddress();
+		}
+		catch (Exception e)
+		{
+				e.printStackTrace();
+		}
+	}
+		return null;
+		 
+	 }
+	
+	public final void loadVotes() {
+	 _votes = individualVoteDB.getInstance().getVotesDB();
+	}
+	protected void loadGlobalVotes(){
+		_globalVotes = globalVoteDB.getInstance().getGlobalVotes();
+	}
+	protected void saveVotes() {
+		individualVoteDB.getInstance().SaveVotes(_votes);
+	}
+	
+	protected void AutoGlobalVoteReward() {
+		HashSet<String> ipList = new HashSet<>();
+		for(voteSite vs : voteSite.values()) {
+			new Thread(() -> {
+				checkNewUpdate(vs.ordinal());
+				if(_globalVotes[vs.ordinal()].getCurrentVotes() >= _globalVotes[vs.ordinal()].getVotesLastReward() + (vs.ordinal() == voteSite.L2SERVERS.ordinal() ? 25*Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD)) {
+					_globalVotes[vs.ordinal()].setVotesLastReward(_globalVotes[vs.ordinal()].getVotesLastReward() + (vs.ordinal() == voteSite.L2SERVERS.ordinal() ? 25*Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD));
+					for(Player player : World.getInstance().getPlayers()) {
+						String ip = existIp(player);
+						if(ip == null) {
+							continue;
+						}
+						if(ipList.contains(ip)) {
+							continue;
+						}
+						for(Reward reward : VoteSiteXml.getInstance().getRewards(11)) {
+							player.getInventory().addItem("VoteSystem: ", reward.getItemId(), reward.getItemCount(), player, null);
+							player.sendPacket(SystemMessage.getSystemMessage(SystemMessageId.EARNED_S2_S1_S).addItemName(reward.getItemId()).addNumber(reward.getItemCount()));
+						}
+						ipList.add(ip);
+						player.sendPacket(new ItemList(player, true));
+					}
+					World.announceToOnlinePlayers(VoteUtil.Sites[vs.ordinal()]+": All players has been rewarded, please check your inventory", true);
+				}else {
+					String encourage =""; 
+					int nextReward = _globalVotes[vs.ordinal()].getVotesLastReward() + (vs.ordinal() == voteSite.L2SERVERS.ordinal() ? 25*Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD);
+					encourage = String.format("Vote for %s current Votes: %s, next quantity of votes to reward : %s, need votes to next reward: %s", VoteUtil.Sites[vs.ordinal()], _globalVotes[vs.ordinal()].getCurrentVotes(),nextReward, nextReward-_globalVotes[vs.ordinal()].getCurrentVotes() );
+					World.announceToOnlinePlayers(encourage, true);
+				}
+			}).start();
+			
+		}
+	}
+	
+	protected void AutoSaveGlobalVotes() {
+		globalVoteDB.getInstance().saveGlobalVotes(_globalVotes);
+	}
+	
+	protected synchronized void  AutoUpdateIndividualVotes() {
+		AutoCleanInnecesaryIndividualVotes();
+		individualVoteDB.getInstance().SaveVotes(_votes);
+	}
+	
+	protected synchronized void AutoCleanInnecesaryIndividualVotes() {
+		HashSet<individualVote> removeVotes= new HashSet<>();
+		Iterator<individualVote> iv = _votes.iterator();
+		while(iv.hasNext()){
+			individualVote individualvote = iv.next();
+			if(getTimeRemaining(individualvote) < 0) {
+				removeVotes.add(individualvote);
+				iv.remove();
+				if(_foundVoters.containsKey(individualvote.getVoterIp())) {
+					if(_foundVoters.get(individualvote.getVoterIp())[individualvote.getVoteSite()] != null) {
+						_foundVoters.get(individualvote.getVoterIp())[individualvote.getVoteSite()] = null;
+					}
+				}
+			}
+		}
+		individualVoteDB.getInstance().DeleteVotes(removeVotes);
+	}
+	
+	public void checkAllResponseGlobalVotes() {
+		for(voteSite vs : voteSite.values()) {
+			new Thread(()-> {
+				checkNewUpdate(vs.ordinal());
+			});
+		}
+	}
+	
+	public void checkNewUpdate(int ordinalSite) {
+			int globalVotesResponse = getGlobalVotesResponse(ordinalSite); 
+			if(globalVotesResponse == -1) {
+				return;
+			}
+			_globalVotes[ordinalSite].setCurrentVotes(globalVotesResponse);
+			int last = globalVotesResponse - (ordinalSite == voteSite.L2SERVERS.ordinal() ? 25 * Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD);
+			if(last <0 ) {
+				_globalVotes[ordinalSite].setVotesLastReward(0);
+				return;
+			} 
+			if((_globalVotes[ordinalSite].getVotesLastReward() + (ordinalSite == voteSite.L2SERVERS.ordinal() ? 25 * Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD)) < globalVotesResponse) {
+				_globalVotes[ordinalSite].setVotesLastReward(globalVotesResponse);
+				return;
+			}
+	}
+	
+	public void Shutdown() {
+		AutoSaveGlobalVotes();
+		AutoCleanInnecesaryIndividualVotes();
+		AutoUpdateIndividualVotes();
+	}
+
+	protected class AutoGlobalVoteRewardTask implements Runnable {
+
+		@Override
+		public void run()
+		{
+			AutoGlobalVoteReward();
+			
+		}
+		
+	}
+	
+	protected class AutoSaveGlobalVotesTask implements Runnable {
+		
+		@Override
+		public void run()
+		{
+			AutoSaveGlobalVotes();
+			
+		}
+		
+	}
+	
+	protected class AutoUpdateIndividualVotesTask implements Runnable {
+
+		@Override
+		public void run()
+		{
+			AutoUpdateIndividualVotes();
+			
+		}
+		
+	}
+	
+	public static voteManager getInatance() {
+		return SingleHolder.INSTANCE;
+	}
+	
+	private static class SingleHolder {
+		protected static final voteManager INSTANCE = new voteManager();
+	}
+	
+}
+
+****************************************************
+
+package net.sf.l2j.gameserver.votesystem.Model;
+
+
+/**
+ * @author l2.topgameserver.net
+ *
+ */
+public class individualVote
+{
+	private String _voterIp;
+	private long _diffTime;
+	private long _votingTimeSite;
+	private int _voteSite;
+	private boolean _alreadyRewarded;
+	
+	
+	public individualVote(String voterIp, long diffTime, long votingTimeSite, int voteSite, boolean alreadyRewarded){
+		_voterIp = voterIp;
+		_diffTime = diffTime;
+		_votingTimeSite = votingTimeSite;
+		_voteSite = voteSite;
+		_alreadyRewarded = alreadyRewarded;
+	}
+	
+	public individualVote(){
+		
+	}
+	
+	public void setVoterIp(String voterIp) {
+		_voterIp = voterIp;
+	}
+	
+	public void setDiffTime(long diffTime) {
+		_diffTime = diffTime;
+	}
+	
+	public void setVotingTimeSite(long votingTimeSite) {
+		_votingTimeSite = votingTimeSite;
+	}
+	
+	public void setVoteSite(int voteSite) {
+		_voteSite = voteSite;
+	}
+	
+	public void setAlreadyRewarded(boolean alreadyRewarded) {
+		_alreadyRewarded = alreadyRewarded;
+	}
+	
+	public String getVoterIp() {
+		return _voterIp;
+	}
+	
+	public long getDiffTime() {
+		return _diffTime;
+	}
+	
+	public long  getVotingTimeSite() {
+		return _votingTimeSite;
+	}
+	
+	public int getVoteSite() {
+		return _voteSite;
+	}
+	
+	public boolean getAlreadyRewarded() {
+		return _alreadyRewarded;
+	}
+	
+}
+
+*******************************************************
+package net.sf.l2j.gameserver.votesystem.Model;
+
+/**
+ * @author l2.topgameserver.net
+ *
+ */
+public class individualVoteResponse
+{
+	private boolean _isVoted;
+	private long _diffTime;
+	private long _voteSiteTime;
+	
+	public individualVoteResponse() {
+		
+	}
+	
+	public void setIsVoted(boolean isVoted) {
+		_isVoted = isVoted;
+	}
+	public void setDiffTime(long diffTime) {
+		_diffTime = diffTime;
+	}
+	public void setVoteSiteTime(long voteSiteTime) {
+		_voteSiteTime = voteSiteTime;
+	}
+	
+	public boolean getIsVoted() {
+		return _isVoted;
+	}
+	public long getDiffTime() {
+		return  _diffTime;
+	}
+	public long getVoteSiteTime() {
+		return _voteSiteTime;
+	}
+}
+
+
+
+****************************************************************************************************************************************************
+******************************************************for c6 interlude mobius *********************************************************************
+
+/*
+ * This file is part of the L2J Mobius project.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.l2jmobius.gameserver.votesystem.DB;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashSet;
+import java.util.logging.Logger;
+
+import org.l2jmobius.commons.database.DatabaseFactory;
+import org.l2jmobius.gameserver.votesystem.Model.individualVote;
+
+/**
+ * @author l2.topgameserver.net
+ */
+public class individualVoteDB
+{
+	public static final Logger LOGGER = Logger.getLogger(individualVoteDB.class.getName());
+	private final HashSet<individualVote> _votes;
+	private Statement st;
+	private Connection con;
+	
+	private individualVoteDB()
+	{
+		_votes = new HashSet<>();
+		loadVotes();
+	}
+	
+	public void loadVotes()
+	{
+		
+		con = DatabaseFactory.getConnection();
+		_votes.clear();
+		try (PreparedStatement ps = con.prepareStatement("SELECT voterIp,voteSite,diffTime,votingTimeSite,alreadyRewarded FROM individualVotes");
+			ResultSet rs = ps.executeQuery();)
+		{
+			while (rs.next())
+			{
+				individualVote iv = new individualVote();
+				iv.setVoterIp(rs.getString("voterIp"));
+				iv.setVoteSite(rs.getInt("voteSite"));
+				iv.setDiffTime(rs.getLong("diffTime"));
+				iv.setVotingTimeSite(rs.getLong("votingTimeSite"));
+				iv.setAlreadyRewarded(rs.getBoolean("alreadyRewarded"));
+				_votes.add(iv);
+			}
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void SaveVotes(HashSet<individualVote> votes)
+	{
+		
+		if (votes == null)
+		{
+			return;
+		}
+		if (votes.size() == 0)
+		{
+			return;
+		}
+		try (Connection con = DatabaseFactory.getConnection();
+			PreparedStatement ps = con.prepareStatement("INSERT INTO individualVotes(voterIp,voteSite,diffTime,votingTimeSite,alreadyRewarded) VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE " + "voterIp = VALUES(voterIp), voteSite = VALUES(voteSite), diffTime = VALUES(diffTime), votingTimeSite = VALUES(votingTimeSite),alreadyRewarded = VALUES(alreadyRewarded)");)
+		{
+			
+			for (individualVote iv : votes)
+			{
+				ps.setString(1, iv.getVoterIp());
+				ps.setInt(2, iv.getVoteSite());
+				ps.setLong(3, iv.getDiffTime());
+				ps.setLong(4, iv.getVotingTimeSite());
+				ps.setBoolean(5, iv.getAlreadyRewarded());
+				ps.addBatch();
+			}
+			ps.executeBatch();
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void SaveVote(individualVote vote)
+	{
+		
+		if (vote == null)
+		{
+			return;
+		}
+		
+		try (Connection con = DatabaseFactory.getConnection();
+			PreparedStatement ps = con.prepareStatement("INSERT INTO individualVotes(voterIp,voteSite,diffTime,votingTimeSite,alreadyRewarded) VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE" + "voterIp = VALUES(voterIp), voteSite = VALUES(voteSite), diffTime = VALUES(diffTime), votingTimeSite = VALUES(votingTimeSite), alreadyRewarded = VALUES(alreadyRewarded)");)
+		{
+			ps.setString(1, vote.getVoterIp());
+			ps.setInt(2, vote.getVoteSite());
+			ps.setLong(3, vote.getDiffTime());
+			ps.setLong(4, vote.getVotingTimeSite());
+			ps.setBoolean(5, vote.getAlreadyRewarded());
+			ps.executeUpdate();
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void DeleteVotes(HashSet<individualVote> deleteVotes)
+	{
+		if (deleteVotes == null)
+		{
+			return;
+		}
+		if (deleteVotes.size() == 0)
+		{
+			return;
+		}
+		try
+		{
+			con = DatabaseFactory.getConnection();
+			st = con.createStatement();
+			for (individualVote iv : deleteVotes)
+			{
+				String sql = String.format("Delete from individualVotes where voterIp = '%s' AND voteSite = %s", iv.getVoterIp(), iv.getVoteSite());
+				st.addBatch(sql);
+			}
+			int[] result = st.executeBatch();
+			st.close();
+			con.close();
+			LOGGER.info(result.length + " Innecesary votes has been deleted");
+			
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public HashSet<individualVote> getVotesDB()
+	{
+		return _votes;
+	}
+	
+	public static final individualVoteDB getInstance()
+	{
+		return SingleHolder.INSTANCE;
+	}
+	
+	private static final class SingleHolder
+	{
+		protected static final individualVoteDB INSTANCE = new individualVoteDB();
+	}
+}
+
+
+************************************************************************
+
+/*
+ * This file is part of the L2J Mobius project.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.l2jmobius.gameserver.votesystem.Handler;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.logging.Logger;
+
+import org.l2jmobius.Config;
+import org.l2jmobius.gameserver.votesystem.Model.individualVoteResponse;
+import org.l2jmobius.gameserver.votesystem.VoteUtil.VoteSiteXml;
+import org.l2jmobius.gameserver.votesystem.VoteUtil.VoteUtil;
+
+/**
+ * @author l2.topgameserver.net
+ */
+public class voteHandler
+{
+	public static final Logger LOGGER = Logger.getLogger(voteHandler.class.getName());
+	
+	protected static String getNetWorkResponse(String URL, int ordinal)
+	{
+		try
+		{
+			String API_URL = Config.VOTE_NETWORK_LINK;
+			String detail = URL;
+			String postParameters = "";
+			postParameters += "apiKey=" + VoteUtil.between("apiKey=", detail, "&type=");
+			postParameters += "&type=" + VoteUtil.between("&type=", detail, "&player");
+			String beginIndexPlayer = "&player=";
+			String player = detail.substring(detail.indexOf(beginIndexPlayer) + beginIndexPlayer.length());
+			
+			if ((player != null) && !player.equals(""))
+			{
+				postParameters += "&player=" + player;
+			}
+			
+			byte[] postData = postParameters.getBytes(Charset.forName("UTF-8"));
+			URL url = new URL(API_URL);
+			HttpURLConnection con = (HttpURLConnection) url.openConnection();
+			con.setConnectTimeout(5000);
+			con.setRequestMethod("POST");
+			con.setRequestProperty("Content-Length", Integer.toString(postData.length));
+			con.setRequestProperty("User-Agent", "Mozilla/5.0");
+			con.setDoOutput(true);
+			
+			DataOutputStream os = new DataOutputStream(con.getOutputStream());
+			os.write(postData);
+			os.flush();
+			os.close();
+			
+			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+			String inputLine;
+			StringBuffer response = new StringBuffer();
+			
+			while ((inputLine = in.readLine()) != null)
+			{
+				response.append(inputLine);
+			}
+			in.close();
+			return response.toString();
+			
+		}
+		catch (Exception e)
+		{
+			LOGGER.warning(VoteUtil.Sites[ordinal] + " Say: An error ocurred " + e.getCause());
+			return "";
+		}
+	}
+	
+	protected static String getResponse(String Url, int ordinal)
+	{
+		
+		try
+		{
+			int responseCode = 0;
+			URL objUrl = new URL(Url);
+			HttpURLConnection con = (HttpURLConnection) objUrl.openConnection();
+			con.setRequestMethod("GET");
+			con.setRequestProperty("User-Agent", "Mozilla/5.0");
+			con.setConnectTimeout(5000);
+			responseCode = con.getResponseCode();
+			if (responseCode == HttpURLConnection.HTTP_OK)
+			{
+				String inputLine;
+				StringBuffer response = new StringBuffer();
+				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+				while ((inputLine = in.readLine()) != null)
+				{
+					response.append(inputLine);
+				}
+				in.close();
+				return response.toString();
+			}
+			
+		}
+		catch (Exception e)
+		{
+			LOGGER.warning(VoteSiteXml.getInstance().getSiteName(ordinal) + " Say: An error ocurred " + e.getCause());
+			return "";
+		}
+		
+		return "";
+	}
+	
+	public static individualVoteResponse getIndividualVoteResponse(int ordinal, String ip, String AccountName)
+	{
+		String response = "";
+		boolean isVoted = false;
+		long voteSiteTime = 0L, diffTime = 0L;
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		individualVoteResponse ivr = new individualVoteResponse();
+		
+		switch (ordinal)
+		{
+			case 0:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Boolean.parseBoolean(VoteUtil.between("\"already_voted\":", response, ",\"vote_time\""));
+				if (isVoted)
+				{
+					try
+					{
+						voteSiteTime = format.parse(VoteUtil.between("\"vote_time\":\"", response, "\",\"server_time\"")).getTime();
+						diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"server_time\":\"", response, "\"}")).getTime();
+					}
+					catch (ParseException e)
+					{
+						e.printStackTrace();
+					}
+				}
+				break;
+			
+			case 1:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Boolean.parseBoolean(response);
+				if (isVoted)
+				{
+					voteSiteTime = System.currentTimeMillis();
+					diffTime = 0;
+				}
+				break;
+			
+			case 2:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Boolean.parseBoolean(response);
+				if (isVoted)
+				{
+					voteSiteTime = System.currentTimeMillis();
+					diffTime = 0;
+				}
+				break;
+			
+			case 3:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Integer.parseInt(VoteUtil.between("\"status\":\"", response, "\",\"date\"")) == 1 ? true : false;
+				if (isVoted)
+				{
+					String dateString = VoteUtil.between("\"date\":\"", response, "\"}]");
+					try
+					{
+						voteSiteTime = format.parse(String.format("%s-%s-%s %s:%s:%s", dateString.substring(0, 4), dateString.substring(4, 6), dateString.substring(6, 8), dateString.substring(8, 10), dateString.substring(10, 12), dateString.substring(12, 14))).getTime();
+						diffTime = System.currentTimeMillis() - VoteUtil.getTimeVotingSite(ordinal);
+					}
+					catch (ParseException e)
+					{
+						e.printStackTrace();
+					}
+					
+				}
+				break;
+			
+			case 4:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Boolean.parseBoolean(VoteUtil.between("\"voted\":", response, ",\"voteTime\""));
+				if (isVoted)
+				{
+					try
+					{
+						voteSiteTime = format.parse(VoteUtil.between("\"voteTime\":\"", response, "\",\"hopzoneServerTime\"")).getTime();
+						diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"hopzoneServerTime\":\"", response, "\",\"status_code\":")).getTime();
+					}
+					catch (ParseException e)
+					{
+						e.printStackTrace();
+					}
+				}
+				break;
+			
+			case 5:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = (Integer.parseInt(response) == 1) ? true : false;
+				if (isVoted)
+				{
+					voteSiteTime = System.currentTimeMillis();
+					diffTime = 0;
+				}
+				break;
+			
+			case 6:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Boolean.parseBoolean(VoteUtil.between("\"voted\":", response, ",\"voteTime\""));
+				if (isVoted)
+				{
+					try
+					{
+						voteSiteTime = format.parse(VoteUtil.between("\"voteTime\":\"", response, "\",\"l2topserversServerTime\"")).getTime();
+						diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"l2topserversServerTime\":\"", response, "\",\"status_code\"")).getTime();
+					}
+					catch (ParseException e)
+					{
+						e.printStackTrace();
+					}
+					
+				}
+				break;
+			
+			case 7:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Integer.parseInt(VoteUtil.between("\"status\":\"", response, "\",\"server_time\"")) == 1 ? true : false;
+				if (isVoted)
+				{
+					try
+					{
+						voteSiteTime = format.parse(VoteUtil.between("\"date\":\"", response, "\",\"status\"")).getTime();
+						diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"server_time\":\"", response, "\",\"hours_since_vote\"")).getTime();
+					}
+					catch (ParseException e)
+					{
+						e.printStackTrace();
+					}
+				}
+				break;
+			
+			case 8:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Boolean.parseBoolean(VoteUtil.between("\"is_voted\":", response, ",\"vote_time\""));
+				if (isVoted)
+				{
+					try
+					{
+						voteSiteTime = (Long.parseLong(VoteUtil.between("\"vote_time\":", response, ",\"server_time\""))) * 1000;
+						diffTime = System.currentTimeMillis() - (Long.parseLong(VoteUtil.between("\"server_time\":", response, "}}")) * 1000);
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+					}
+				}
+				break;
+			
+			case 9:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Boolean.parseBoolean(VoteUtil.between("\"isVoted\": ", response, ",\"voteTime\""));
+				if (isVoted)
+				{
+					voteSiteTime = Long.parseLong(VoteUtil.between("\"voteTime\": \"", response, "\",\"serverTime\"")) * 1000;
+					diffTime = System.currentTimeMillis() - Long.parseLong(VoteUtil.between("\"serverTime\": ", response, "}}"));
+				}
+				break;
+			
+			case 10:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Boolean.parseBoolean(response);
+				if (isVoted)
+				{
+					voteSiteTime = System.currentTimeMillis();
+					diffTime = 0;
+				}
+				break;
+			
+		}
+		if (!response.equals(""))
+		{
+			ivr.setIsVoted(isVoted);
+			ivr.setDiffTime(diffTime);
+			ivr.setVoteSiteTime(voteSiteTime);
+			return ivr;
+		}
+		return null;
+	}
+	
+	public int getGlobalVotesResponse(int ordinal)
+	{
+		
+		String response = "";
+		int totalVotes = 0;
+		
+		switch (ordinal)
+		{
+			case 0:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("\"getVotes\":", response, "}");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+			
+			case 1:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("[server_votes]=>", response.replace(" ", ""), "[server_rank]");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+			
+			case 2:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+			
+			case 3:
+				response = VoteUtil.getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("Votes:</th><th><a class='votes'>", response, "</a></th></tr><tr><th>Clicks:");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+			
+			case 4:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("\"totalvotes\":", response, ",\"status_code\"");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+			
+			case 5:
+				String responseNetwork = getNetWorkResponse(getGlobalUrl(ordinal), ordinal);
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(responseNetwork) : -1;
+				break;
+			
+			/*
+			 * case 6: break;
+			 */
+			
+			case 7:
+				response = VoteUtil.getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("nicas:</b> ", response, "<br /><br />");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+			
+			case 8:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("\"monthly_votes\":", response, "}}");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+			
+			case 9:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("\"totalVotes\":\"", response, "\",\"serverRank\"");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+			
+			case 10:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+		}
+		
+		return totalVotes;
+	}
+	
+	public static String getIndividualUrl(int ordinal, String ip, String AccountName)
+	{
+		String url = "";
+		switch (ordinal)
+		{
+			case 0:
+				// l2.topgameserver.net
+				url = String.format("%sAPI_KEY=%s/getData/%s", Config.VOTE_LINK_TGS, Config.TGS_API_KEY, ip);
+				break;
+			
+			case 1:
+				// itopz.com
+				url = String.format("%s%s/%s/%s", Config.VOTE_LINK_ITOPZ, Config.ITOPZ_API_KEY, Config.ITOPZ_SRV_ID, ip);
+				break;
+			
+			case 2:
+				// l2top.co
+				url = String.format("%sVoteCheck.php?id=%s&ip=%s", Config.VOTE_LINK_TOP_CO, Config.TOP_CO_SRV_ID, ip);
+				break;
+			
+			case 3:
+				// l2votes.com
+				url = String.format("%sapi.php?apiKey=%s&ip=%s", Config.VOTE_LINK_VTS, Config.VTS_API_KEY, ip);
+				break;
+			
+			case 4:
+				// hopzone.net
+				url = String.format("%svote?token=%s&ip_address=%s", Config.VOTE_LINK_HZ, Config.HZ_API_KEY, ip);
+				break;
+			
+			case 5:
+				// l2network.eu
+				url = String.format("https://l2network.eu/index.php?a=in&u=%s&ipc=%s", Config.VOTE_NETWORK_USER_NAME, ip);
+				break;
+			
+			case 6:
+				// l2topservers.com
+				url = String.format("%stoken=%s&ip=%s", Config.VOTE_LINK_TSS, Config.TSS_API_TOKEN, ip);
+				break;
+			
+			case 7:
+				// top.l2jbrasil.com
+				url = String.format("%susername=%s&ip=%s&type=json", Config.BRASIL_VOTE_LINK, Config.BRASIL_USER_NAME, ip);
+				break;
+			
+			case 8:
+				// mmotop
+				url = String.format("%s%s/%s", Config.VOTE_LINK_MMOTOP, Config.MMOTOP_API_KEY, ip);
+				break;
+			
+			case 9:
+				// topzone.com
+				url = String.format("%svote?token=%s&ip=%s", Config.VOTE_LINK_TZ, Config.TZ_API_KEY, ip);
+				break;
+			
+			case 10:
+				// l2servers.com
+				url = String.format("%scheckip.php?hash=%s&server_id=%s&ip=%s", Config.VOTE_LINK_SERVERS, Config.SERVERS_HASH_CODE, Config.SERVERS_SRV_ID, ip);
+				break;
+		}
+		
+		return url;
+	}
+	
+	public String getGlobalUrl(int ordinal)
+	{
+		String url = "";
+		
+		switch (ordinal)
+		{
+			case 0:
+				// l2.topgameserver.net
+				url = String.format("%sAPI_KEY=%s/getData", Config.VOTE_LINK_TGS, Config.TGS_API_KEY);
+				break;
+			
+			case 1:
+				// itopz.com
+				url = String.format("%s%s/%s", Config.VOTE_LINK_ITOPZ, Config.ITOPZ_API_KEY, Config.ITOPZ_SRV_ID);
+				break;
+			
+			case 2:
+				// l2top.co
+				url = String.format("%sVoteCheck_Total.php?id=%s", Config.VOTE_LINK_TOP_CO, Config.TOP_CO_SRV_ID);
+				break;
+			
+			case 3:
+				// l2votes.com
+				url = String.format("%sserverPage.php?sid=%s", Config.VOTE_LINK_VTS, Config.VTS_SID);
+				break;
+			
+			case 4:
+				// hopzone.net
+				url = String.format("%svotes?token=%s", Config.VOTE_LINK_HZ, Config.HZ_API_KEY);
+				break;
+			
+			case 5:
+				// l2network.eu
+				url = String.format("apiKey=%s&type=%s&player=", Config.VOTE_NETWORK_API_KEY, 1);
+				break;
+			
+			/*
+			 * case 6: //l2topservers return String.format("%sAPI_KEY=%s/getData", Config.VOTE_LINK_TGS,Config.TGS_API_KEY); break;
+			 */
+			
+			case 7:
+				// top.l2jbrasil.com
+				url = "https://top.l2jbrasil.com/index.php?a=stats&u=julioguzman";
+				break;
+			
+			case 8:
+				// mmotop.eu/l2/
+				url = String.format("%s%s/info/", Config.VOTE_LINK_MMOTOP, Config.MMOTOP_API_KEY);
+				break;
+			
+			case 9:
+				// l2topzone.com
+				url = String.format("%sserver_%s/getServerData", Config.VOTE_LINK_TZ, Config.TZ_API_KEY);
+				break;
+			
+			case 10:
+				// l2servers.com
+				url = String.format("%syearlyvotes.php?server_id=%s", Config.VOTE_LINK_SERVERS, Config.SERVERS_SRV_ID);
+				break;
+		}
+		
+		return url;
+	}
+}
+
+
+*********************************************************
+
+/*
+ * This file is part of the L2J Mobius project.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.l2jmobius.gameserver.votesystem.Handler;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
+import java.util.stream.Collectors;
+
+import org.l2jmobius.Config;
+import org.l2jmobius.commons.concurrent.ThreadPool;
+import org.l2jmobius.gameserver.model.World;
+import org.l2jmobius.gameserver.model.actor.instance.PlayerInstance;
+import org.l2jmobius.gameserver.network.GameClient;
+import org.l2jmobius.gameserver.network.SystemMessageId;
+import org.l2jmobius.gameserver.network.serverpackets.ItemList;
+import org.l2jmobius.gameserver.network.serverpackets.SystemMessage;
+import org.l2jmobius.gameserver.util.Broadcast;
+import org.l2jmobius.gameserver.votesystem.DB.globalVoteDB;
+import org.l2jmobius.gameserver.votesystem.DB.individualVoteDB;
+import org.l2jmobius.gameserver.votesystem.Enum.voteSite;
+import org.l2jmobius.gameserver.votesystem.Model.Reward;
+import org.l2jmobius.gameserver.votesystem.Model.globalVote;
+import org.l2jmobius.gameserver.votesystem.Model.individualVote;
+import org.l2jmobius.gameserver.votesystem.Model.individualVoteResponse;
+import org.l2jmobius.gameserver.votesystem.VoteUtil.VoteSiteXml;
+import org.l2jmobius.gameserver.votesystem.VoteUtil.VoteUtil;
+
+/**
+ * @author l2.topgameserver.net
+ */
+public class voteManager extends voteHandler
+{
+	private ScheduledFuture<?> _saveGlobalVotes;
+	private ScheduledFuture<?> _updateIndividualVotes;
+	private ScheduledFuture<?> _autoGlobalVotesReward;
+	
+	private HashSet<individualVote> _votes;
+	private final Map<String, individualVote[]> _foundVoters;
+	private globalVote[] _globalVotes = new globalVote[voteSite.values().length];
+	
+	public voteManager()
+	{
+		loadVotes();
+		loadGlobalVotes();
+		_foundVoters = new ConcurrentHashMap<>();
+		checkAllResponseGlobalVotes();
+		stopAutoTasks();
+		
+		if (Config.ENABLE_INDIVIDUAL_VOTE && Config.ENABLE_VOTE_SYSTEM)
+		{
+			_updateIndividualVotes = ThreadPool.scheduleAtFixedRate(new AutoUpdateIndividualVotesTask(), 30000, Config.NEXT_TIME_TO_AUTO_UPDATE_INDIVIDUAL_VOTES);
+		}
+		if (Config.ENABLE_GLOBAL_VOTE && Config.ENABLE_VOTE_SYSTEM)
+		{
+			_autoGlobalVotesReward = ThreadPool.scheduleAtFixedRate(new AutoGlobalVoteRewardTask(), 10000, Config.NEXT_TIME_TO_CHECK_AUTO_GLOBAL_VOTES_REWARD);
+			_saveGlobalVotes = ThreadPool.scheduleAtFixedRate(new AutoSaveGlobalVotesTask(), 30000, Config.NEXT_TIME_TO_AUTO_UPDATE_TOTAL_VOTE);
+		}
+	}
+	
+	private void stopAutoTasks()
+	{
+		if (_saveGlobalVotes != null)
+		{
+			_saveGlobalVotes.cancel(true);
+			_saveGlobalVotes = null;
+		}
+		if (_updateIndividualVotes != null)
+		{
+			_updateIndividualVotes.cancel(true);
+			_updateIndividualVotes = null;
+		}
+		if (_autoGlobalVotesReward != null)
+		{
+			_autoGlobalVotesReward.cancel(true);
+			_autoGlobalVotesReward = null;
+		}
+	}
+	
+	public void getReward(PlayerInstance player, int ordinalSite)
+	{
+		String ip = existIp(player);
+		if (ip == null)
+		{
+			return;
+		}
+		individualVoteResponse ivr = getIndividualVoteResponse(ordinalSite, ip, player.getAccountName());
+		if (ivr == null)
+		{
+			player.sendMessage("We were unable to verify your vote with: " + VoteSiteXml.getInstance().getSiteName(ordinalSite) + ", please try again");
+			return;
+		}
+		if (!ivr.getIsVoted())
+		{
+			player.sendMessage(String.format("You haven't vote on %s yet!", VoteSiteXml.getInstance().getSiteName(ordinalSite)));
+			return;
+		}
+		if (!checkIndividualAvailableVote(player, ordinalSite))
+		{
+			player.sendMessage(String.format("You can get the reward again on %s at %s", VoteSiteXml.getInstance().getSiteName(ordinalSite), getTimeRemainingWithSampleFormat(player, ordinalSite)));
+			return;
+		}
+		individualVote iv = new individualVote(ip, ivr.getDiffTime(), ivr.getVoteSiteTime(), ordinalSite, true);
+		_votes.add(iv);
+		individualVote[] aiv;
+		if (!_foundVoters.containsKey(ip))
+		{
+			Set<individualVote> ivts = _votes.stream().filter(st -> st.getVoterIp().equalsIgnoreCase(iv.getVoterIp())).collect(Collectors.toSet());
+			aiv = new individualVote[voteSite.values().length];
+			if (ivts.size() > 1)
+			{
+				ivts.forEach(x ->
+				{
+					aiv[x.getVoteSite()] = x;
+				});
+				_foundVoters.put(ip, aiv);
+			}
+			else
+			{
+				aiv[ordinalSite] = iv;
+				_foundVoters.put(ip, aiv);
+			}
+			for (Reward reward : VoteSiteXml.getInstance().getRewards(ordinalSite))
+			{
+				player.getInventory().addItem("VoteSystem", reward.getItemId(), reward.getItemCount(), player, null);
+				player.sendPacket(new SystemMessage(SystemMessageId.YOU_HAVE_EARNED_S2_S1_S).addItemName(reward.getItemId()).addNumber(reward.getItemCount()));
+			}
+			player.sendMessage(String.format("%s: Thank you for voting for our server, your reward has been delivered.", VoteSiteXml.getInstance().getSiteName(ordinalSite)));
+			player.sendPacket(new ItemList(player, true));
+		}
+		else
+		{
+			aiv = _foundVoters.get(ip);
+			aiv[ordinalSite] = iv;
+			_foundVoters.replace(ip, aiv);
+			for (Reward reward : VoteSiteXml.getInstance().getRewards(ordinalSite))
+			{
+				player.getInventory().addItem("VoteSystem", reward.getItemId(), reward.getItemCount(), player, null);
+				player.sendPacket(new SystemMessage(SystemMessageId.YOU_HAVE_EARNED_S2_S1_S).addItemName(reward.getItemId()).addNumber(reward.getItemCount()));
+			}
+			player.sendMessage(String.format("%s: Thank you for voting for our server, your reward has been delivered.", VoteSiteXml.getInstance().getSiteName(ordinalSite)));
+			player.sendPacket(new ItemList(player, true));
+		}
+	}
+	
+	public boolean checkIndividualAvailableVote(PlayerInstance player, int ordinalSite)
+	{
+		String ip = existIp(player);
+		// If player has registered almost 1 vote before this revision
+		if (_foundVoters.containsKey(ip))
+		{
+			individualVote[] ivs = _foundVoters.get(ip);
+			if (ivs[ordinalSite] == null)
+			{
+				return true;
+			}
+			if (ivs[ordinalSite] != null)
+			{
+				individualVote iv = ivs[ordinalSite];
+				if (getTimeRemaining(iv) < 0)
+				{
+					return true;
+				}
+			}
+		}
+		
+		// if the player hasn't registered a vote or after the initial charge and not have votes registered
+		Optional<individualVote> iv = _votes.stream().filter(s -> s.getVoterIp().equalsIgnoreCase(ip)).filter(y -> y.getVoteSite() == ordinalSite).findFirst();
+		if (iv.isEmpty())
+		{
+			return true;
+		}
+		if (getTimeRemaining(iv.get()) < 0)
+		{
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public long getTimeRemaining(individualVote iv)
+	{
+		long timeRemaining = 0L;
+		timeRemaining = ((iv.getVotingTimeSite() + Config.INTERVAL_TO_NEXT_VOTE) - (iv.getDiffTime() > 0 ? iv.getDiffTime() : -1 * iv.getDiffTime())) - System.currentTimeMillis();
+		return timeRemaining;
+	}
+	
+	public String getTimeRemainingWithSampleFormat(PlayerInstance player, int ordinalSite)
+	{
+		String ip = existIp(player);
+		String timeRemainingWithSampleFormat = "";
+		if (_foundVoters.containsKey(ip))
+		{
+			individualVote[] ivs = _foundVoters.get(ip);
+			if (ivs[ordinalSite] != null)
+			{
+				individualVote iv = ivs[ordinalSite];
+				long timeRemaining = getTimeRemaining(iv);
+				if ((timeRemaining > 0) && iv.getAlreadyRewarded())
+				{
+					timeRemainingWithSampleFormat = CalculateTimeRemainingWithSampleDateFormat(timeRemaining);
+					return timeRemainingWithSampleFormat;
+				}
+			}
+		}
+		Optional<individualVote> iv = _votes.stream().filter(s -> s.getVoterIp().equalsIgnoreCase(ip)).filter(y -> y.getVoteSite() == ordinalSite).findFirst();
+		if (!iv.isEmpty())
+		{
+			if ((getTimeRemaining(iv.get()) > 0) && iv.get().getAlreadyRewarded())
+			{
+				long timeRemaining = getTimeRemaining(iv.get());
+				timeRemainingWithSampleFormat = CalculateTimeRemainingWithSampleDateFormat(timeRemaining);
+				return timeRemainingWithSampleFormat;
+			}
+		}
+		
+		return timeRemainingWithSampleFormat;
+	}
+	
+	public String CalculateTimeRemainingWithSampleDateFormat(long timeRemaining)
+	{
+		long t = timeRemaining / 1000;
+		int hours = Math.round(((t / 3600) % 24));
+		int minutes = Math.round((t / 60) % 60);
+		int seconds = Math.round(t % 60);
+		return String.format("%sH:%sm:%ss", hours, minutes, seconds);
+	}
+	
+	public String existIp(PlayerInstance p)
+	{
+		
+		GameClient client = p.getClient();
+		if ((client.getConnection() != null) && (client.getPlayer() != null) && !client.isDetached())
+		{
+			try
+			{
+				return client.getConnection().getInetAddress().getHostAddress();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return null;
+		
+	}
+	
+	public final void loadVotes()
+	{
+		_votes = individualVoteDB.getInstance().getVotesDB();
+	}
+	
+	protected void loadGlobalVotes()
+	{
+		_globalVotes = globalVoteDB.getInstance().getGlobalVotes();
+	}
+	
+	protected void saveVotes()
+	{
+		individualVoteDB.getInstance().SaveVotes(_votes);
+	}
+	
+	protected void AutoGlobalVoteReward()
+	{
+		HashSet<String> ipList = new HashSet<>();
+		for (voteSite vs : voteSite.values())
+		{
+			new Thread(() ->
+			{
+				checkNewUpdate(vs.ordinal());
+				if (_globalVotes[vs.ordinal()].getCurrentVotes() >= (_globalVotes[vs.ordinal()].getVotesLastReward() + (vs.ordinal() == voteSite.L2SERVERS.ordinal() ? 25 * Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD)))
+				{
+					_globalVotes[vs.ordinal()].setVotesLastReward(_globalVotes[vs.ordinal()].getVotesLastReward() + (vs.ordinal() == voteSite.L2SERVERS.ordinal() ? 25 * Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD));
+					for (PlayerInstance player : World.getInstance().getAllPlayers())
+					{
+						String ip = existIp(player);
+						if (ip == null)
+						{
+							continue;
+						}
+						if (ipList.contains(ip))
+						{
+							continue;
+						}
+						for (Reward reward : VoteSiteXml.getInstance().getRewards(11))
+						{
+							player.getInventory().addItem("VoteSystem: ", reward.getItemId(), reward.getItemCount(), player, null);
+							player.sendPacket(new SystemMessage(SystemMessageId.YOU_HAVE_EARNED_S2_S1_S).addItemName(reward.getItemId()).addNumber(reward.getItemCount()));
+						}
+						ipList.add(ip);
+						player.sendPacket(new ItemList(player, true));
+					}
+					Broadcast.toAllOnlinePlayers(VoteUtil.Sites[vs.ordinal()] + ": All players has been rewarded, please check your inventory", true);
+				}
+				else
+				{
+					String encourage = "";
+					int nextReward = _globalVotes[vs.ordinal()].getVotesLastReward() + (vs.ordinal() == voteSite.L2SERVERS.ordinal() ? 25 * Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD);
+					encourage = String.format("Vote for %s current Votes: %s, next quantity of votes to reward : %s, need votes to next reward: %s", VoteUtil.Sites[vs.ordinal()], _globalVotes[vs.ordinal()].getCurrentVotes(), nextReward, nextReward - _globalVotes[vs.ordinal()].getCurrentVotes());
+					Broadcast.toAllOnlinePlayers(encourage, true);
+				}
+			}).start();
+			
+		}
+	}
+	
+	protected void AutoSaveGlobalVotes()
+	{
+		globalVoteDB.getInstance().saveGlobalVotes(_globalVotes);
+	}
+	
+	protected synchronized void AutoUpdateIndividualVotes()
+	{
+		AutoCleanInnecesaryIndividualVotes();
+		individualVoteDB.getInstance().SaveVotes(_votes);
+	}
+	
+	protected synchronized void AutoCleanInnecesaryIndividualVotes()
+	{
+		HashSet<individualVote> removeVotes = new HashSet<>();
+		Iterator<individualVote> iv = _votes.iterator();
+		while (iv.hasNext())
+		{
+			individualVote individualvote = iv.next();
+			if (getTimeRemaining(individualvote) < 0)
+			{
+				removeVotes.add(individualvote);
+				iv.remove();
+				if (_foundVoters.containsKey(individualvote.getVoterIp()))
+				{
+					if (_foundVoters.get(individualvote.getVoterIp())[individualvote.getVoteSite()] != null)
+					{
+						_foundVoters.get(individualvote.getVoterIp())[individualvote.getVoteSite()] = null;
+					}
+				}
+			}
+		}
+		individualVoteDB.getInstance().DeleteVotes(removeVotes);
+	}
+	
+	public void checkAllResponseGlobalVotes()
+	{
+		for (voteSite vs : voteSite.values())
+		{
+			new Thread(() ->
+			{
+				checkNewUpdate(vs.ordinal());
+			});
+		}
+	}
+	
+	public void checkNewUpdate(int ordinalSite)
+	{
+		int globalVotesResponse = getGlobalVotesResponse(ordinalSite);
+		if (globalVotesResponse == -1)
+		{
+			return;
+		}
+		_globalVotes[ordinalSite].setCurrentVotes(globalVotesResponse);
+		int last = globalVotesResponse - (ordinalSite == voteSite.L2SERVERS.ordinal() ? 25 * Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD);
+		if (last < 0)
+		{
+			_globalVotes[ordinalSite].setVotesLastReward(0);
+			return;
+		}
+		if ((_globalVotes[ordinalSite].getVotesLastReward() + (ordinalSite == voteSite.L2SERVERS.ordinal() ? 25 * Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD)) < globalVotesResponse)
+		{
+			_globalVotes[ordinalSite].setVotesLastReward(globalVotesResponse);
+			return;
+		}
+	}
+	
+	public void Shutdown()
+	{
+		AutoSaveGlobalVotes();
+		AutoCleanInnecesaryIndividualVotes();
+		AutoUpdateIndividualVotes();
+	}
+	
+	protected class AutoGlobalVoteRewardTask implements Runnable
+	{
+		
+		@Override
+		public void run()
+		{
+			AutoGlobalVoteReward();
+			
+		}
+		
+	}
+	
+	protected class AutoSaveGlobalVotesTask implements Runnable
+	{
+		
+		@Override
+		public void run()
+		{
+			AutoSaveGlobalVotes();
+			
+		}
+		
+	}
+	
+	protected class AutoUpdateIndividualVotesTask implements Runnable
+	{
+		
+		@Override
+		public void run()
+		{
+			AutoUpdateIndividualVotes();
+			
+		}
+		
+	}
+	
+	public static voteManager getInatance()
+	{
+		return SingleHolder.INSTANCE;
+	}
+	
+	private static class SingleHolder
+	{
+		protected static final voteManager INSTANCE = new voteManager();
+	}
+	
+}
+
+***********************************************************
+/*
+ * This file is part of the L2J Mobius project.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.l2jmobius.gameserver.votesystem.Model;
+
+/**
+ * @author l2.topgameserver.net
+ */
+public class individualVote
+{
+	private String _voterIp;
+	private long _diffTime;
+	private long _votingTimeSite;
+	private int _voteSite;
+	private boolean _alreadyRewarded;
+	
+	public individualVote(String voterIp, long diffTime, long votingTimeSite, int voteSite, boolean alreadyRewarded)
+	{
+		_voterIp = voterIp;
+		_diffTime = diffTime;
+		_votingTimeSite = votingTimeSite;
+		_voteSite = voteSite;
+		_alreadyRewarded = alreadyRewarded;
+	}
+	
+	public individualVote()
+	{
+		
+	}
+	
+	public void setVoterIp(String voterIp)
+	{
+		_voterIp = voterIp;
+	}
+	
+	public void setDiffTime(long diffTime)
+	{
+		_diffTime = diffTime;
+	}
+	
+	public void setVotingTimeSite(long votingTimeSite)
+	{
+		_votingTimeSite = votingTimeSite;
+	}
+	
+	public void setVoteSite(int voteSite)
+	{
+		_voteSite = voteSite;
+	}
+	
+	public void setAlreadyRewarded(boolean alreadyRewarded)
+	{
+		_alreadyRewarded = alreadyRewarded;
+	}
+	
+	public String getVoterIp()
+	{
+		return _voterIp;
+	}
+	
+	public long getDiffTime()
+	{
+		return _diffTime;
+	}
+	
+	public long getVotingTimeSite()
+	{
+		return _votingTimeSite;
+	}
+	
+	public int getVoteSite()
+	{
+		return _voteSite;
+	}
+	
+	public boolean getAlreadyRewarded()
+	{
+		return _alreadyRewarded;
+	}
+	
+}
+
+***********************************************************
+
+/*
+ * This file is part of the L2J Mobius project.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.l2jmobius.gameserver.votesystem.Model;
+
+/**
+ * @author l2.topgameserver.net
+ */
+public class individualVoteResponse
+{
+	private boolean _isVoted;
+	private long _diffTime;
+	private long _voteSiteTime;
+	
+	public individualVoteResponse()
+	{
+		
+	}
+	
+	public void setIsVoted(boolean isVoted)
+	{
+		_isVoted = isVoted;
+	}
+	
+	public void setDiffTime(long diffTime)
+	{
+		_diffTime = diffTime;
+	}
+	
+	public void setVoteSiteTime(long voteSiteTime)
+	{
+		_voteSiteTime = voteSiteTime;
+	}
+	
+	public boolean getIsVoted()
+	{
+		return _isVoted;
+	}
+	
+	public long getDiffTime()
+	{
+		return _diffTime;
+	}
+	
+	public long getVoteSiteTime()
+	{
+		return _voteSiteTime;
+	}
+}
+
+
+************************************************************************************************************************************
+********************************************for interlude classic mobius **********************************************************
+
+/*
+ * This file is part of the L2J Mobius project.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.l2jmobius.gameserver.votesystem.DB;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashSet;
+import java.util.logging.Logger;
+
+import org.l2jmobius.commons.database.DatabaseFactory;
+import org.l2jmobius.gameserver.votesystem.Model.individualVote;
+
+/**
+ * @author l2.topgameserver.net
+ */
+public class individualVoteDB
+{
+	public static final Logger LOGGER = Logger.getLogger(individualVoteDB.class.getName());
+	private final HashSet<individualVote> _votes;
+	private Statement st;
+	private Connection con;
+	
+	private individualVoteDB()
+	{
+		_votes = new HashSet<>();
+		loadVotes();
+	}
+	
+	public void loadVotes()
+	{
+		
+		con = DatabaseFactory.getConnection();
+		_votes.clear();
+		try (PreparedStatement ps = con.prepareStatement("SELECT voterIp,voteSite,diffTime,votingTimeSite,alreadyRewarded FROM individualVotes");
+			ResultSet rs = ps.executeQuery();)
+		{
+			while (rs.next())
+			{
+				individualVote iv = new individualVote();
+				iv.setVoterIp(rs.getString("voterIp"));
+				iv.setVoteSite(rs.getInt("voteSite"));
+				iv.setDiffTime(rs.getLong("diffTime"));
+				iv.setVotingTimeSite(rs.getLong("votingTimeSite"));
+				iv.setAlreadyRewarded(rs.getBoolean("alreadyRewarded"));
+				_votes.add(iv);
+			}
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void SaveVotes(HashSet<individualVote> votes)
+	{
+		
+		if (votes == null)
+		{
+			return;
+		}
+		if (votes.size() == 0)
+		{
+			return;
+		}
+		try (Connection con = DatabaseFactory.getConnection();
+			PreparedStatement ps = con.prepareStatement("INSERT INTO individualVotes(voterIp,voteSite,diffTime,votingTimeSite,alreadyRewarded) VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE " + "voterIp = VALUES(voterIp), voteSite = VALUES(voteSite), diffTime = VALUES(diffTime), votingTimeSite = VALUES(votingTimeSite),alreadyRewarded = VALUES(alreadyRewarded)");)
+		{
+			
+			for (individualVote iv : votes)
+			{
+				ps.setString(1, iv.getVoterIp());
+				ps.setInt(2, iv.getVoteSite());
+				ps.setLong(3, iv.getDiffTime());
+				ps.setLong(4, iv.getVotingTimeSite());
+				ps.setBoolean(5, iv.getAlreadyRewarded());
+				ps.addBatch();
+			}
+			ps.executeBatch();
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void SaveVote(individualVote vote)
+	{
+		
+		if (vote == null)
+		{
+			return;
+		}
+		
+		try (Connection con = DatabaseFactory.getConnection();
+			PreparedStatement ps = con.prepareStatement("INSERT INTO individualVotes(voterIp,voteSite,diffTime,votingTimeSite,alreadyRewarded) VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE" + "voterIp = VALUES(voterIp), voteSite = VALUES(voteSite), diffTime = VALUES(diffTime), votingTimeSite = VALUES(votingTimeSite), alreadyRewarded = VALUES(alreadyRewarded)");)
+		{
+			ps.setString(1, vote.getVoterIp());
+			ps.setInt(2, vote.getVoteSite());
+			ps.setLong(3, vote.getDiffTime());
+			ps.setLong(4, vote.getVotingTimeSite());
+			ps.setBoolean(5, vote.getAlreadyRewarded());
+			ps.executeUpdate();
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void DeleteVotes(HashSet<individualVote> deleteVotes)
+	{
+		if (deleteVotes == null)
+		{
+			return;
+		}
+		if (deleteVotes.size() == 0)
+		{
+			return;
+		}
+		try
+		{
+			con = DatabaseFactory.getConnection();
+			st = con.createStatement();
+			for (individualVote iv : deleteVotes)
+			{
+				String sql = String.format("Delete from individualVotes where voterIp = '%s' AND voteSite = %s", iv.getVoterIp(), iv.getVoteSite());
+				st.addBatch(sql);
+			}
+			int[] result = st.executeBatch();
+			st.close();
+			con.close();
+			LOGGER.info(result.length + " Innecesary votes has been deleted");
+			
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public HashSet<individualVote> getVotesDB()
+	{
+		return _votes;
+	}
+	
+	public static final individualVoteDB getInstance()
+	{
+		return SingleHolder.INSTANCE;
+	}
+	
+	private static final class SingleHolder
+	{
+		protected static final individualVoteDB INSTANCE = new individualVoteDB();
+	}
+}
+
+**************************************************************************************
+/*
+ * This file is part of the L2J Mobius project.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.l2jmobius.gameserver.votesystem.Handler;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.logging.Logger;
+
+import org.l2jmobius.Config;
+import org.l2jmobius.gameserver.votesystem.Model.individualVoteResponse;
+import org.l2jmobius.gameserver.votesystem.VoteUtil.VoteSiteXml;
+import org.l2jmobius.gameserver.votesystem.VoteUtil.VoteUtil;
+
+/**
+ * @author l2.topgameserver.net
+ */
+public class voteHandler
+{
+	public static final Logger LOGGER = Logger.getLogger(voteHandler.class.getName());
+	
+	protected static String getNetWorkResponse(String URL, int ordinal)
+	{
+		try
+		{
+			String API_URL = Config.VOTE_NETWORK_LINK;
+			String detail = URL;
+			String postParameters = "";
+			postParameters += "apiKey=" + VoteUtil.between("apiKey=", detail, "&type=");
+			postParameters += "&type=" + VoteUtil.between("&type=", detail, "&player");
+			String beginIndexPlayer = "&player=";
+			String player = detail.substring(detail.indexOf(beginIndexPlayer) + beginIndexPlayer.length());
+			
+			if ((player != null) && !player.equals(""))
+			{
+				postParameters += "&player=" + player;
+			}
+			
+			byte[] postData = postParameters.getBytes(Charset.forName("UTF-8"));
+			URL url = new URL(API_URL);
+			HttpURLConnection con = (HttpURLConnection) url.openConnection();
+			con.setConnectTimeout(5000);
+			con.setRequestMethod("POST");
+			con.setRequestProperty("Content-Length", Integer.toString(postData.length));
+			con.setRequestProperty("User-Agent", "Mozilla/5.0");
+			con.setDoOutput(true);
+			
+			DataOutputStream os = new DataOutputStream(con.getOutputStream());
+			os.write(postData);
+			os.flush();
+			os.close();
+			
+			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+			String inputLine;
+			StringBuffer response = new StringBuffer();
+			
+			while ((inputLine = in.readLine()) != null)
+			{
+				response.append(inputLine);
+			}
+			in.close();
+			return response.toString();
+			
+		}
+		catch (Exception e)
+		{
+			LOGGER.warning(VoteUtil.Sites[ordinal] + " Say: An error ocurred " + e.getCause());
+			return "";
+		}
+	}
+	
+	protected static String getResponse(String Url, int ordinal)
+	{
+		
+		try
+		{
+			int responseCode = 0;
+			URL objUrl = new URL(Url);
+			HttpURLConnection con = (HttpURLConnection) objUrl.openConnection();
+			con.setRequestMethod("GET");
+			con.setRequestProperty("User-Agent", "Mozilla/5.0");
+			con.setConnectTimeout(5000);
+			responseCode = con.getResponseCode();
+			if (responseCode == HttpURLConnection.HTTP_OK)
+			{
+				String inputLine;
+				StringBuffer response = new StringBuffer();
+				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+				while ((inputLine = in.readLine()) != null)
+				{
+					response.append(inputLine);
+				}
+				in.close();
+				return response.toString();
+			}
+			
+		}
+		catch (Exception e)
+		{
+			LOGGER.warning(VoteSiteXml.getInstance().getSiteName(ordinal) + " Say: An error ocurred " + e.getCause());
+			return "";
+		}
+		
+		return "";
+	}
+	
+	public static individualVoteResponse getIndividualVoteResponse(int ordinal, String ip, String AccountName)
+	{
+		String response = "";
+		boolean isVoted = false;
+		long voteSiteTime = 0L, diffTime = 0L;
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		individualVoteResponse ivr = new individualVoteResponse();
+		
+		switch (ordinal)
+		{
+			case 0:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Boolean.parseBoolean(VoteUtil.between("\"already_voted\":", response, ",\"vote_time\""));
+				if (isVoted)
+				{
+					try
+					{
+						voteSiteTime = format.parse(VoteUtil.between("\"vote_time\":\"", response, "\",\"server_time\"")).getTime();
+						diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"server_time\":\"", response, "\"}")).getTime();
+					}
+					catch (ParseException e)
+					{
+						e.printStackTrace();
+					}
+				}
+				break;
+			
+			case 1:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Boolean.parseBoolean(response);
+				if (isVoted)
+				{
+					voteSiteTime = System.currentTimeMillis();
+					diffTime = 0;
+				}
+				break;
+			
+			case 2:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Boolean.parseBoolean(response);
+				if (isVoted)
+				{
+					voteSiteTime = System.currentTimeMillis();
+					diffTime = 0;
+				}
+				break;
+			
+			case 3:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Integer.parseInt(VoteUtil.between("\"status\":\"", response, "\",\"date\"")) == 1 ? true : false;
+				if (isVoted)
+				{
+					String dateString = VoteUtil.between("\"date\":\"", response, "\"}]");
+					try
+					{
+						voteSiteTime = format.parse(String.format("%s-%s-%s %s:%s:%s", dateString.substring(0, 4), dateString.substring(4, 6), dateString.substring(6, 8), dateString.substring(8, 10), dateString.substring(10, 12), dateString.substring(12, 14))).getTime();
+						diffTime = System.currentTimeMillis() - VoteUtil.getTimeVotingSite(ordinal);
+					}
+					catch (ParseException e)
+					{
+						e.printStackTrace();
+					}
+					
+				}
+				break;
+			
+			case 4:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Boolean.parseBoolean(VoteUtil.between("\"voted\":", response, ",\"voteTime\""));
+				if (isVoted)
+				{
+					try
+					{
+						voteSiteTime = format.parse(VoteUtil.between("\"voteTime\":\"", response, "\",\"hopzoneServerTime\"")).getTime();
+						diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"hopzoneServerTime\":\"", response, "\",\"status_code\":")).getTime();
+					}
+					catch (ParseException e)
+					{
+						e.printStackTrace();
+					}
+				}
+				break;
+			
+			case 5:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = (Integer.parseInt(response) == 1) ? true : false;
+				if (isVoted)
+				{
+					voteSiteTime = System.currentTimeMillis();
+					diffTime = 0;
+				}
+				break;
+			
+			case 6:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Boolean.parseBoolean(VoteUtil.between("\"voted\":", response, ",\"voteTime\""));
+				if (isVoted)
+				{
+					try
+					{
+						voteSiteTime = format.parse(VoteUtil.between("\"voteTime\":\"", response, "\",\"l2topserversServerTime\"")).getTime();
+						diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"l2topserversServerTime\":\"", response, "\",\"status_code\"")).getTime();
+					}
+					catch (ParseException e)
+					{
+						e.printStackTrace();
+					}
+					
+				}
+				break;
+			
+			case 7:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Integer.parseInt(VoteUtil.between("\"status\":\"", response, "\",\"server_time\"")) == 1 ? true : false;
+				if (isVoted)
+				{
+					try
+					{
+						voteSiteTime = format.parse(VoteUtil.between("\"date\":\"", response, "\",\"status\"")).getTime();
+						diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"server_time\":\"", response, "\",\"hours_since_vote\"")).getTime();
+					}
+					catch (ParseException e)
+					{
+						e.printStackTrace();
+					}
+				}
+				break;
+			
+			case 8:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Boolean.parseBoolean(VoteUtil.between("\"is_voted\":", response, ",\"vote_time\""));
+				if (isVoted)
+				{
+					try
+					{
+						voteSiteTime = (Long.parseLong(VoteUtil.between("\"vote_time\":", response, ",\"server_time\""))) * 1000;
+						diffTime = System.currentTimeMillis() - (Long.parseLong(VoteUtil.between("\"server_time\":", response, "}}")) * 1000);
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+					}
+				}
+				break;
+			
+			case 9:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Boolean.parseBoolean(VoteUtil.between("\"isVoted\": ", response, ",\"voteTime\""));
+				if (isVoted)
+				{
+					voteSiteTime = Long.parseLong(VoteUtil.between("\"voteTime\": \"", response, "\",\"serverTime\"")) * 1000;
+					diffTime = System.currentTimeMillis() - Long.parseLong(VoteUtil.between("\"serverTime\": ", response, "}}"));
+				}
+				break;
+			
+			case 10:
+				response = getResponse(getIndividualUrl(ordinal, ip, null), ordinal);
+				isVoted = Boolean.parseBoolean(response);
+				if (isVoted)
+				{
+					voteSiteTime = System.currentTimeMillis();
+					diffTime = 0;
+				}
+				break;
+			
+		}
+		if (!response.equals(""))
+		{
+			ivr.setIsVoted(isVoted);
+			ivr.setDiffTime(diffTime);
+			ivr.setVoteSiteTime(voteSiteTime);
+			return ivr;
+		}
+		return null;
+	}
+	
+	public int getGlobalVotesResponse(int ordinal)
+	{
+		
+		String response = "";
+		int totalVotes = 0;
+		
+		switch (ordinal)
+		{
+			case 0:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("\"getVotes\":", response, "}");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+			
+			case 1:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("[server_votes]=>", response.replace(" ", ""), "[server_rank]");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+			
+			case 2:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+			
+			case 3:
+				response = VoteUtil.getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("Votes:</th><th><a class='votes'>", response, "</a></th></tr><tr><th>Clicks:");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+			
+			case 4:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("\"totalvotes\":", response, ",\"status_code\"");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+			
+			case 5:
+				String responseNetwork = getNetWorkResponse(getGlobalUrl(ordinal), ordinal);
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(responseNetwork) : -1;
+				break;
+			
+			/*
+			 * case 6: break;
+			 */
+			
+			case 7:
+				response = VoteUtil.getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("nicas:</b> ", response, "<br /><br />");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+			
+			case 8:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("\"monthly_votes\":", response, "}}");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+			
+			case 9:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("\"totalVotes\":\"", response, "\",\"serverRank\"");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+			
+			case 10:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+		}
+		
+		return totalVotes;
+	}
+	
+	public static String getIndividualUrl(int ordinal, String ip, String AccountName)
+	{
+		String url = "";
+		switch (ordinal)
+		{
+			case 0:
+				// l2.topgameserver.net
+				url = String.format("%sAPI_KEY=%s/getData/%s", Config.VOTE_LINK_TGS, Config.TGS_API_KEY, ip);
+				break;
+			
+			case 1:
+				// itopz.com
+				url = String.format("%s%s/%s/%s", Config.VOTE_LINK_ITOPZ, Config.ITOPZ_API_KEY, Config.ITOPZ_SRV_ID, ip);
+				break;
+			
+			case 2:
+				// l2top.co
+				url = String.format("%sVoteCheck.php?id=%s&ip=%s", Config.VOTE_LINK_TOP_CO, Config.TOP_CO_SRV_ID, ip);
+				break;
+			
+			case 3:
+				// l2votes.com
+				url = String.format("%sapi.php?apiKey=%s&ip=%s", Config.VOTE_LINK_VTS, Config.VTS_API_KEY, ip);
+				break;
+			
+			case 4:
+				// hopzone.net
+				url = String.format("%svote?token=%s&ip_address=%s", Config.VOTE_LINK_HZ, Config.HZ_API_KEY, ip);
+				break;
+			
+			case 5:
+				// l2network.eu
+				url = String.format("https://l2network.eu/index.php?a=in&u=%s&ipc=%s", Config.VOTE_NETWORK_USER_NAME, ip);
+				break;
+			
+			case 6:
+				// l2topservers.com
+				url = String.format("%stoken=%s&ip=%s", Config.VOTE_LINK_TSS, Config.TSS_API_TOKEN, ip);
+				break;
+			
+			case 7:
+				// top.l2jbrasil.com
+				url = String.format("%susername=%s&ip=%s&type=json", Config.BRASIL_VOTE_LINK, Config.BRASIL_USER_NAME, ip);
+				break;
+			
+			case 8:
+				// mmotop
+				url = String.format("%s%s/%s", Config.VOTE_LINK_MMOTOP, Config.MMOTOP_API_KEY, ip);
+				break;
+			
+			case 9:
+				// topzone.com
+				url = String.format("%svote?token=%s&ip=%s", Config.VOTE_LINK_TZ, Config.TZ_API_KEY, ip);
+				break;
+			
+			case 10:
+				// l2servers.com
+				url = String.format("%scheckip.php?hash=%s&server_id=%s&ip=%s", Config.VOTE_LINK_SERVERS, Config.SERVERS_HASH_CODE, Config.SERVERS_SRV_ID, ip);
+				break;
+		}
+		
+		return url;
+	}
+	
+	public String getGlobalUrl(int ordinal)
+	{
+		String url = "";
+		
+		switch (ordinal)
+		{
+			case 0:
+				// l2.topgameserver.net
+				url = String.format("%sAPI_KEY=%s/getData", Config.VOTE_LINK_TGS, Config.TGS_API_KEY);
+				break;
+			
+			case 1:
+				// itopz.com
+				url = String.format("%s%s/%s", Config.VOTE_LINK_ITOPZ, Config.ITOPZ_API_KEY, Config.ITOPZ_SRV_ID);
+				break;
+			
+			case 2:
+				// l2top.co
+				url = String.format("%sVoteCheck_Total.php?id=%s", Config.VOTE_LINK_TOP_CO, Config.TOP_CO_SRV_ID);
+				break;
+			
+			case 3:
+				// l2votes.com
+				url = String.format("%sserverPage.php?sid=%s", Config.VOTE_LINK_VTS, Config.VTS_SID);
+				break;
+			
+			case 4:
+				// hopzone.net
+				url = String.format("%svotes?token=%s", Config.VOTE_LINK_HZ, Config.HZ_API_KEY);
+				break;
+			
+			case 5:
+				// l2network.eu
+				url = String.format("apiKey=%s&type=%s&player=", Config.VOTE_NETWORK_API_KEY, 1);
+				break;
+			
+			/*
+			 * case 6: //l2topservers return String.format("%sAPI_KEY=%s/getData", Config.VOTE_LINK_TGS,Config.TGS_API_KEY); break;
+			 */
+			
+			case 7:
+				// top.l2jbrasil.com
+				url = "https://top.l2jbrasil.com/index.php?a=stats&u=julioguzman";
+				break;
+			
+			case 8:
+				// mmotop.eu/l2/
+				url = String.format("%s%s/info/", Config.VOTE_LINK_MMOTOP, Config.MMOTOP_API_KEY);
+				break;
+			
+			case 9:
+				// l2topzone.com
+				url = String.format("%sserver_%s/getServerData", Config.VOTE_LINK_TZ, Config.TZ_API_KEY);
+				break;
+			
+			case 10:
+				// l2servers.com
+				url = String.format("%syearlyvotes.php?server_id=%s", Config.VOTE_LINK_SERVERS, Config.SERVERS_SRV_ID);
+				break;
+		}
+		
+		return url;
+	}
+}
+
+
+*******************************************************************
+/*
+ * This file is part of the L2J Mobius project.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.l2jmobius.gameserver.votesystem.Handler;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
+import java.util.stream.Collectors;
+
+import org.l2jmobius.Config;
+import org.l2jmobius.commons.concurrent.ThreadPool;
+import org.l2jmobius.gameserver.model.World;
+import org.l2jmobius.gameserver.model.actor.instance.PlayerInstance;
+import org.l2jmobius.gameserver.network.GameClient;
+import org.l2jmobius.gameserver.network.SystemMessageId;
+import org.l2jmobius.gameserver.network.serverpackets.ItemList;
+import org.l2jmobius.gameserver.network.serverpackets.SystemMessage;
+import org.l2jmobius.gameserver.util.Broadcast;
+import org.l2jmobius.gameserver.votesystem.DB.globalVoteDB;
+import org.l2jmobius.gameserver.votesystem.DB.individualVoteDB;
+import org.l2jmobius.gameserver.votesystem.Enum.voteSite;
+import org.l2jmobius.gameserver.votesystem.Model.Reward;
+import org.l2jmobius.gameserver.votesystem.Model.globalVote;
+import org.l2jmobius.gameserver.votesystem.Model.individualVote;
+import org.l2jmobius.gameserver.votesystem.Model.individualVoteResponse;
+import org.l2jmobius.gameserver.votesystem.VoteUtil.VoteSiteXml;
+import org.l2jmobius.gameserver.votesystem.VoteUtil.VoteUtil;
+
+/**
+ * @author l2.topgameserver.net
+ */
+public class voteManager extends voteHandler
+{
+	private ScheduledFuture<?> _saveGlobalVotes;
+	private ScheduledFuture<?> _updateIndividualVotes;
+	private ScheduledFuture<?> _autoGlobalVotesReward;
+	
+	private HashSet<individualVote> _votes;
+	private final Map<String, individualVote[]> _foundVoters;
+	private globalVote[] _globalVotes = new globalVote[voteSite.values().length];
+	
+	public voteManager()
+	{
+		loadVotes();
+		loadGlobalVotes();
+		_foundVoters = new ConcurrentHashMap<>();
+		checkAllResponseGlobalVotes();
+		stopAutoTasks();
+		
+		if (Config.ENABLE_INDIVIDUAL_VOTE && Config.ENABLE_VOTE_SYSTEM)
+		{
+			_updateIndividualVotes = ThreadPool.scheduleAtFixedRate(new AutoUpdateIndividualVotesTask(), 30000, Config.NEXT_TIME_TO_AUTO_UPDATE_INDIVIDUAL_VOTES);
+		}
+		if (Config.ENABLE_GLOBAL_VOTE && Config.ENABLE_VOTE_SYSTEM)
+		{
+			_autoGlobalVotesReward = ThreadPool.scheduleAtFixedRate(new AutoGlobalVoteRewardTask(), 10000, Config.NEXT_TIME_TO_CHECK_AUTO_GLOBAL_VOTES_REWARD);
+			_saveGlobalVotes = ThreadPool.scheduleAtFixedRate(new AutoSaveGlobalVotesTask(), 30000, Config.NEXT_TIME_TO_AUTO_UPDATE_TOTAL_VOTE);
+		}
+	}
+	
+	private void stopAutoTasks()
+	{
+		if (_saveGlobalVotes != null)
+		{
+			_saveGlobalVotes.cancel(true);
+			_saveGlobalVotes = null;
+		}
+		if (_updateIndividualVotes != null)
+		{
+			_updateIndividualVotes.cancel(true);
+			_updateIndividualVotes = null;
+		}
+		if (_autoGlobalVotesReward != null)
+		{
+			_autoGlobalVotesReward.cancel(true);
+			_autoGlobalVotesReward = null;
+		}
+	}
+	
+	public void getReward(PlayerInstance player, int ordinalSite)
+	{
+		String ip = existIp(player);
+		if (ip == null)
+		{
+			return;
+		}
+		individualVoteResponse ivr = getIndividualVoteResponse(ordinalSite, ip, player.getAccountName());
+		if (ivr == null)
+		{
+			player.sendMessage("We were unable to verify your vote with: " + VoteSiteXml.getInstance().getSiteName(ordinalSite) + ", please try again");
+			return;
+		}
+		if (!ivr.getIsVoted())
+		{
+			player.sendMessage(String.format("You haven't vote on %s yet!", VoteSiteXml.getInstance().getSiteName(ordinalSite)));
+			return;
+		}
+		if (!checkIndividualAvailableVote(player, ordinalSite))
+		{
+			player.sendMessage(String.format("You can get the reward again on %s at %s", VoteSiteXml.getInstance().getSiteName(ordinalSite), getTimeRemainingWithSampleFormat(player, ordinalSite)));
+			return;
+		}
+		individualVote iv = new individualVote(ip, ivr.getDiffTime(), ivr.getVoteSiteTime(), ordinalSite, true);
+		_votes.add(iv);
+		individualVote[] aiv;
+		if (!_foundVoters.containsKey(ip))
+		{
+			Set<individualVote> ivts = _votes.stream().filter(st -> st.getVoterIp().equalsIgnoreCase(iv.getVoterIp())).collect(Collectors.toSet());
+			aiv = new individualVote[voteSite.values().length];
+			if (ivts.size() > 1)
+			{
+				ivts.forEach(x ->
+				{
+					aiv[x.getVoteSite()] = x;
+				});
+				_foundVoters.put(ip, aiv);
+			}
+			else
+			{
+				aiv[ordinalSite] = iv;
+				_foundVoters.put(ip, aiv);
+			}
+			for (Reward reward : VoteSiteXml.getInstance().getRewards(ordinalSite))
+			{
+				player.getInventory().addItem("VoteSystem", reward.getItemId(), reward.getItemCount(), player, null);
+				player.sendPacket(new SystemMessage(SystemMessageId.YOU_HAVE_EARNED_S2_S1_S).addItemName(reward.getItemId()).addInt(reward.getItemCount()));
+			}
+			player.sendMessage(String.format("%s: Thank you for voting for our server, your reward has been delivered.", VoteSiteXml.getInstance().getSiteName(ordinalSite)));
+			player.sendPacket(new ItemList(player, true));
+		}
+		else
+		{
+			aiv = _foundVoters.get(ip);
+			aiv[ordinalSite] = iv;
+			_foundVoters.replace(ip, aiv);
+			for (Reward reward : VoteSiteXml.getInstance().getRewards(ordinalSite))
+			{
+				player.getInventory().addItem("VoteSystem", reward.getItemId(), reward.getItemCount(), player, null);
+				player.sendPacket(new SystemMessage(SystemMessageId.YOU_HAVE_EARNED_S2_S1_S).addItemName(reward.getItemId()).addInt(reward.getItemCount()));
+			}
+			player.sendMessage(String.format("%s: Thank you for voting for our server, your reward has been delivered.", VoteSiteXml.getInstance().getSiteName(ordinalSite)));
+			player.sendPacket(new ItemList(player, true));
+		}
+	}
+	
+	public boolean checkIndividualAvailableVote(PlayerInstance player, int ordinalSite)
+	{
+		String ip = existIp(player);
+		// If player has registered almost 1 vote before this revision
+		if (_foundVoters.containsKey(ip))
+		{
+			individualVote[] ivs = _foundVoters.get(ip);
+			if (ivs[ordinalSite] == null)
+			{
+				return true;
+			}
+			if (ivs[ordinalSite] != null)
+			{
+				individualVote iv = ivs[ordinalSite];
+				if (getTimeRemaining(iv) < 0)
+				{
+					return true;
+				}
+			}
+		}
+		
+		// if the player hasn't registered a vote or after the initial charge and not have votes registered
+		Optional<individualVote> iv = _votes.stream().filter(s -> s.getVoterIp().equalsIgnoreCase(ip)).filter(y -> y.getVoteSite() == ordinalSite).findFirst();
+		if (iv.isEmpty())
+		{
+			return true;
+		}
+		if (getTimeRemaining(iv.get()) < 0)
+		{
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public long getTimeRemaining(individualVote iv)
+	{
+		long timeRemaining = 0L;
+		timeRemaining = ((iv.getVotingTimeSite() + Config.INTERVAL_TO_NEXT_VOTE) - (iv.getDiffTime() > 0 ? iv.getDiffTime() : -1 * iv.getDiffTime())) - System.currentTimeMillis();
+		return timeRemaining;
+	}
+	
+	public String getTimeRemainingWithSampleFormat(PlayerInstance player, int ordinalSite)
+	{
+		String ip = existIp(player);
+		String timeRemainingWithSampleFormat = "";
+		if (_foundVoters.containsKey(ip))
+		{
+			individualVote[] ivs = _foundVoters.get(ip);
+			if (ivs[ordinalSite] != null)
+			{
+				individualVote iv = ivs[ordinalSite];
+				long timeRemaining = getTimeRemaining(iv);
+				if ((timeRemaining > 0) && iv.getAlreadyRewarded())
+				{
+					timeRemainingWithSampleFormat = CalculateTimeRemainingWithSampleDateFormat(timeRemaining);
+					return timeRemainingWithSampleFormat;
+				}
+			}
+		}
+		Optional<individualVote> iv = _votes.stream().filter(s -> s.getVoterIp().equalsIgnoreCase(ip)).filter(y -> y.getVoteSite() == ordinalSite).findFirst();
+		if (!iv.isEmpty())
+		{
+			if ((getTimeRemaining(iv.get()) > 0) && iv.get().getAlreadyRewarded())
+			{
+				long timeRemaining = getTimeRemaining(iv.get());
+				timeRemainingWithSampleFormat = CalculateTimeRemainingWithSampleDateFormat(timeRemaining);
+				return timeRemainingWithSampleFormat;
+			}
+		}
+		
+		return timeRemainingWithSampleFormat;
+	}
+	
+	public String CalculateTimeRemainingWithSampleDateFormat(long timeRemaining)
+	{
+		long t = timeRemaining / 1000;
+		int hours = Math.round(((t / 3600) % 24));
+		int minutes = Math.round((t / 60) % 60);
+		int seconds = Math.round(t % 60);
+		return String.format("%sH:%sm:%ss", hours, minutes, seconds);
+	}
+	
+	public String existIp(PlayerInstance p)
+	{
+		
+		GameClient client = p.getClient();
+		if ((client.getConnectionAddress() != null) && (client.getPlayer() != null) && !client.isDetached())
+		{
+			try
+			{
+				return client.getConnectionAddress().getHostAddress();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return null;
+		
+	}
+	
+	public final void loadVotes()
+	{
+		_votes = individualVoteDB.getInstance().getVotesDB();
+	}
+	
+	protected void loadGlobalVotes()
+	{
+		_globalVotes = globalVoteDB.getInstance().getGlobalVotes();
+	}
+	
+	protected void saveVotes()
+	{
+		individualVoteDB.getInstance().SaveVotes(_votes);
+	}
+	
+	protected void AutoGlobalVoteReward()
+	{
+		HashSet<String> ipList = new HashSet<>();
+		for (voteSite vs : voteSite.values())
+		{
+			new Thread(() ->
+			{
+				checkNewUpdate(vs.ordinal());
+				if (_globalVotes[vs.ordinal()].getCurrentVotes() >= (_globalVotes[vs.ordinal()].getVotesLastReward() + (vs.ordinal() == voteSite.L2SERVERS.ordinal() ? 25 * Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD)))
+				{
+					_globalVotes[vs.ordinal()].setVotesLastReward(_globalVotes[vs.ordinal()].getVotesLastReward() + (vs.ordinal() == voteSite.L2SERVERS.ordinal() ? 25 * Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD));
+					for (PlayerInstance player : World.getInstance().getPlayers())
+					{
+						String ip = existIp(player);
+						if (ip == null)
+						{
+							continue;
+						}
+						if (ipList.contains(ip))
+						{
+							continue;
+						}
+						for (Reward reward : VoteSiteXml.getInstance().getRewards(11))
+						{
+							player.getInventory().addItem("VoteSystem: ", reward.getItemId(), reward.getItemCount(), player, null);
+							player.sendPacket(new SystemMessage(SystemMessageId.YOU_HAVE_EARNED_S2_S1_S).addItemName(reward.getItemId()).addInt(reward.getItemCount()));
+						}
+						ipList.add(ip);
+						player.sendPacket(new ItemList(player, true));
+					}
+					Broadcast.toAllOnlinePlayers(VoteUtil.Sites[vs.ordinal()] + ": All players has been rewarded, please check your inventory", true);
+				}
+				else
+				{
+					String encourage = "";
+					int nextReward = _globalVotes[vs.ordinal()].getVotesLastReward() + (vs.ordinal() == voteSite.L2SERVERS.ordinal() ? 25 * Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD);
+					encourage = String.format("Vote for %s current Votes: %s, next quantity of votes to reward : %s, need votes to next reward: %s", VoteUtil.Sites[vs.ordinal()], _globalVotes[vs.ordinal()].getCurrentVotes(), nextReward, nextReward - _globalVotes[vs.ordinal()].getCurrentVotes());
+					Broadcast.toAllOnlinePlayers(encourage, true);
+				}
+			}).start();
+			
+		}
+	}
+	
+	protected void AutoSaveGlobalVotes()
+	{
+		globalVoteDB.getInstance().saveGlobalVotes(_globalVotes);
+	}
+	
+	protected synchronized void AutoUpdateIndividualVotes()
+	{
+		AutoCleanInnecesaryIndividualVotes();
+		individualVoteDB.getInstance().SaveVotes(_votes);
+	}
+	
+	protected synchronized void AutoCleanInnecesaryIndividualVotes()
+	{
+		HashSet<individualVote> removeVotes = new HashSet<>();
+		Iterator<individualVote> iv = _votes.iterator();
+		while (iv.hasNext())
+		{
+			individualVote individualvote = iv.next();
+			if (getTimeRemaining(individualvote) < 0)
+			{
+				removeVotes.add(individualvote);
+				iv.remove();
+				if (_foundVoters.containsKey(individualvote.getVoterIp()))
+				{
+					if (_foundVoters.get(individualvote.getVoterIp())[individualvote.getVoteSite()] != null)
+					{
+						_foundVoters.get(individualvote.getVoterIp())[individualvote.getVoteSite()] = null;
+					}
+				}
+			}
+		}
+		individualVoteDB.getInstance().DeleteVotes(removeVotes);
+	}
+	
+	public void checkAllResponseGlobalVotes()
+	{
+		for (voteSite vs : voteSite.values())
+		{
+			new Thread(() ->
+			{
+				checkNewUpdate(vs.ordinal());
+			});
+		}
+	}
+	
+	public void checkNewUpdate(int ordinalSite)
+	{
+		int globalVotesResponse = getGlobalVotesResponse(ordinalSite);
+		if (globalVotesResponse == -1)
+		{
+			return;
+		}
+		_globalVotes[ordinalSite].setCurrentVotes(globalVotesResponse);
+		int last = globalVotesResponse - (ordinalSite == voteSite.L2SERVERS.ordinal() ? 25 * Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD);
+		if (last < 0)
+		{
+			_globalVotes[ordinalSite].setVotesLastReward(0);
+			return;
+		}
+		if ((_globalVotes[ordinalSite].getVotesLastReward() + (ordinalSite == voteSite.L2SERVERS.ordinal() ? 25 * Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD : Config.GLOBAL_VOTES_AMOUNT_TO_NEXT_REWARD)) < globalVotesResponse)
+		{
+			_globalVotes[ordinalSite].setVotesLastReward(globalVotesResponse);
+			return;
+		}
+	}
+	
+	public void Shutdown()
+	{
+		AutoSaveGlobalVotes();
+		AutoCleanInnecesaryIndividualVotes();
+		AutoUpdateIndividualVotes();
+	}
+	
+	protected class AutoGlobalVoteRewardTask implements Runnable
+	{
+		
+		@Override
+		public void run()
+		{
+			AutoGlobalVoteReward();
+			
+		}
+		
+	}
+	
+	protected class AutoSaveGlobalVotesTask implements Runnable
+	{
+		
+		@Override
+		public void run()
+		{
+			AutoSaveGlobalVotes();
+			
+		}
+		
+	}
+	
+	protected class AutoUpdateIndividualVotesTask implements Runnable
+	{
+		
+		@Override
+		public void run()
+		{
+			AutoUpdateIndividualVotes();
+			
+		}
+		
+	}
+	
+	public static voteManager getInatance()
+	{
+		return SingleHolder.INSTANCE;
+	}
+	
+	private static class SingleHolder
+	{
+		protected static final voteManager INSTANCE = new voteManager();
+	}
+	
+}
+
+*************************************************************************************
+/*
+ * This file is part of the L2J Mobius project.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.l2jmobius.gameserver.votesystem.Model;
+
+/**
+ * @author l2.topgameserver.net
+ */
+public class individualVote
+{
+	private String _voterIp;
+	private long _diffTime;
+	private long _votingTimeSite;
+	private int _voteSite;
+	private boolean _alreadyRewarded;
+	
+	public individualVote(String voterIp, long diffTime, long votingTimeSite, int voteSite, boolean alreadyRewarded)
+	{
+		_voterIp = voterIp;
+		_diffTime = diffTime;
+		_votingTimeSite = votingTimeSite;
+		_voteSite = voteSite;
+		_alreadyRewarded = alreadyRewarded;
+	}
+	
+	public individualVote()
+	{
+		
+	}
+	
+	public void setVoterIp(String voterIp)
+	{
+		_voterIp = voterIp;
+	}
+	
+	public void setDiffTime(long diffTime)
+	{
+		_diffTime = diffTime;
+	}
+	
+	public void setVotingTimeSite(long votingTimeSite)
+	{
+		_votingTimeSite = votingTimeSite;
+	}
+	
+	public void setVoteSite(int voteSite)
+	{
+		_voteSite = voteSite;
+	}
+	
+	public void setAlreadyRewarded(boolean alreadyRewarded)
+	{
+		_alreadyRewarded = alreadyRewarded;
+	}
+	
+	public String getVoterIp()
+	{
+		return _voterIp;
+	}
+	
+	public long getDiffTime()
+	{
+		return _diffTime;
+	}
+	
+	public long getVotingTimeSite()
+	{
+		return _votingTimeSite;
+	}
+	
+	public int getVoteSite()
+	{
+		return _voteSite;
+	}
+	
+	public boolean getAlreadyRewarded()
+	{
+		return _alreadyRewarded;
+	}
+	
+}
+**********************************************************************
+/*
+ * This file is part of the L2J Mobius project.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.l2jmobius.gameserver.votesystem.Model;
+
+/**
+ * @author l2.topgameserver.net
+ */
+public class individualVoteResponse
+{
+	private boolean _isVoted;
+	private long _diffTime;
+	private long _voteSiteTime;
+	
+	public individualVoteResponse()
+	{
+		
+	}
+	
+	public void setIsVoted(boolean isVoted)
+	{
+		_isVoted = isVoted;
+	}
+	
+	public void setDiffTime(long diffTime)
+	{
+		_diffTime = diffTime;
+	}
+	
+	public void setVoteSiteTime(long voteSiteTime)
+	{
+		_voteSiteTime = voteSiteTime;
+	}
+	
+	public boolean getIsVoted()
+	{
+		return _isVoted;
+	}
+	
+	public long getDiffTime()
+	{
+		return _diffTime;
+	}
+	
+	public long getVoteSiteTime()
+	{
+		return _voteSiteTime;
+	}
+}
+
+
+****************************************************************************************************************************************
+************************************************************FOR L2JHI5******************************************************************
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.l2jserver.gameserver.votesystem.DB;
+
+import com.l2jserver.commons.database.ConnectionFactory;
+import com.l2jserver.gameserver.votesystem.Model.individualVote;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashSet;
+import java.util.logging.Logger;
+
+/**
+ *
+ * @author escor
+ */
+public final class individualVoteDB {
+        private static final Logger LOGGER = Logger.getLogger(individualVoteDB.class.getName());
+	private HashSet<individualVote> _votes;
+	private Statement st;
+	private Connection con;
+	
+	private individualVoteDB() {
+		_votes = new HashSet<>();
+		loadVotes();
+	}
+	
+	public void loadVotes() {
+		
+		_votes.clear();
+		try(Connection con = ConnectionFactory.getInstance().getConnection();PreparedStatement ps = con.prepareStatement("SELECT voterIp,voteSite,diffTime,votingTimeSite,alreadyRewarded FROM individualVotes");
+			ResultSet rs = ps.executeQuery();)
+		{
+			while(rs.next()) {
+				individualVote iv = new individualVote();
+				iv.setVoterIp(rs.getString("voterIp"));
+				iv.setVoteSite(rs.getInt("voteSite"));
+				iv.setDiffTime(rs.getLong("diffTime"));
+				iv.setVotingTimeSite(rs.getLong("votingTimeSite"));
+				iv.setAlreadyRewarded(rs.getBoolean("alreadyRewarded"));
+				_votes.add(iv);
+			}
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void SaveVotes(HashSet<individualVote> votes) {
+		
+		if(votes == null)
+			return;
+		if(votes.size() == 0) {
+			return;
+		}
+			try(Connection con = ConnectionFactory.getInstance().getConnection(); PreparedStatement ps = con.prepareStatement("INSERT INTO individualVotes(voterIp,voteSite,diffTime,votingTimeSite,alreadyRewarded) VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+				+ "voterIp = VALUES(voterIp), voteSite = VALUES(voteSite), diffTime = VALUES(diffTime), votingTimeSite = VALUES(votingTimeSite),alreadyRewarded = VALUES(alreadyRewarded)");)
+			{
+				
+				for(individualVote iv : votes) {
+					ps.setString(1, iv.getVoterIp());
+					ps.setInt(2, iv.getVoteSite());
+					ps.setLong(3, iv.getDiffTime());
+					ps.setLong(4, iv.getVotingTimeSite());
+					ps.setBoolean(5, iv.getAlreadyRewarded());
+					ps.addBatch();
+				}
+				ps.executeBatch();
+			}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+			}
+	}
+	
+public void SaveVote(individualVote vote) {
+		
+		if(vote == null)
+			return;
+		
+			try(Connection con = ConnectionFactory.getInstance().getConnection(); PreparedStatement ps = con.prepareStatement("INSERT INTO individualVotes(voterIp,voteSite,diffTime,votingTimeSite,alreadyRewarded) VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE"
+				+ "voterIp = VALUES(voterIp), voteSite = VALUES(voteSite), diffTime = VALUES(diffTime), votingTimeSite = VALUES(votingTimeSite), alreadyRewarded = VALUES(alreadyRewarded)");)
+			{
+					ps.setString(1, vote.getVoterIp());
+					ps.setInt(2, vote.getVoteSite());
+					ps.setLong(3, vote.getDiffTime());
+					ps.setLong(4, vote.getVotingTimeSite());
+					ps.setBoolean(5, vote.getAlreadyRewarded());
+					ps.executeUpdate();
+			}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+			}
+	}
+
+	public void DeleteVotes(HashSet<individualVote> deleteVotes) {
+		if(deleteVotes == null) {
+			return;
+		}
+		if(deleteVotes.size() == 0) {
+			return;
+		}
+		try {
+			con = ConnectionFactory.getInstance().getConnection();
+			st = con.createStatement();
+			for(individualVote iv : deleteVotes) {
+			String sql = String.format("Delete from individualVotes where voterIp = '%s' AND voteSite = %s", iv.getVoterIp(),iv.getVoteSite());
+			st.addBatch(sql);
+			}
+			int[] result = st.executeBatch();
+			st.close();
+			con.close();
+			LOGGER.info(result.length+" Innecesary votes has been deleted");
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public HashSet<individualVote> getVotesDB(){
+		return _votes;
+	}
+
+	public static final individualVoteDB getInstance()
+	{
+		return SingleHolder.INSTANCE;
+	}
+	
+	private static final class SingleHolder {
+		protected static final individualVoteDB INSTANCE = new individualVoteDB();
+	}
+}
+
+
+**********************************************************************************************
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.l2jserver.gameserver.votesystem.Handler;
+
+import static com.l2jserver.gameserver.config.Configuration.votesystem;
+import com.l2jserver.gameserver.votesystem.Model.individualVoteResponse;
+import com.l2jserver.gameserver.votesystem.VoteUtil.VoteSiteXml;
+import com.l2jserver.gameserver.votesystem.VoteUtil.VoteUtil;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ *
+ * @author escor
+ */
+public class voteHandler {
+    public static final Logger LOGGER = Logger.getLogger(voteHandler.class.getName());
+	protected static String getNetWorkResponse(String URL,int ordinal) {
+				try {
+				String API_URL = votesystem().getVoteNetworkLink();
+				String detail = URL;
+				String postParameters = "";
+				postParameters +="apiKey="+VoteUtil.between("apiKey=", detail, "&type=");
+				postParameters += "&type="+VoteUtil.between("&type=", detail, "&player");
+				String beginIndexPlayer = "&player=";
+				String player = detail.substring(detail.indexOf(beginIndexPlayer)+beginIndexPlayer.length());
+				
+				if (player != null && !player.equals(""))
+					postParameters += "&player=" + player;
+
+				byte[] postData = postParameters.getBytes(Charset.forName("UTF-8"));
+				URL url = new URL(API_URL);
+				HttpURLConnection con = (HttpURLConnection)url.openConnection();
+				con.setConnectTimeout(5000);
+				con.setRequestMethod("POST");
+				con.setRequestProperty("Content-Length", Integer.toString(postData.length));
+				con.setRequestProperty("User-Agent", "Mozilla/5.0");
+				con.setDoOutput(true);
+				
+				DataOutputStream os = new DataOutputStream(con.getOutputStream());
+				os.write(postData);
+				os.flush();
+				os.close();
+				
+				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+				String inputLine;
+				StringBuffer response = new StringBuffer();
+				
+				while ((inputLine = in.readLine()) != null) {
+					response.append(inputLine);
+				}
+				in.close();
+					return response.toString();
+					
+				} catch (Exception e) {
+				LOGGER.warning(VoteUtil.Sites[ordinal]+ " Say: An error ocurred "+ e.getCause());
+				return "";
+				}
+	}
+	
+	protected static String getResponse(String Url, int ordinal) 
+	{
+		
+		try
+		  {
+			int responseCode = 0;
+			URL objUrl = new URL(Url);
+			HttpURLConnection con = (HttpURLConnection) objUrl.openConnection();
+			con.setRequestMethod("GET");
+			con.setRequestProperty("User-Agent", "Mozilla/5.0");
+			con.setConnectTimeout(5000);
+			responseCode = con.getResponseCode();
+			if (responseCode == HttpURLConnection.HTTP_OK) {
+				String inputLine;
+				StringBuffer response = new StringBuffer();
+				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+				while ((inputLine = in.readLine()) != null) {
+					response.append(inputLine);
+				}
+				in.close();
+				return response.toString();
+			} 
+		
+		  }
+		       catch (Exception e)
+		       {
+		    	   LOGGER.warning(VoteSiteXml.getInstance().getSiteName(ordinal)+" Say: An error ocurred "+e.getCause());
+		           return "";
+		       }
+
+		return "";
+	}
+	
+	
+	public static individualVoteResponse getIndividualVoteResponse(int ordinal,String ip, String AccountName) 
+	{
+		String response = "";
+		boolean isVoted = false;
+		long voteSiteTime = 0L, diffTime = 0L;
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		individualVoteResponse ivr = new individualVoteResponse();
+		
+			switch(ordinal) 
+			{
+				case 0:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(VoteUtil.between("\"already_voted\":", response, ",\"vote_time\""));
+						if(isVoted) {
+                            try
+							{
+								voteSiteTime = format.parse(VoteUtil.between("\"vote_time\":\"", response, "\",\"server_time\"")).getTime();
+								diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"server_time\":\"", response, "\"}")).getTime();
+							}
+							catch (ParseException e)
+							{
+								e.printStackTrace();
+							}					
+						}
+						break;
+						
+				case 1:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(response);
+					if(isVoted) {
+							voteSiteTime = System.currentTimeMillis();
+							diffTime = 0;
+					}
+					break;
+						
+				case 2:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(response);
+					if(isVoted) {
+							voteSiteTime = System.currentTimeMillis();
+							diffTime = 0;
+					}
+					break;
+					
+				case 3:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Integer.parseInt(VoteUtil.between("\"status\":\"", response, "\",\"date\"")) == 1 ? true : false;
+					if(isVoted) {
+							String dateString = VoteUtil.between("\"date\":\"", response, "\"}]");
+							try
+							{
+								voteSiteTime = format.parse(String.format("%s-%s-%s %s:%s:%s", dateString.substring(0, 4),dateString.substring(4, 6),dateString.substring(6, 8),dateString.substring(8, 10),dateString.substring(10, 12),dateString.substring(12, 14))).getTime();
+								diffTime = System.currentTimeMillis() - VoteUtil.getTimeVotingSite(ordinal);
+							}
+							catch (ParseException e)
+							{
+								e.printStackTrace();
+							}
+							
+					}
+					break;
+				
+				case 4:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(VoteUtil.between("\"voted\":", response, ",\"voteTime\""));
+					if(isVoted) {
+					try
+					{
+						voteSiteTime = format.parse(VoteUtil.between("\"voteTime\":\"", response, "\",\"hopzoneServerTime\"")).getTime();
+						diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"hopzoneServerTime\":\"", response, "\",\"status_code\":")).getTime();
+					}
+					catch (ParseException e)
+					{
+						e.printStackTrace();
+					}
+				}
+					break;
+					
+				case 5:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = (Integer.parseInt(response) == 1) ? true : false;
+					if(isVoted) {
+					voteSiteTime = System.currentTimeMillis();
+					diffTime = 0;
+					}
+					break;
+					
+				case 6:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(VoteUtil.between("\"voted\":", response, ",\"voteTime\""));
+					if(isVoted) {
+						try
+						{
+							voteSiteTime = format.parse(VoteUtil.between("\"voteTime\":\"", response, "\",\"l2topserversServerTime\"")).getTime();
+							diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"l2topserversServerTime\":\"", response, "\",\"status_code\"")).getTime();
+						}
+						catch (ParseException e)
+						{
+							e.printStackTrace();
+						}
+						
+					}
+					break;
+					
+				case 7:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Integer.parseInt(VoteUtil.between("\"status\":\"", response, "\",\"server_time\"")) == 1 ? true : false;
+					if(isVoted) {
+							try
+							{
+								voteSiteTime = format.parse(VoteUtil.between("\"date\":\"", response, "\",\"status\"")).getTime();
+								diffTime = System.currentTimeMillis() - format.parse(VoteUtil.between("\"server_time\":\"", response, "\",\"hours_since_vote\"")).getTime();
+							}
+							catch (ParseException e)
+							{
+								e.printStackTrace();
+							}
+					}
+					break;
+					
+				case 8:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(VoteUtil.between("\"is_voted\":", response, ",\"vote_time\""));
+					if(isVoted) {
+						try
+						{
+							voteSiteTime = (Long.parseLong(VoteUtil.between("\"vote_time\":", response, ",\"server_time\"")))*1000;
+							diffTime = System.currentTimeMillis() - Long.parseLong(VoteUtil.between("\"server_time\":",response,"}}"))*1000;
+						}
+						catch (Exception e)
+						{
+							e.printStackTrace();
+						}
+					}
+					break;
+					
+				case 9:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(VoteUtil.between("\"isVoted\": ", response, ",\"voteTime\""));
+					if(isVoted) {
+						voteSiteTime = Long.parseLong(VoteUtil.between("\"voteTime\": \"", response, "\",\"serverTime\""))*1000;
+						diffTime = System.currentTimeMillis() - Long.parseLong(VoteUtil.between("\"serverTime\": ",response,"}}"));
+					}
+					break;
+					
+				case 10:
+					response = getResponse(getIndividualUrl(ordinal,ip,null),ordinal);
+					isVoted = Boolean.parseBoolean(response);
+					if(isVoted) {
+							voteSiteTime = System.currentTimeMillis();
+							diffTime = 0;
+					}
+					break;
+					
+			}
+				if(!response.equals("")) {
+				ivr.setIsVoted(isVoted);
+				ivr.setDiffTime(diffTime);
+				ivr.setVoteSiteTime(voteSiteTime);
+				return ivr;
+				}
+				return null;
+	}
+	
+	public int getGlobalVotesResponse(int ordinal) 
+	{
+		
+		String response = "";
+		int totalVotes = 0;
+		
+		switch(ordinal) 
+		{
+			case 0:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("\"getVotes\":",response,"}");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 1:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("[server_votes]=>",response.replace(" ", ""),"[server_rank]");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 2:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 3:
+				response = VoteUtil.getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("Votes:</th><th><a class='votes'>", response, "</a></th></tr><tr><th>Clicks:");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 4:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("\"totalvotes\":",response,",\"status_code\"");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 5:
+				String responseNetwork = getNetWorkResponse(getGlobalUrl(ordinal),ordinal);
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(responseNetwork) : -1;
+				break;
+			
+			/*case 6:
+				
+				break;*/
+				
+			case 7:
+				response = VoteUtil.getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("nicas:</b> ", response, "<br /><br />");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 8:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				response = VoteUtil.between("\"monthly_votes\":",response,"}}");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 9:
+			  	response = getResponse(getGlobalUrl(ordinal), ordinal);
+			  	response = VoteUtil.between("\"totalVotes\":\"", response, "\",\"serverRank\"");
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+				
+			case 10:
+				response = getResponse(getGlobalUrl(ordinal), ordinal);
+				totalVotes = (!"".equals(response)) ? Integer.parseInt(response) : -1;
+				break;
+		}
+		
+		
+		return totalVotes;
+	}
+	
+	public static String getIndividualUrl(int ordinal,String ip,String AccountName) 
+	{
+		String url = "";
+		switch(ordinal) {
+			case 0:
+			    //l2.topgameserver.net
+				url =  String.format("%sAPI_KEY=%s/getData/%s", votesystem().getVoteLinkTgs(), votesystem().getTgsApiKey(),ip); 
+				break;
+				
+			case 1:
+				//itopz.com
+				url = String.format("%s%s/%s/%s", votesystem().getVoteLinkItopz(),votesystem().getItopzZpiKey(),votesystem().getItopzSrvId(),ip); 
+				break;
+				
+			case 2:
+				//l2top.co
+				url = String.format("%sVoteCheck.php?id=%s&ip=%s", votesystem().getVoteLinkTopCo(),votesystem().getTopCoSrvId(),ip); 
+				break;
+				
+			case 3:
+				//l2votes.com
+				url = String.format("%sapi.php?apiKey=%s&ip=%s", votesystem().getVoteLinkVts(),votesystem().getVtsApiKey(),ip); 
+				break;
+				
+			case 4:
+				//hopzone.net
+				url = String.format("%svote?token=%s&ip_address=%s",votesystem().getVoteLinkHz(),votesystem().getHzApiKey(),ip);
+				break;
+				
+			case 5:
+				//l2network.eu
+				url = String.format("https://l2network.eu/index.php?a=in&u=%s&ipc=%s", votesystem().getVoteNetworkUserName(),ip);
+				break;
+				
+			case 6:
+				//l2topservers.com
+				url = String.format("%stoken=%s&ip=%s", votesystem().getVoteLinkTss(),votesystem().getTssApiToken(),ip); 
+				break;
+				
+			case 7:
+				//top.l2jbrasil.com
+				url = String.format("%susername=%s&ip=%s&type=json",votesystem().getBrasilVoteLink(),votesystem().getBrasilUserName(),ip); 
+				break;
+				
+			case 8:
+				//mmotop
+				url = String.format("%s%s/%s", votesystem().getVoteLinkMmotop(),votesystem().getMmotopApiKey(),ip); 
+				break;
+				
+			case 9:
+				//topzone.com
+				url = String.format("%svote?token=%s&ip=%s", votesystem().getVoteLinkTz(),votesystem().getTzApiKey(),ip); 
+				break;
+				
+			case 10:
+				//l2servers.com
+				url = String.format("%scheckip.php?hash=%s&server_id=%s&ip=%s", votesystem().getVoteLinkServers(),votesystem().getServersHashCode(),votesystem().getServersSrvId(),ip); 
+				break;
+		}
+		
+		return url;
+	}
+	
+	public String getGlobalUrl(int ordinal) 
+	{
+		String url = "";
+		
+		switch(ordinal) {
+			case 0:
+			    //l2.topgameserver.net
+				url = String.format("%sAPI_KEY=%s/getData", votesystem().getVoteLinkTgs(),votesystem().getTgsApiKey());
+				break;
+			
+			case 1:
+				//itopz.com
+				url = String.format("%s%s/%s", votesystem().getVoteLinkItopz(),votesystem().getItopzZpiKey(),votesystem().getItopzSrvId()); 
+				break;
+
+			case 2:
+				//l2top.co
+				url = String.format("%sVoteCheck_Total.php?id=%s", votesystem().getVoteLinkTopCo(),votesystem().getTopCoSrvId()); 
+				break;
+				
+			case 3:
+				//l2votes.com
+				url = String.format("%sserverPage.php?sid=%s",votesystem().getVoteLinkVts(),votesystem().getVtsSid()); 
+				break;
+				
+			case 4:
+				//hopzone.net
+				url = String.format("%svotes?token=%s", votesystem().getVoteLinkHz(),votesystem().getHzApiKey());
+				break;
+				
+			case 5:
+				//l2network.eu
+				url = String.format("apiKey=%s&type=%s&player=",votesystem().getVoteNetworkApiKey(),1);
+				break;
+				
+			/*case 6:
+				//l2topservers
+				return String.format("%sAPI_KEY=%s/getData", Config.VOTE_LINK_TGS,Config.TGS_API_KEY); 
+				break;*/
+								
+			case 7:
+				//top.l2jbrasil.com
+				url = "https://top.l2jbrasil.com/index.php?a=stats&u=julioguzman"; 
+				break;
+				
+			case 8:
+				//mmotop.eu/l2/
+				url = String.format("%s%s/info/", votesystem().getVoteLinkMmotop(),votesystem().getMmotopApiKey()); 
+				break;
+				
+			case 9:
+				//l2topzone.com
+				url = String.format("%sserver_%s/getServerData", votesystem().getVoteLinkTz(),votesystem().getTzApiKey()); 
+				break;
+			
+			case 10:
+				//l2servers.com
+				url = String.format("%syearlyvotes.php?server_id=%s", votesystem().getVoteLinkServers(),votesystem().getServersSrvId());
+				break;
+		}
+		
+		return url;
+	}
+}
+
+
+**************************************************************************************************************************
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.l2jserver.gameserver.votesystem.Model;
+
+/**
+ *
+ * @author escor
+ */
+public class individualVoteResponse {
+    private boolean _isVoted;
+	private long _diffTime;
+	private long _voteSiteTime;
+	
+	public individualVoteResponse() {
+		
+	}
+	
+	public void setIsVoted(boolean isVoted) {
+		_isVoted = isVoted;
+	}
+	public void setDiffTime(long diffTime) {
+		_diffTime = diffTime;
+	}
+	public void setVoteSiteTime(long voteSiteTime) {
+		_voteSiteTime = voteSiteTime;
+	}
+	
+	public boolean getIsVoted() {
+		return _isVoted;
+	}
+	public long getDiffTime() {
+		return  _diffTime;
+	}
+	public long getVoteSiteTime() {
+		return _voteSiteTime;
+	}
+}
+
+
+********************************************************************************************************
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.l2jserver.gameserver.votesystem.Model;
+
+/**
+ *
+ * @author escor
+ */
+public class individualVote {
+   private String _voterIp;
+	private long _diffTime;
+	private long _votingTimeSite;
+	private int _voteSite;
+	private boolean _alreadyRewarded;
+	
+	
+	public individualVote(String voterIp, long diffTime, long votingTimeSite, int voteSite, boolean alreadyRewarded){
+		_voterIp = voterIp;
+		_diffTime = diffTime;
+		_votingTimeSite = votingTimeSite;
+		_voteSite = voteSite;
+		_alreadyRewarded = alreadyRewarded;
+	}
+	
+	public individualVote(){
+		
+	}
+	
+	public void setVoterIp(String voterIp) {
+		_voterIp = voterIp;
+	}
+	
+	public void setDiffTime(long diffTime) {
+		_diffTime = diffTime;
+	}
+	
+	public void setVotingTimeSite(long votingTimeSite) {
+		_votingTimeSite = votingTimeSite;
+	}
+	
+	public void setVoteSite(int voteSite) {
+		_voteSite = voteSite;
+	}
+	
+	public void setAlreadyRewarded(boolean alreadyRewarded) {
+		_alreadyRewarded = alreadyRewarded;
+	}
+	
+	public String getVoterIp() {
+		return _voterIp;
+	}
+	
+	public long getDiffTime() {
+		return _diffTime;
+	}
+	
+	public long  getVotingTimeSite() {
+		return _votingTimeSite;
+	}
+	
+	public int getVoteSite() {
+		return _voteSite;
+	}
+	
+	public boolean getAlreadyRewarded() {
+		return _alreadyRewarded;
+	}
+}
+
+
+**************************************************************************************************
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.l2jserver.gameserver.votesystem.Handler;
+
+import com.l2jserver.gameserver.ThreadPoolManager;
+import static com.l2jserver.gameserver.config.Configuration.votesystem;
+import com.l2jserver.gameserver.model.L2World;
+import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
+import com.l2jserver.gameserver.network.L2GameClient;
+import com.l2jserver.gameserver.network.SystemMessageId;
+import com.l2jserver.gameserver.network.serverpackets.ItemList;
+import com.l2jserver.gameserver.network.serverpackets.SystemMessage;
+import com.l2jserver.gameserver.util.Broadcast;
+import com.l2jserver.gameserver.votesystem.DB.globalVoteDB;
+import com.l2jserver.gameserver.votesystem.DB.individualVoteDB;
+import com.l2jserver.gameserver.votesystem.Enum.voteSite;
+import static com.l2jserver.gameserver.votesystem.Handler.voteHandler.getIndividualVoteResponse;
+import com.l2jserver.gameserver.votesystem.Model.Reward;
+import com.l2jserver.gameserver.votesystem.Model.globalVote;
+import com.l2jserver.gameserver.votesystem.Model.individualVote;
+import com.l2jserver.gameserver.votesystem.Model.individualVoteResponse;
+import com.l2jserver.gameserver.votesystem.VoteUtil.VoteSiteXml;
+import com.l2jserver.gameserver.votesystem.VoteUtil.VoteUtil;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
+import java.util.stream.Collectors;
+
+/**
+ *
+ * @author escor
+ */
+public final class voteManager extends voteHandler{
+        private ScheduledFuture<?> _saveGlobalVotes;
+	private ScheduledFuture<?> _updateIndividualVotes;
+	private ScheduledFuture<?> _autoGlobalVotesReward;
+	
+	private HashSet<individualVote> _votes;
+	private Map<String,individualVote[]> _foundVoters;
+	private globalVote[] _globalVotes = new globalVote[voteSite.values().length];
+	
+	public voteManager() {
+		loadVotes();
+		loadGlobalVotes();
+		_foundVoters = new ConcurrentHashMap<>();
+		checkAllResponseGlobalVotes();
+		stopAutoTasks();
+		
+		if(votesystem().getEnableIndividualVote() && votesystem().getEnableVoteSystem()) {
+			_updateIndividualVotes = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new AutoUpdateIndividualVotesTask(), 30000, votesystem().getNextTimeToAutoUpdateIndividualVotes());
+		}
+		if(votesystem().getEnableGlobalVote() && votesystem().getEnableVoteSystem()) {
+			_autoGlobalVotesReward = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new AutoGlobalVoteRewardTask(), 10000, votesystem().getNextTimeToCheckAutoGlobalVotesReward());
+			_saveGlobalVotes = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new AutoSaveGlobalVotesTask(), 30000, votesystem().getNextTimeToAutoUpdateTotalVote());		
+		}
+	}
+	
+	private void stopAutoTasks() {
+		if(_saveGlobalVotes != null) {
+			_saveGlobalVotes.cancel(true);
+			_saveGlobalVotes = null;
+		}
+		if(_updateIndividualVotes != null) {
+			_updateIndividualVotes.cancel(true);
+			_updateIndividualVotes = null;
+		}
+		if(_autoGlobalVotesReward != null) {
+			_autoGlobalVotesReward.cancel(true);
+			_autoGlobalVotesReward = null;
+		}
+	}
+	
+	public void getReward(L2PcInstance player, int ordinalSite) {
+		String ip = existIp(player);
+			if(ip == null) {
+				return;
+			}
+			individualVoteResponse ivr = getIndividualVoteResponse(ordinalSite,ip,player.getAccountName());
+			if(ivr == null) {
+				player.sendMessage("We were unable to verify your vote with: "+VoteSiteXml.getInstance().getSiteName(ordinalSite)+", please try again");
+				return;
+			}
+			if(!ivr.getIsVoted()) {
+				player.sendMessage(String.format("You haven't vote on %s yet!", VoteSiteXml.getInstance().getSiteName(ordinalSite)));
+				return;
+			}
+			if(!checkIndividualAvailableVote(player,ordinalSite)) {
+				player.sendMessage(String.format("You can get the reward again on %s at %s", VoteSiteXml.getInstance().getSiteName(ordinalSite),getTimeRemainingWithSampleFormat(player,ordinalSite)));
+				return;
+			}
+			individualVote iv = new individualVote(ip,ivr.getDiffTime(),ivr.getVoteSiteTime(),ordinalSite,true);
+			_votes.add(iv);
+			individualVote[] aiv;
+			if(!_foundVoters.containsKey(ip)) {
+				Set<individualVote> ivts = _votes.stream().filter(st -> st.getVoterIp().equalsIgnoreCase(iv.getVoterIp())).collect(Collectors.toSet());
+				aiv = new individualVote[voteSite.values().length];
+				if(ivts.size()>1) {
+					ivts.forEach(x -> {
+						aiv[x.getVoteSite()] = x;
+					});
+					_foundVoters.put(ip, aiv);
+				}else {
+				aiv[ordinalSite] = iv; 
+				_foundVoters.put(ip, aiv);
+				}
+				for(Reward reward : VoteSiteXml.getInstance().getRewards(ordinalSite)) {
+					player.getInventory().addItem("VoteSystem", reward.getItemId(), reward.getItemCount(), player, null);
+					player.sendPacket(SystemMessage.getSystemMessage(SystemMessageId.EARNED_S2_S1_S).addItemName(reward.getItemId()).addInt(reward.getItemCount()));
+					}
+					player.sendMessage(String.format("%s: Thank you for voting for our server, your reward has been delivered.", VoteSiteXml.getInstance().getSiteName(ordinalSite)));
+					player.sendPacket(new ItemList(player, true));
+			}else {
+				aiv = _foundVoters.get(ip);
+				aiv[ordinalSite] = iv;
+				_foundVoters.replace(ip, aiv);
+				for(Reward reward : VoteSiteXml.getInstance().getRewards(ordinalSite)) {
+					player.getInventory().addItem("VoteSystem", reward.getItemId(), reward.getItemCount(), player, null);
+					player.sendPacket(SystemMessage.getSystemMessage(SystemMessageId.EARNED_S2_S1_S).addItemName(reward.getItemId()).addInt(reward.getItemCount()));
+					}
+					player.sendMessage(String.format("%s: Thank you for voting for our server, your reward has been delivered.", VoteSiteXml.getInstance().getSiteName(ordinalSite)));
+					player.sendPacket(new ItemList(player, true));
+			}
+	}
+	
+	public boolean checkIndividualAvailableVote(L2PcInstance player, int ordinalSite) {
+		String ip = existIp(player);
+		//If player has registered almost 1 vote before this revision
+		if(_foundVoters.containsKey(ip)) {
+			individualVote[] ivs=_foundVoters.get(ip);
+			if(ivs[ordinalSite] == null) {
+				return true;
+			}if(ivs[ordinalSite] != null) {
+				individualVote iv = ivs[ordinalSite];
+				if(getTimeRemaining(iv)<0) {
+					return true;
+				}
+			}
+		}
+		
+		//if the player hasn't registered a vote or after the initial charge and not have votes registered
+		Optional<individualVote> iv = _votes.stream().filter(s -> s.getVoterIp().equalsIgnoreCase(ip)).filter(y -> y.getVoteSite() == ordinalSite).findFirst();
+		if(iv.isEmpty()) 
+			return true;
+		if(getTimeRemaining(iv.get()) <0)
+			return true;
+			
+		return false;
+	}
+	
+	public long getTimeRemaining(individualVote iv) {
+		long timeRemaining = 0L;
+			timeRemaining = (iv.getVotingTimeSite() + votesystem().getIntervalToNextVote() - (iv.getDiffTime()>0? iv.getDiffTime() : -1*iv.getDiffTime())) -System.currentTimeMillis();
+		return timeRemaining;
+	}
+	
+	public String getTimeRemainingWithSampleFormat(L2PcInstance player, int ordinalSite) {
+		String ip = existIp(player);
+		String timeRemainingWithSampleFormat ="";
+		if(_foundVoters.containsKey(ip)) {
+			individualVote[] ivs=_foundVoters.get(ip);
+			if(ivs[ordinalSite] != null) {
+				individualVote iv = ivs[ordinalSite];
+				long timeRemaining = getTimeRemaining(iv); 
+				if(timeRemaining>0 && iv.getAlreadyRewarded()) {
+					timeRemainingWithSampleFormat = CalculateTimeRemainingWithSampleDateFormat(timeRemaining);
+					return timeRemainingWithSampleFormat;
+				}
+			}
+		}
+		Optional<individualVote> iv = _votes.stream().filter(s -> s.getVoterIp().equalsIgnoreCase(ip)).filter(y -> y.getVoteSite() == ordinalSite).findFirst();
+		if(!iv.isEmpty()) {
+			if(getTimeRemaining(iv.get()) > 0 && iv.get().getAlreadyRewarded()) {
+				long timeRemaining = getTimeRemaining(iv.get()); 
+				timeRemainingWithSampleFormat = CalculateTimeRemainingWithSampleDateFormat(timeRemaining);
+				return timeRemainingWithSampleFormat;
+			}
+		}
+		
+		return timeRemainingWithSampleFormat;
+	}
+	
+	public String CalculateTimeRemainingWithSampleDateFormat(long timeRemaining) {
+		long t = timeRemaining/1000;
+		int hours = Math.round((t/3600%24));
+		 int minutes = Math.round((t/60)%60);
+		 int seconds = Math.round(t%60);
+		 return String.format("%sH:%sm:%ss", hours,minutes,seconds);
+	}
+	
+	public String existIp(L2PcInstance p) {
+		 
+		 L2GameClient client = p.getClient();
+		 if(client.getConnection() != null && client.getActiveChar() != null && !client.isDetached()) {
+		 try
+		{
+			 return client.getConnection().getInetAddress().getHostAddress();
+		}
+		catch (Exception e)
+		{
+				e.printStackTrace();
+		}
+	}
+		return null;
+		 
+	 }
+	
+	public final void loadVotes() {
+	 _votes = individualVoteDB.getInstance().getVotesDB();
+	}
+	protected void loadGlobalVotes(){
+		_globalVotes = globalVoteDB.getInstance().getGlobalVotes();
+	}
+	protected void saveVotes() {
+		individualVoteDB.getInstance().SaveVotes(_votes);
+	}
+	
+	protected void AutoGlobalVoteReward() {
+		HashSet<String> ipList = new HashSet<>();
+		for(voteSite vs : voteSite.values()) {
+			new Thread(() -> {
+				checkNewUpdate(vs.ordinal());
+				if(_globalVotes[vs.ordinal()].getCurrentVotes() >= _globalVotes[vs.ordinal()].getVotesLastReward() + (vs.ordinal() == voteSite.L2SERVERS.ordinal() ? 25*votesystem().getGlobalVotesAmountToNextReward() : votesystem().getGlobalVotesAmountToNextReward())) {
+					_globalVotes[vs.ordinal()].setVotesLastReward(_globalVotes[vs.ordinal()].getVotesLastReward() + (vs.ordinal() == voteSite.L2SERVERS.ordinal() ? 25*votesystem().getGlobalVotesAmountToNextReward() : votesystem().getGlobalVotesAmountToNextReward()));
+					for(L2PcInstance player : L2World.getInstance().getPlayers()) {
+						String ip = existIp(player);
+						if(ip == null) {
+							continue;
+						}
+						if(ipList.contains(ip)) {
+							continue;
+						}
+						for(Reward reward : VoteSiteXml.getInstance().getRewards(11)) {
+							player.getInventory().addItem("VoteSystem: ", reward.getItemId(), reward.getItemCount(), player, null);
+							player.sendPacket(SystemMessage.getSystemMessage(SystemMessageId.EARNED_S2_S1_S).addItemName(reward.getItemId()).addInt(reward.getItemCount()));
+						}
+						ipList.add(ip);
+						player.sendPacket(new ItemList(player, true));
+					}
+					Broadcast.toAllOnlinePlayers(VoteUtil.Sites[vs.ordinal()]+": All players has been rewarded, please check your inventory", true);
+				}else {
+					String encourage =""; 
+					int nextReward = _globalVotes[vs.ordinal()].getVotesLastReward() + (vs.ordinal() == voteSite.L2SERVERS.ordinal() ? 25*votesystem().getGlobalVotesAmountToNextReward() : votesystem().getGlobalVotesAmountToNextReward());
+					encourage = String.format("Vote for %s current Votes: %s, next quantity of votes to reward : %s, need votes to next reward: %s", VoteUtil.Sites[vs.ordinal()], _globalVotes[vs.ordinal()].getCurrentVotes(),nextReward, nextReward-_globalVotes[vs.ordinal()].getCurrentVotes() );
+					Broadcast.toAllOnlinePlayers(encourage, true);
+				}
+			}).start();
+			
+		}
+	}
+	
+	protected void AutoSaveGlobalVotes() {
+		globalVoteDB.getInstance().saveGlobalVotes(_globalVotes);
+	}
+	
+	protected synchronized void  AutoUpdateIndividualVotes() {
+		AutoCleanInnecesaryIndividualVotes();
+		individualVoteDB.getInstance().SaveVotes(_votes);
+	}
+	
+	protected synchronized void AutoCleanInnecesaryIndividualVotes() {
+		HashSet<individualVote> removeVotes= new HashSet<>();
+		Iterator<individualVote> iv = _votes.iterator();
+		while(iv.hasNext()){
+			individualVote individualvote = iv.next();
+			if(getTimeRemaining(individualvote) < 0) {
+				removeVotes.add(individualvote);
+				iv.remove();
+				if(_foundVoters.containsKey(individualvote.getVoterIp())) {
+					if(_foundVoters.get(individualvote.getVoterIp())[individualvote.getVoteSite()] != null) {
+						_foundVoters.get(individualvote.getVoterIp())[individualvote.getVoteSite()] = null;
+					}
+				}
+			}
+		}
+		individualVoteDB.getInstance().DeleteVotes(removeVotes);
+	}
+	
+	public void checkAllResponseGlobalVotes() {
+		for(voteSite vs : voteSite.values()) {
+			new Thread(()-> {
+				checkNewUpdate(vs.ordinal());
+			});
+		}
+	}
+	
+	public void checkNewUpdate(int ordinalSite) {
+			int globalVotesResponse = getGlobalVotesResponse(ordinalSite); 
+			if(globalVotesResponse == -1) {
+				return;
+			}
+			_globalVotes[ordinalSite].setCurrentVotes(globalVotesResponse);
+			int last = globalVotesResponse - (ordinalSite == voteSite.L2SERVERS.ordinal() ? 25 * votesystem().getGlobalVotesAmountToNextReward() : votesystem().getGlobalVotesAmountToNextReward());
+			if(last <0 ) {
+				_globalVotes[ordinalSite].setVotesLastReward(0);
+				return;
+			} 
+			if((_globalVotes[ordinalSite].getVotesLastReward() + (ordinalSite == voteSite.L2SERVERS.ordinal() ? 25 * votesystem().getGlobalVotesAmountToNextReward() : votesystem().getGlobalVotesAmountToNextReward())) < globalVotesResponse) {
+				_globalVotes[ordinalSite].setVotesLastReward(globalVotesResponse);
+				return;
+			}
+	}
+	
+	public void Shutdown() {
+		AutoSaveGlobalVotes();
+		AutoCleanInnecesaryIndividualVotes();
+		AutoUpdateIndividualVotes();
+	}
+
+	protected class AutoGlobalVoteRewardTask implements Runnable {
+
+		@Override
+		public void run()
+		{
+			AutoGlobalVoteReward();
+			
+		}
+		
+	}
+	
+	protected class AutoSaveGlobalVotesTask implements Runnable {
+		
+		@Override
+		public void run()
+		{
+			AutoSaveGlobalVotes();
+			
+		}
+		
+	}
+	
+	protected class AutoUpdateIndividualVotesTask implements Runnable {
+
+		@Override
+		public void run()
+		{
+			AutoUpdateIndividualVotes();
+			
+		}
+		
+	}
+	
+	public static voteManager getInatance() {
+		return SingleHolder.INSTANCE;
+	}
+	
+	private static class SingleHolder {
+		protected static final voteManager INSTANCE = new voteManager();
+	}
+}
+

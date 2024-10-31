@@ -23,6 +23,7 @@ import { VerifyAccountComponent } from './components/verifyaccount/verifyaccount
 import { PanelControlComponent } from './components/panel-control/panel-control.component';
 import { DownloadComponent } from './components/download/download.component';
 import { CreateAccountComponent } from './components/create-account/create-account.component';
+import { AboutComponent } from './components/about/about.component';
 
 
 @NgModule({
@@ -39,6 +40,7 @@ import { CreateAccountComponent } from './components/create-account/create-accou
     PanelControlComponent,
     DownloadComponent,
     CreateAccountComponent,
+    AboutComponent,
 
     
   ],

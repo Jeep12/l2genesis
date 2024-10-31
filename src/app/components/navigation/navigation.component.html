@@ -19,28 +19,27 @@
                         data-bs-toggle="dropdown" aria-expanded="false">
                         Estadisticas
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <ul class="dropdown-menu gradient1" aria-labelledby="navbarDropdown">
                         <li><a class="dropdown-item">Top pvp</a></li>
                         <li><a class="dropdown-item">Top pk</a></li>
                         <li><a class="dropdown-item">Top clan</a></li>
                         <li><a class="dropdown-item">List heroes</a></li>
                         <li><a class="dropdown-item">Boss status</a></li>
-
                     </ul>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" [routerLink]="['/download']">Descargas</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link">Media</a>
+                    <a class="nav-link">Galeria</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link">Informacion</a>
                 </li>
             </ul>
             <div class="wrapper-panel">
-                <button *ngIf="!isLoggedIn" class="btn-gold" [routerLink]="['/register']">Registrarse</button>
-                <button *ngIf="!isLoggedIn" class="btn-gold" [routerLink]="['/login']">Ingresar</button>
+                <button *ngIf="!isLoggedIn" class="btn-gold" [routerLink]="['/register']"><i class="fa-solid fa-user-plus"></i> Registrarse</button>
+                <button *ngIf="!isLoggedIn" class="btn-gold" [routerLink]="['/login']"><i class="fa-solid fa-user"></i> Ingresar</button>
                 <span *ngIf="isLoggedIn" class="nav-item dropdown">
                     <a style="color: white;" class="nav-link dropdown-toggle" id="navbarDropdown" role="button"
                         data-bs-toggle="dropdown" aria-expanded="false">

@@ -1,25 +1,4 @@
-body {
-    padding: 0px;
-    margin: 0px;
-    background-color: black;
-}
 
-.gradient1 {
-    background-image: linear-gradient(0deg,
-            hsl(0deg 0% 0%) 0%,
-            hsl(231deg 45% 2%) 26%,
-            hsl(231deg 45% 4%) 38%,
-            hsl(231deg 45% 4%) 48%,
-            hsl(231deg 45% 5%) 55%,
-            hsl(231deg 45% 6%) 61%,
-            hsl(231deg 45% 6%) 67%,
-            hsl(231deg 45% 7%) 72%,
-            hsl(231deg 45% 7%) 77%,
-            hsl(231deg 45% 7%) 82%,
-            hsl(231deg 45% 8%) 87%,
-            hsl(231deg 45% 8%) 93%,
-            hsl(231deg 45% 9%) 100%);
-}
 
 .navbar-toggler {
     margin: auto;
@@ -71,13 +50,27 @@ body {
 
 
 .dropdown-menu {
-    background-color: rgba(0, 0, 0, 0.377);
-    border: 1px solid black;
     box-shadow: 0px 0px 50px black inset, 0px 0px 50px black;
     text-align: center;
     font-family: "l2font";
     color: white !important;
     cursor: pointer;
+    position: absolute;
+    border-radius: 0px !important;
+    font-size: 14px;
+    font-style: italic;
+    width: 60px;
+}
+.dropdown-menu::after {
+    content: "";
+    display: block;
+    position: absolute;
+    bottom: calc(0px - 30px);
+    width: 100%;
+    height: 30px;
+    border-top: 20px solid    hsl(0, 0%, 0%);
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
 }
 
 .dropdown-item {
@@ -106,12 +99,16 @@ body {
     padding-left: 15px;
     padding-right: 15px;
     text-transform: uppercase;
+    transition-duration: 0.5s;
 
 }
 
 .btn-gold:hover {
-    box-shadow: 0px 0px 30px hsl(231deg 45% 4%) inset;
-    color: hsl(231deg 45% 4%);
+    background: linear-gradient(2700deg, #746535 0%, #DABE64 100%);
+    box-shadow: 0px 0px 10px white inset, 0px 0px 15px #DABE64;
+    text-shadow: 0px 0px 20px white;
+    border:1px solid #DABE64;
+    transform: scale(1.05);
 }
 
 .btn-gold:active {

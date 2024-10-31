@@ -1,0 +1,107 @@
+.wrapper-about {
+    display: flex;
+    height: 100vh;
+    /* Altura total de la pantalla */
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Primera columna que ocupa el 100% de la altura */
+.column-1 {
+    width: 60%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.project-terra h2 {
+    text-align: center;
+    text-transform: uppercase;
+    font-family: 'Beaufort', sans-serif;
+    font-weight: 700;
+    font-family: 45px;
+}
+
+.project-terra p {
+    width: 80%;
+    margin: auto;
+    text-align: center;
+    margin-top: 10px;
+    font-family: 'DIN Next W1G', sans-serif;
+    font-weight: normal;
+}
+
+/* Segunda columna que también ocupa el 100% de la altura */
+.column-2 {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Divs dentro de la segunda columna, cada uno ocupa el 50% de altura */
+.column-2 .half-height {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+.wrapper-vote-options {
+    display: flex;
+    flex-direction: row;
+}
+.wrapper-vote-options p {
+    font-size: 25px;
+    font-family: 'Beaufort', sans-serif;
+
+
+}
+.list-tops li {
+    list-style: none;
+    display: inline-block;
+}
+.list-tops li img {
+    width: 120px;
+    aspect-ratio: 3/2;
+    object-fit: contain;
+}
+.baium-img {
+    display: block;
+    position: relative;
+    bottom: 0px;
+    right: -220px;
+}
+/* Colores diferentes para los divs dentro de .column-2 */
+.column-2 .half-height:nth-child(1) {}
+
+.column-2 .half-height:nth-child(2) {}
+
+/* Media query para dispositivos pequeños */
+@media (max-width: 768px) {
+    .wrapper-about {
+        flex-direction: column;
+        /* Cambia a disposición en columna */
+        height: auto;
+        /* Ajusta la altura para que se adapte al contenido */
+    }
+
+    .column-1,
+    .column-2 {
+        flex: none;
+        width: 100%;
+        /* Cada columna ocupa el 100% del ancho en pantallas pequeñas */
+        height: auto;
+        /* Ajusta la altura al contenido */
+    }
+
+    .column-2 .half-height {
+        height: 50vh;
+        /* Alternativa para asegurar que cada div en columna 2 ocupe el 50% del alto en pantallas pequeñas */
+    }
+}

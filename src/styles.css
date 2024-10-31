@@ -7,6 +7,8 @@
 * {
   scrollbar-width: thin; /* Hace la barra más delgada */
   scrollbar-color: #000000 black; /* Color de la barra y el fondo */
+  padding: 0px;
+  margin: 0;
 }
 
 :root {
@@ -20,18 +22,18 @@
   /* Gris oscuro */
 }
 
-* {
-  padding: 0px;
-  margin: 0;
-}
+
 
 body {
   overflow-x: hidden;
   background-color: white;
-
-
 }
 
+.l2font {
+  font-family: "l2font";
+  font-weight: normal;
+  font-style: normal;
+}
 @font-face {
   font-family: "l2font";
   src: url("assets/fonts/l2font.ttf") format("truetype");
@@ -102,9 +104,26 @@ body {
 }
 
 
-.gradient1 {
+.gradient2 {
   background: linear-gradient(180deg, #000000 0%, #060810 50%, #000000 100%);
 
+}
+
+.gradient1 {
+  background-image: linear-gradient(0deg,
+          hsl(0deg 0% 0%) 0%,
+          hsl(231deg 45% 2%) 26%,
+          hsl(231deg 45% 4%) 38%,
+          hsl(231deg 45% 4%) 48%,
+          hsl(231deg 45% 5%) 55%,
+          hsl(231deg 45% 6%) 61%,
+          hsl(231deg 45% 6%) 67%,
+          hsl(231deg 45% 7%) 72%,
+          hsl(231deg 45% 7%) 77%,
+          hsl(231deg 45% 7%) 82%,
+          hsl(231deg 45% 8%) 87%,
+          hsl(231deg 45% 8%) 93%,
+          hsl(231deg 45% 9%) 100%);
 }
 
 

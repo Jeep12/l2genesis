@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser'; // Importa el servicio Title
 import { NavigationEnd, Router } from '@angular/router';
 
@@ -9,6 +9,7 @@ import { NavigationEnd, Router } from '@angular/router';
 })
 export class AppComponent implements OnInit {
   isLoading = false;
+  showScrollBtn = false; 
 
   constructor(private router: Router, private titleService: Title) {
     this.router.events.subscribe(event => {
@@ -25,6 +26,26 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.updateTitle(); // Establece el título al cargar la página
   }
+
+
+  scrollToTop() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth' // Desplazamiento suave
+    });
+  }
+
+  // También puedes agregar un método para mostrar/ocultar el botón según el scroll
+  shouldShowScrollBtn(): boolean {
+    return document.documentElement.scrollTop > 56;
+  }
+
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    // Actualiza la visibilidad del botón al hacer scroll
+    this.showScrollBtn = document.documentElement.scrollTop > 86; // Mostrar si ha scrolleado más de 100px
+  }
+
 
   private updateTitle() {
     let pageTitle = 'L2Terra'; // Título base
