@@ -24,7 +24,9 @@ import { PanelControlComponent } from './components/panel-control/panel-control.
 import { DownloadComponent } from './components/download/download.component';
 import { CreateAccountComponent } from './components/create-account/create-account.component';
 import { AboutComponent } from './components/about/about.component';
+import { CarouselHomeComponent } from './components/carousel-home/carousel-home.component';
 
+import { SlickCarouselModule } from 'ngx-slick-carousel';
 
 @NgModule({
   declarations: [
@@ -41,6 +43,7 @@ import { AboutComponent } from './components/about/about.component';
     DownloadComponent,
     CreateAccountComponent,
     AboutComponent,
+    CarouselHomeComponent,
 
     
   ],
@@ -53,6 +56,7 @@ import { AboutComponent } from './components/about/about.component';
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
     BrowserAnimationsModule,
+    SlickCarouselModule
 
 
   ],

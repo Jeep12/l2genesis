@@ -1,26 +1,19 @@
-/* General Styles */
-
-
-
 .container {
     display: flex;
-    margin: 0; 
-    height: 2000px;
+    height: 100dvh; 
+    width: 100% !important;
+    background-color: red;
 }
-.filter {
-    width: 100%;
-    height: 100%;
-    padding: 0px;
-}
+
+
 .sidebar {
     height: 100vh; /* Full height */
     width: 230px;
     transition: width 0.3s ease, visibility 0.3s ease;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
-
+    background-color: yellow !important;
 }
 
 .sidebar.closed {
@@ -57,11 +50,11 @@
     text-align: right;
     color: white;
 }
+
 .toggle-close {
     display: none;
     margin-left: 15px;
     color: white;
-
 }
 
 .menu i {
@@ -80,9 +73,7 @@
 
 .sidebar ul {
     list-style-type: none;
-
     width: 100%;
-
     margin-top: 25px;
     padding: 0px !important;
     background-color: #060810;
@@ -96,34 +87,30 @@
     font-style: normal;
     font-weight: 590;
     line-height: 16px;
-
 }
 
 .sidebar ul li {
     margin-bottom: 10px;
     text-align: center;
-    color:  inherit;
+    color: inherit;
     width: 100%;
     text-transform: uppercase;
     margin-top: 20px;
-
 }
 
 .sidebar ul li a {
-    color:inherit;
+    color: inherit;
     text-decoration: none;
     display: flex;
     transition: justify-content 0.3s ease;
     width: 80%;
     margin: auto;
-
 }
 
 /* Cuando la sidebar está abierta */
 .sidebar:not(.closed) ul li a {
     justify-content: start; /* Alinea los íconos al inicio */
     text-align: flex-start;
-
 }
 
 /* Cuando la sidebar está cerrada */
@@ -162,14 +149,10 @@
 
 /* Estilos generales para el contenedor */
 .content {
-    padding: 20px;
-    height: 100vh;
+    flex-grow: 1; /* Permite que el contenido ocupe el espacio restante */
+    padding: 20px; /* Añadir un poco de espacio interno */
+    background-color: black;
 }
-
-
-
-
-
 
 /* Responsive Design */
 @media screen and (max-width: 360px) {
