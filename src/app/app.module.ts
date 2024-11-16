@@ -27,6 +27,9 @@ import { AboutComponent } from './components/about/about.component';
 import { CarouselHomeComponent } from './components/carousel-home/carousel-home.component';
 
 import { SlickCarouselModule } from 'ngx-slick-carousel';
+import { MyAccountsComponent } from './components/my-accounts/my-accounts.component';
+import { ModalChangePasswordComponent } from './components/modal-change-password/modal-change-password.component';
+import { SecurityAccountGameComponent } from './components/security-account-game/security-account-game.component';
 
 @NgModule({
   declarations: [
@@ -44,6 +47,9 @@ import { SlickCarouselModule } from 'ngx-slick-carousel';
     CreateAccountComponent,
     AboutComponent,
     CarouselHomeComponent,
+    MyAccountsComponent,
+    ModalChangePasswordComponent,
+    SecurityAccountGameComponent,
 
     
   ],

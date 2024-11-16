@@ -55,11 +55,9 @@
     font-family: "l2font";
     color: white !important;
     cursor: pointer;
-    position: absolute;
     border-radius: 0px !important;
     font-size: 14px;
     font-style: italic;
-    width: 60px;
 }
 .dropdown-menu::after {
     content: "";
@@ -139,6 +137,10 @@
         gap: 30px;
         padding: 10px;
     }
+    .dropdown-menu::after {
+        display: none;
+    }
+ 
 }
 
 @media (width >=1168px) {

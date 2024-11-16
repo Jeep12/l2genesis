@@ -1,9 +1,9 @@
-<div class="container">
+<div class="container-dashboard">
 
   <aside class="sidebar" [class.closed]="isSidebarClosed">
 
     <div class="wrapper-menu">
-      
+
       <div>
         <div class="menu">
           <i class="fa-solid fa-arrow-right toggle-close" (click)="toggleSidebar()"></i>
@@ -13,7 +13,8 @@
           <li><a [routerLink]="['/dashboard']"><i class="fa-solid fa-table-columns"></i><span>Dashboard</span></a></li>
           <li><a [routerLink]="['/dashboard/create-account-client']"><i class="fa-solid fa-address-card"></i><span>Crear
                 Cuenta</span></a></li>
-          <li><a><i class="fa-solid fa-lock"></i><span>SEGURIDAD</span></a></li>
+          <li><a [routerLink]="['/dashboard/my-accounts']"><i class="fa-solid fa-users"></i><span>Mis Cuentas</span></a></li>
+
           <li><a><i class="fa-solid fa-users"></i><span>Mis Personajes</span></a></li>
           <li><a><i class="fa-solid fa-wallet"></i><span>Comprar Coins</span></a></li>
           <li><a><i class="fa-solid fa-check-to-slot"></i><span>Votar</span></a></li>

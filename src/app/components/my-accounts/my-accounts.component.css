@@ -1,0 +1,179 @@
+.accounts-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+h3 {
+  text-align: center;
+  color: #ffc24c;
+  text-transform: uppercase;
+}
+
+.account-card {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #060810;
+  box-sizing: border-box;
+  font-size: 14px;
+  color: white;
+}
+
+.account-card:hover {
+  transform: scale(1.1);
+  transition-duration: 1s;
+}
+
+@media screen and (max-width: 768px) {
+  .account-card {
+    width: calc(50% - 10px);
+    font-size: 13px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .account-card {
+    width: 100%;
+    font-size: 12px;
+  }
+}
+
+.account-item {
+  margin-bottom: 8px;
+  text-decoration: underline;
+
+}
+
+.account-item span {
+  color: #ffc24c;
+  text-align: right;
+  float: right;
+  text-decoration: none;
+  font-style: italic;
+
+
+}
+
+.account-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.account-actions button {
+  border: none;
+  padding: 5px;
+  background: linear-gradient(90deg, #746535 0%, #DABE64 100%);
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 2px;
+  font-size: 13.5px;
+  color: white;
+  font-weight: 700;
+  display: block;
+  margin: auto;
+}
+
+.text-danger {
+  color: red;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.search {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.wrapper-input {
+  display: flex;
+  justify-content: center;
+  width: 80%;
+  border: 1px solid transparent;
+  /* Definir el grosor del borde */
+  border-image: linear-gradient(90deg, #a08f56 0%, #ffc24c 100%);
+  /* El gradiente para el borde */
+  border-image-slice: 1;
+  /* Controla cuánto del gradiente se aplica al borde */
+
+}
+
+.search input {
+  width: 100% !important;
+  border: none;
+  background-color: #060810;
+  color: white;
+  text-align: center;
+  color: #ffc24c;
+  padding: 7px;
+
+}
+
+.search input::placeholder {
+  text-align: center;
+  color: #be9c56;
+}
+
+.search i {
+  margin-left: -45px;
+  color: #ffc24c;
+  font-size: 20px;
+
+}
+
+.search input:focus {
+  outline: none;
+}
+
+.no-data-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100%;
+  color: #ffc24c;
+  text-align: center;
+  margin-top: 30px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.pagination div {
+  border-top: 1px solid #ffc24c;
+  padding: 10px;
+
+}
+
+.pagination button {
+  border: none;
+  padding: 5px;
+  background: linear-gradient(90deg, #746535 0%, #DABE64 100%);
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 2px;
+  font-size: 13.5px;
+  color: white;
+  font-weight: 700;
+}
+
+.pagination button.disabled-btn {
+  background: #666666;
+  /* Gris más oscuro */
+  color: #b5b5b5;
+  /* Gris claro para el texto */
+  cursor: not-allowed;
+  /* Cambia el cursor para indicar que está deshabilitado */
+}
+
+.pagination span {
+  padding-left: 5px;
+  padding-right: 5px;
+  color: white;
+}

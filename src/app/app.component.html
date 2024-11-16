@@ -6,10 +6,9 @@
 </div>
 
 
-    <router-outlet (activate)="onActivate()"></router-outlet>
+<router-outlet (activate)="onActivate()"></router-outlet>
 
 
-<!-- Botón de volver arriba -->
 <button *ngIf="shouldShowScrollBtn()" (click)="scrollToTop()" class="scrollToTopBtn">
     <i class="fa-solid fa-up-long"></i>
 </button>

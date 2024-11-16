@@ -10,6 +10,7 @@ import { PanelControlComponent } from './components/panel-control/panel-control.
 import { CreateAccountComponent } from './components/create-account/create-account.component';
 import { DownloadComponent } from './components/download/download.component';
 import { HomeComponent } from './components/home/home.component';
+import { MyAccountsComponent } from './components/my-accounts/my-accounts.component';
 
 
 const routes: Routes = [
@@ -32,6 +33,11 @@ const routes: Routes = [
       {
         path: 'create-account-client',
         component: CreateAccountComponent,
+        canActivate: [AuthGuard]
+      },
+      {
+        path: 'my-accounts',
+        component: MyAccountsComponent,
         canActivate: [AuthGuard]
       },
 

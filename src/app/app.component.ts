@@ -79,11 +79,14 @@ export class AppComponent implements OnInit {
       case '/dashboard/create-account-client':
         pageTitle += ' - Create Account Client';
         break;
+        case '/dashboard/my-accounts':
+          pageTitle += ' - My Accounts';
+          break;
       default:
         pageTitle += ' - Página Desconocida';
         break;
     }
-
+ 
     this.titleService.setTitle(pageTitle); // Establece el título actualizado
   }
 

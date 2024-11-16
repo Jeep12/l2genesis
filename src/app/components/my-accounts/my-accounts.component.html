@@ -1,0 +1,70 @@
+<h3>Mis cuentas</h3>
+
+<div class="search-filter-accounts">
+  <div class="search">
+    <div class="wrapper-input">
+      <input type="text" [(ngModel)]="searchTerm" (input)="filterAccounts()" placeholder="Buscar">
+      <div style="margin-top: 7px;">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="pagedAccounts.length > 0; else noData" class="accounts-container">
+  <div *ngFor="let account of pagedAccounts" class="account-card">
+    <div class="account-item">
+      <strong>Cuenta:</strong><span> {{ account.login }}</span>
+    </div>
+    <div class="account-item">
+      <strong>Fecha de Creación:</strong>
+      <span>
+        {{ account.created_time ? (account.created_time | date: 'dd/MM/yyyy HH:mm:ss') : 'N/A' }}
+      </span>
+    </div>
+    <div class="account-item">
+      <strong>Última Actividad:</strong>
+      <span>
+        {{ account.lastactive ? (account.lastactive | date: 'dd/MM/yyyy HH:mm:ss') : 'N/A' }}
+      </span>
+    </div>
+    <div class="account-item">
+      <strong>Última IP:</strong> <span> {{ account.lastIp || 'N/A' }}</span>
+    </div>
+    <div class="account-item">
+      <strong>Cantidad de Personajes:</strong> <span> {{ account.characters_count || 0 }}</span>
+    </div>
+    <div class="account-actions">
+      <button (click)="openModal(account)" data-bs-toggle="modal" data-bs-target="#exampleModal">Cambiar
+        Contraseña</button>
+    </div>
+  </div>
+</div>
+
+<!-- Paginación -->
+<div class="pagination" *ngIf="totalPages > 1">
+  <div>
+    <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1"
+      [ngClass]="{'disabled-btn': currentPage === 1}">
+      Anterior
+    </button>
+    <span>Página <strong> {{ currentPage }}</strong> de <strong>{{ totalPages }}</strong></span>
+    <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages"
+      [ngClass]="{'disabled-btn': currentPage === totalPages}">
+      Siguiente
+    </button>
+  </div>
+</div>
+
+
+<app-modal-change-password [account]="selectedAccount"></app-modal-change-password>
+
+<ng-template #noData>
+  <div class="no-data-container">
+    <p>No hay datos disponibles.</p>
+  </div>
+</ng-template>
+
+<div *ngIf="errorMessage">
+  <p class="text-danger">{{ errorMessage }}</p>
+</div>

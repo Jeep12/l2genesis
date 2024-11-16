@@ -26,6 +26,9 @@
 
 body {
   overflow-x: hidden;
+  background: linear-gradient(180deg, #000000 0%, #060810 50%, #000000 100%);
+
+  
 }
 
 .l2font {

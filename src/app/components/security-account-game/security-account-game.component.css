@@ -1,0 +1,18 @@
+.offcanvas {
+    background-color: red;
+    margin: auto;
+    display: block;
+    width: 60%;
+    position: relative;  /* Asegura que el offcanvas no se vea afectado por el filtro de blur */
+}
+
+.offcanvas-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5); /* Fondo oscuro */
+    backdrop-filter: blur(20px); /* Aplica el blur */
+    z-index: 1040; /* Coloca el backdrop debajo del offcanvas */
+}
