@@ -27,6 +27,9 @@ h3 {
 .account-card:hover {
   transform: scale(1.1);
   transition-duration: 1s;
+  border: 1px solid transparent;
+  border-image: linear-gradient(90deg, #a08f56 0%, #ffc24c 100%);
+  border-image-slice: 1;
 }
 
 @media screen and (max-width: 768px) {

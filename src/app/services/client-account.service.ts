@@ -24,7 +24,7 @@ export class ClientAccountService {
 
   createAccount(accountData: any): Observable<any> {
     const headers = this.getAuthHeaders();
-    return this.http.post<any>(this.apiUrl+"/registerAccountGame", accountData, { headers }).pipe(
+    return this.http.post<any>(this.apiUrl + "/registerAccountGame", accountData, { headers }).pipe(
       catchError(error => {
         console.error('Error al crear la cuenta:', error);
         return throwError(error);
@@ -40,5 +40,16 @@ export class ClientAccountService {
       })
     );
   }
-  
+
+  generate2FACode(): Observable<any> {
+    const headers = this.getAuthHeaders(); // Usar los headers con el token
+    return this.http.get<any>(`${this.apiUrl}/generate2FA`, { headers }).pipe(
+      catchError(error => {
+        console.error('Error al generar el código 2FA:', error);
+        return throwError(error);
+      })
+    );
+  }
+
+
 }
