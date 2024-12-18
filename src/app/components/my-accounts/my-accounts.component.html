@@ -1,3 +1,5 @@
+<div class="wrapper-my-accounts">
+
 <h3>Mis cuentas</h3>
 
 <div class="search-filter-accounts">
@@ -35,7 +37,7 @@
       <strong>Cantidad de Personajes:</strong> <span> {{ account.characters_count || 0 }}</span>
     </div>
     <div class="account-actions">
-      <button (click)="openModal(account)" data-bs-toggle="modal" data-bs-target="#exampleModal">Cambiar
+      <button (click)="openModal(account)" data-bs-toggle="modal" data-bs-target="#accountCard">Cambiar
         Contraseña</button>
     </div>
   </div>
@@ -67,4 +69,5 @@
 
 <div *ngIf="errorMessage">
   <p class="text-danger">{{ errorMessage }}</p>
+</div>
 </div>

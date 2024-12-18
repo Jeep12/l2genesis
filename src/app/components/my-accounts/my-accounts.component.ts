@@ -42,6 +42,14 @@ export class MyAccountsComponent implements OnInit {
             ? new Date(account.created_time) 
             : null // Si es 0, asignamos null
         }));
+  
+        // Ordenar las cuentas por la última actividad (más reciente primero)
+        this.accounts.sort((a, b) => {
+          const dateA = a.lastactive ? new Date(a.lastactive).getTime() : 0;
+          const dateB = b.lastactive ? new Date(b.lastactive).getTime() : 0;
+          return dateB - dateA; // Orden descendente
+        });
+  
         this.filteredAccounts = [...this.accounts]; // Inicializamos con todas las cuentas
         this.updatePagination(); // Configuramos la paginación
       },
@@ -51,6 +59,7 @@ export class MyAccountsComponent implements OnInit {
       }
     );
   }
+  
 
   // Método para filtrar las cuentas
   filterAccounts(): void {
@@ -78,3 +87,8 @@ export class MyAccountsComponent implements OnInit {
     }
   }
 }
+
+
+
+
+

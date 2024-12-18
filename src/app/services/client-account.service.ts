@@ -52,4 +52,19 @@ export class ClientAccountService {
   }
 
 
+  changePassword(login: string, newPassword: string, verificationCode: string): Observable<any> {
+    const headers = this.getAuthHeaders(); // Usar los headers con el token
+    const body = { login, newPassword, verificationCode }; // Crear el cuerpo de la solicitud
+  
+    // Llamada HTTP para cambiar la contraseña
+    return this.http.post<any>(`${this.apiUrl}/changePassword`, body, { headers }).pipe(
+      catchError(error => {
+        console.error('Error al cambiar la contraseña:', error);
+        return throwError(error);
+      })
+    );
+  }
+  
+
+
 }
